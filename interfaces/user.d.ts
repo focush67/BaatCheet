@@ -11,4 +11,5 @@ interface TabButtonProps {
   iconName: IoniconsName;
   isActive: boolean;
   onPress: () => void;
+  iconColor: string;
 }

@@ -8,3 +8,6 @@ declare global {
 
   type ActiveTab = 'posts' | 'saved' | 'tagged';
 }
+
+
+export type ActiveTab = 'posts' | 'saved' | 'tagged';

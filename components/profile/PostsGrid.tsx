@@ -1,19 +1,23 @@
-import React, { useState } from 'react';
-import { View, Image, Dimensions } from 'react-native';
+import React, { useState } from "react";
+import { View, Image, Dimensions } from "react-native";
 import {
   LongPressGestureHandler,
   GestureHandlerRootView,
   State,
-} from 'react-native-gesture-handler';
+} from "react-native-gesture-handler";
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
   withTiming,
-} from 'react-native-reanimated';
+} from "react-native-reanimated";
 
-const { width } = Dimensions.get('window');
+const { width } = Dimensions.get("window");
 
-const PostThumbnail = ({ imageUrl, onActivate, onDeactivate }: {
+const PostThumbnail = ({
+  imageUrl,
+  onActivate,
+  onDeactivate,
+}: {
   imageUrl: string;
   onActivate: () => void;
   onDeactivate: () => void;
@@ -34,7 +38,10 @@ const PostThumbnail = ({ imageUrl, onActivate, onDeactivate }: {
     minDurationMs={200}
   >
     <View className="w-1/3 aspect-square p-px">
-      <Image source={{ uri: imageUrl }} style={{ width: 'auto', height: '100%' }} />
+      <Image
+        source={{ uri: imageUrl }}
+        style={{ width: "auto", height: "100%" }}
+      />
     </View>
   </LongPressGestureHandler>
 );
@@ -45,7 +52,9 @@ const PostsGrid = ({ posts }: { posts: UserPost[] }) => {
 
   const animatedStyle = useAnimatedStyle(() => ({
     opacity: withTiming(opacity.value, { duration: 150 }),
-    transform: [{ scale: withTiming(opacity.value ? 1 : 0.9, { duration: 150 }) }],
+    transform: [
+      { scale: withTiming(opacity.value ? 1 : 0.9, { duration: 150 }) },
+    ],
   }));
 
   const showPreview = (url: string) => {
@@ -60,7 +69,7 @@ const PostsGrid = ({ posts }: { posts: UserPost[] }) => {
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
+      <View style={{ flexDirection: "row", flexWrap: "wrap" }}>
         {posts.map((post) => (
           <PostThumbnail
             key={post.id}
@@ -72,30 +81,29 @@ const PostsGrid = ({ posts }: { posts: UserPost[] }) => {
       </View>
 
       {previewImage && (
-       <Animated.View
-       style={[
-         {
-           position: 'absolute',
-           top: 0,
-           left: 0,
-           right: 0,
-           bottom: 0,
-           backgroundColor: 'rgba(0,0,0,0.8)',
-           justifyContent: 'center',
-           alignItems: 'center',
-           zIndex: 999,
-         },
-         animatedStyle,
-       ]}
-     >
-     
+        <Animated.View
+          style={[
+            {
+              position: "absolute",
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              backgroundColor: "rgba(0,0,0,0.8)",
+              justifyContent: "center",
+              alignItems: "center",
+              zIndex: 999,
+            },
+            animatedStyle,
+          ]}
+        >
           <Image
             source={{ uri: previewImage }}
             style={{
               width: width * 0.9,
               height: width * 0.9,
               borderRadius: 12,
-              resizeMode: 'contain',
+              resizeMode: "contain",
             }}
           />
         </Animated.View>
