@@ -14,14 +14,14 @@ export default function TabsLayout() {
         ),
         tabBarStyle: {
           backgroundColor: colorScheme === "light" ? "#fff" : "#000",
-          borderWidth: 0,
-          height: 60,
+          height: 53,
           paddingBottom: 5,
         },
         tabBarLabelStyle: {
           fontSize: 12,
           fontWeight: "bold",
         },
+        tabBarShowLabel: false,
       }}
     >
       <Tabs.Screen
@@ -32,7 +32,7 @@ export default function TabsLayout() {
           tabBarIcon: ({ color, size }) => (
             <Ionicons
               name="home-outline"
-              size={size}
+              size={size + 2}
               color={
                 colorScheme === "light"
                   ? color === "#000"
@@ -52,7 +52,7 @@ export default function TabsLayout() {
           tabBarIcon: ({ color, size }) => (
             <Ionicons
               name="search-outline"
-              size={size}
+              size={size + 2}
               color={
                 colorScheme === "light"
                   ? color === "#000"
@@ -72,7 +72,7 @@ export default function TabsLayout() {
           tabBarIcon: ({ color, size }) => (
             <Ionicons
               name="add-circle-outline"
-              size={size}
+              size={size + 2}
               color={
                 colorScheme === "light"
                   ? color === "#000"
@@ -92,7 +92,7 @@ export default function TabsLayout() {
           tabBarIcon: ({ color, size }) => (
             <Ionicons
               name="videocam-outline"
-              size={size}
+              size={size + 2}
               color={
                 colorScheme === "light"
                   ? color === "#000"
@@ -112,7 +112,7 @@ export default function TabsLayout() {
           tabBarIcon: ({ color, size }) => (
             <Ionicons
               name="person-outline"
-              size={size}
+              size={size + 2}
               color={
                 colorScheme === "light"
                   ? color === "#000"

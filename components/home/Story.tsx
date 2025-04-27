@@ -1,5 +1,6 @@
 import { View, Text, TouchableOpacity, Image } from "react-native";
 import React, { memo } from "react";
+import { useTheme } from "@/context/ThemeContext";
 
 const Story = memo(
   ({
@@ -9,6 +10,7 @@ const Story = memo(
     story: UserStory;
     handleStoryPress: (_: number) => void;
   }) => {
+    const { colorScheme } = useTheme();
     return (
       <TouchableOpacity
         key={story.id}
@@ -24,13 +26,13 @@ const Story = memo(
         >
           <Image
             source={{ uri: story.image }}
-            className="w-20 h-20 rounded-full border-2 border-white"
+            className="w-20 h-20 rounded-full border-2"
           />
         </View>
         <Text
-          className={`text-xs mt-1 ${
+          className={`text-sm mt-1 ${
             story.id === 1 ? "font-bold" : "font-normal"
-          }`}
+          } ${colorScheme === "light" ? "text-gray-800" : "text-gray-50"}`}
           numberOfLines={1}
           ellipsizeMode="tail"
           style={{ maxWidth: 64 }}

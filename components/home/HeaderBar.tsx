@@ -31,7 +31,7 @@ const HeaderBar = ({ unreadMessages = 4 }: HeaderBarProps) => {
         <TouchableOpacity>
           <Ionicons
             name="heart-outline"
-            size={24}
+            size={28}
             color={colorScheme === "light" ? "#262626" : "#ffffff"}
           />
         </TouchableOpacity>
@@ -39,12 +39,12 @@ const HeaderBar = ({ unreadMessages = 4 }: HeaderBarProps) => {
         <TouchableOpacity className="relative">
           <FontAwesome
             name="paper-plane-o"
-            size={22}
+            size={28}
             color={colorScheme === "light" ? "#262626" : "#ffffff"}
           />
           {unreadMessages > 0 && (
-            <View className="absolute -top-2 -right-2 bg-red-500 rounded-full px-1.5 min-w-[16px] h-[16px] items-center justify-center">
-              <Text className="text-white text-[10px] font-semibold">
+            <View className="absolute -top-2 -right-2 bg-red-500 rounded-full px-1.5 min-w-[20px] h-[20px] items-center justify-center">
+              <Text className="text-white text-[13px] font-semibold">
                 {unreadMessages}
               </Text>
             </View>

@@ -15,7 +15,7 @@ const Statistics = ({
     <View className="flex-1 flex-row justify-evenly ml-2">
       <View className="items-center">
         <Text
-          className={`font-bold ${
+          className={`font-bold text-lg ${
             colorScheme === "light" ? "text-gray-800" : "text-gray-50"
           }`}
         >
@@ -24,14 +24,14 @@ const Statistics = ({
         <Text
           className={`${
             colorScheme === "light" ? "text-gray-500" : "text-gray-200"
-          } text-xs mt-0.5`}
+          } text-md mt-0.5`}
         >
           Posts
         </Text>
       </View>
       <View className="items-center">
         <Text
-          className={`font-bold ${
+          className={`font-bold text-lg ${
             colorScheme === "light" ? "text-gray-800" : "text-gray-50"
           }`}
         >
@@ -40,14 +40,14 @@ const Statistics = ({
         <Text
           className={`${
             colorScheme === "light" ? "text-gray-500" : "text-gray-200"
-          } text-xs mt-0.5`}
+          } text-md mt-0.5`}
         >
           Followers
         </Text>
       </View>
       <View className="items-center">
         <Text
-          className={`font-bold ${
+          className={`font-bold text-lg ${
             colorScheme === "light" ? "text-gray-800" : "text-gray-50"
           }`}
         >
@@ -56,7 +56,7 @@ const Statistics = ({
         <Text
           className={`${
             colorScheme === "light" ? "text-gray-500" : "text-gray-200"
-          } text-xs mt-0.5`}
+          } text-md mt-0.5`}
         >
           Following
         </Text>

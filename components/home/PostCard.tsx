@@ -2,6 +2,7 @@ import { View, Text, Image, TouchableOpacity } from "react-native";
 import React, { useState } from "react";
 import { Ionicons, Feather, FontAwesome } from "@expo/vector-icons";
 import { useTheme } from "@/context/ThemeContext";
+
 interface PostCardProps {
   post: {
     id: number;
@@ -22,6 +23,7 @@ const PostCard = ({ post }: PostCardProps) => {
   const [isLiked, setIsLiked] = useState(post.isLiked);
   const [isBookmarked, setIsBookmarked] = useState(post.isBookmarked);
   const [likeCount, setLikeCount] = useState(post.likes);
+  const [commentCount] = useState(post.comments);
 
   const handleLike = () => {
     setIsLiked(!isLiked);
@@ -42,6 +44,7 @@ const PostCard = ({ post }: PostCardProps) => {
           : "bg-black border-gray-800"
       }`}
     >
+      {/* Post Header */}
       <View className="flex-row items-center justify-between px-4 py-3">
         <View className="flex-row items-center">
           <Image
@@ -49,7 +52,7 @@ const PostCard = ({ post }: PostCardProps) => {
             className="w-12 h-12 rounded-full mr-3"
           />
           <Text
-            className={`font-semibold text-sm ${
+            className={`font-semibold text-md ${
               colorScheme === "light" ? "text-black" : "text-white"
             }`}
           >
@@ -57,18 +60,34 @@ const PostCard = ({ post }: PostCardProps) => {
           </Text>
         </View>
         <TouchableOpacity>
-          <Ionicons name="ellipsis-horizontal" size={20} color="#262626" />
+          <Ionicons
+            name="ellipsis-horizontal"
+            size={20}
+            color={`${colorScheme === "light" ? "#000" : "#fff"}`}
+          />
         </TouchableOpacity>
       </View>
 
-      <Image
-        source={{ uri: post.image }}
-        className={`w-full aspect-square ${
-          colorScheme === "light" ? "bg-gray-100" : "bg-gray-900"
-        }`}
-        resizeMode="cover"
-      />
+      {/* Post Image */}
+      <View className="relative">
+        <Image
+          source={{ uri: post.image }}
+          className={`w-full aspect-square ${
+            colorScheme === "light" ? "bg-gray-100" : "bg-gray-900"
+          }`}
+          resizeMode="cover"
+        />
 
+        {/* Tag icon at bottom-left */}
+        <View
+          className="absolute bottom-2 left-2 p-2 bg-gray-800 rounded-full"
+          style={{ zIndex: 10 }}
+        >
+          <Ionicons name="person-outline" size={14} color="white" />
+        </View>
+      </View>
+
+      {/* Post Actions */}
       <View className="flex-row justify-between items-center px-4 py-3">
         <View className="flex-row items-center space-x-4">
           <TouchableOpacity
@@ -79,7 +98,7 @@ const PostCard = ({ post }: PostCardProps) => {
           >
             <Ionicons
               name={isLiked ? "heart" : "heart-outline"}
-              size={24}
+              size={26}
               color={
                 isLiked
                   ? "#ed4956"
@@ -89,6 +108,13 @@ const PostCard = ({ post }: PostCardProps) => {
               }
             />
           </TouchableOpacity>
+          <Text
+            className={`text-md ml-1 mr-2 ${
+              colorScheme === "light" ? "text-gray-700" : "text-gray-300"
+            }`}
+          >
+            {formatNumber(likeCount)}
+          </Text>
 
           <TouchableOpacity
             className={`w-8 h-8 rounded-full justify-center items-center ${
@@ -97,11 +123,18 @@ const PostCard = ({ post }: PostCardProps) => {
           >
             <FontAwesome
               name="comment-o"
-              size={22}
+              size={24}
               color={colorScheme === "light" ? "#262626" : "#ffffff"}
               style={{ transform: [{ scaleX: -1 }] }}
             />
           </TouchableOpacity>
+          <Text
+            className={`text-md ml-1 mr-2 ${
+              colorScheme === "light" ? "text-gray-700" : "text-gray-300"
+            }`}
+          >
+            {formatNumber(commentCount)}
+          </Text>
 
           <TouchableOpacity
             className={`w-8 h-8 rounded-full justify-center items-center ${
@@ -110,7 +143,7 @@ const PostCard = ({ post }: PostCardProps) => {
           >
             <Feather
               name="send"
-              size={22}
+              size={24}
               color={colorScheme === "light" ? "#262626" : "#ffffff"}
             />
           </TouchableOpacity>
@@ -124,28 +157,16 @@ const PostCard = ({ post }: PostCardProps) => {
         >
           <Ionicons
             name={isBookmarked ? "bookmark" : "bookmark-outline"}
-            size={22}
+            size={26}
             color={colorScheme === "light" ? "#262626" : "#ffffff"}
           />
         </TouchableOpacity>
       </View>
 
-      {/* Likes */}
-      <View className="px-4">
-        <Text
-          className={`font-semibold text-sm ${
-            colorScheme === "light" ? "text-black" : "text-white"
-          }`}
-        >
-          {formatNumber(likeCount)} likes
-        </Text>
-      </View>
-
-      {/* Caption */}
       {post.caption && (
         <View className="px-4 pt-1">
           <Text
-            className={`text-sm ${
+            className={`text-md ${
               colorScheme === "light" ? "text-black" : "text-white"
             }`}
           >
@@ -155,7 +176,6 @@ const PostCard = ({ post }: PostCardProps) => {
         </View>
       )}
 
-      {/* View Comments */}
       {post.comments > 0 && (
         <TouchableOpacity className="px-4 pt-1">
           <Text
@@ -168,7 +188,6 @@ const PostCard = ({ post }: PostCardProps) => {
         </TouchableOpacity>
       )}
 
-      {/* Time */}
       <View className="px-4 pt-1 pb-3">
         <Text
           className={`text-xs uppercase ${

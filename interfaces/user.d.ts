@@ -12,4 +12,5 @@ interface TabButtonProps {
   isActive: boolean;
   onPress: () => void;
   iconColor: string;
+  colorScheme:"light"|"dark"
 }

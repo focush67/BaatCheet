@@ -9,4 +9,18 @@ interface UserStory {
     image: string;
     hasUnseenStory: boolean;
   }
-  
+
+interface PostCardProps {
+  post: {
+    id: number;
+    username: string;
+    avatar: string;
+    image: string;
+    caption?: string;
+    likes: number;
+    comments: number;
+    timeAgo: string;
+    isLiked: boolean;
+    isBookmarked: boolean;
+  };
+}

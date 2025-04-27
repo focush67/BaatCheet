@@ -18,6 +18,22 @@ const images = [
   "https://picsum.photos/205",
   "https://picsum.photos/206",
   "https://picsum.photos/207",
+  "https://picsum.photos/200",
+  "https://picsum.photos/201",
+  "https://picsum.photos/202",
+  "https://picsum.photos/203",
+  "https://picsum.photos/204",
+  "https://picsum.photos/205",
+  "https://picsum.photos/206",
+  "https://picsum.photos/207",
+  "https://picsum.photos/200",
+  "https://picsum.photos/201",
+  "https://picsum.photos/202",
+  "https://picsum.photos/203",
+  "https://picsum.photos/204",
+  "https://picsum.photos/205",
+  "https://picsum.photos/206",
+  "https://picsum.photos/207",
 ];
 
 export default function Search() {
