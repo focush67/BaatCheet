@@ -2,19 +2,6 @@ import React from "react";
 import { FlatList } from "react-native";
 import PostCard from "@/components/home/PostCard";
 
-interface Post {
-  id: number;
-  username: string;
-  avatar: string;
-  image: string;
-  caption: string;
-  likes: number;
-  comments: number;
-  timeAgo: string;
-  isLiked: boolean;
-  isBookmarked: boolean;
-}
-
 const dummyPosts: Post[] = [
   {
     id: 1,

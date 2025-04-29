@@ -1,4 +1,4 @@
-import { View, ScrollView } from "react-native";
+import { View, ScrollView, FlatList } from "react-native";
 import Stories from "@/components/home/Stories";
 import PostFeed from "@/components/home/PostFeed";
 import HeaderBar from "@/components/home/HeaderBar";
@@ -17,8 +17,19 @@ export default function Home() {
         stickyHeaderIndices={[0]}
       >
         <HeaderBar />
-        <Stories />
-        <PostFeed />
+        <FlatList
+          data={[1]}
+          renderItem={() => <Stories />}
+          keyExtractor={() => "stories"}
+          showsVerticalScrollIndicator={false}
+          horizontal
+        />
+        <FlatList
+          data={[1]}
+          renderItem={() => <PostFeed />}
+          keyExtractor={() => "postfeed"}
+          showsVerticalScrollIndicator={false}
+        />
       </ScrollView>
     </View>
   );

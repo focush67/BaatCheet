@@ -34,9 +34,18 @@
           "backgroundColor": "#ffffff"
         }
       ]
+    
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "225770f6-8ca4-4dfb-b29d-729de37a7fdb"
+      }
     }
   }
 }

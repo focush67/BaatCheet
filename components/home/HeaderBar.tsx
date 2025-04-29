@@ -2,14 +2,14 @@ import { View, Text, TouchableOpacity } from "react-native";
 import React from "react";
 import { Ionicons, FontAwesome } from "@expo/vector-icons";
 import { useTheme } from "@/context/ThemeContext";
-
+import { useRouter } from "expo-router";
 interface HeaderBarProps {
   unreadMessages?: number;
 }
 
 const HeaderBar = ({ unreadMessages = 4 }: HeaderBarProps) => {
   const { colorScheme } = useTheme();
-
+  const router = useRouter();
   return (
     <View
       className={`flex-row items-center justify-between px-4 py-3 ${
@@ -36,7 +36,10 @@ const HeaderBar = ({ unreadMessages = 4 }: HeaderBarProps) => {
           />
         </TouchableOpacity>
 
-        <TouchableOpacity className="relative">
+        <TouchableOpacity
+          className="relative"
+          onPress={() => router.push("/messages")}
+        >
           <FontAwesome
             name="paper-plane-o"
             size={28}

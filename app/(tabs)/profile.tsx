@@ -26,7 +26,7 @@ const posts = Array.from({ length: 15 }, (_, i) => ({
 
 const ProfileScreen = () => {
   const { colorScheme } = useTheme();
-  const [activeTab, setActiveTab] = useState("posts");
+  const [activeTab, setActiveTab] = useState<ActiveTab>("posts");
   const [isFollowing, setIsFollowing] = useState(false);
 
   const renderTabContent = () => {
@@ -71,7 +71,7 @@ const ProfileScreen = () => {
           <Highlights />
         </View>
 
-        <ContentTabs activeTab={activeTab} setActiveTab={setActiveTab} />
+        <ContentTabs activeTab={"posts"} setActiveTab={setActiveTab} />
         {renderTabContent()}
       </ScrollView>
     </SafeAreaView>

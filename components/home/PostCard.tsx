@@ -3,21 +3,6 @@ import React, { useState } from "react";
 import { Ionicons, Feather, FontAwesome } from "@expo/vector-icons";
 import { useTheme } from "@/context/ThemeContext";
 
-interface PostCardProps {
-  post: {
-    id: number;
-    username: string;
-    avatar: string;
-    image: string;
-    caption?: string;
-    likes: number;
-    comments: number;
-    timeAgo: string;
-    isLiked: boolean;
-    isBookmarked: boolean;
-  };
-}
-
 const PostCard = ({ post }: PostCardProps) => {
   const { colorScheme } = useTheme();
   const [isLiked, setIsLiked] = useState(post.isLiked);
