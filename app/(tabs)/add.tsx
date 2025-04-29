@@ -1,21 +1,38 @@
-import { View, Text } from "react-native";
-import React from "react";
-import { useTheme } from "@/context/ThemeContext";
-const Add = () => {
-  const { colorScheme } = useTheme();
+import React, { useEffect, useState } from "react";
+import { View, Text, Button, Alert } from "react-native";
+import { requestMediaPermission } from "@/utilities/permissions/filePermissions";
+
+const GalleryScreen = () => {
+  const [permissionGranted, setPermissionGranted] = useState<boolean>(false);
+
+  useEffect(() => {
+    const checkPermissions = async () => {
+      const hasPermission = await requestMediaPermission();
+      setPermissionGranted(hasPermission);
+
+      if (!hasPermission) {
+        Alert.alert(
+          "Permission Denied",
+          "You need to grant permission to access your gallery."
+        );
+      }
+    };
+
+    checkPermissions();
+  }, []);
+
   return (
-    <View
-      className={`flex-1 ${
-        colorScheme === "light" ? "bg-gray-50" : "bg-black"
-      }`}
-    >
-      <Text
-        className={`${colorScheme === "light" ? "text-black" : "text-white"}`}
-      >
-        Add
-      </Text>
+    <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+      {permissionGranted ? (
+        <Text>Permission granted! Ready to access gallery.</Text>
+      ) : (
+        <Text>
+          Permission not granted. Please enable it to use the gallery.
+        </Text>
+      )}
+      <Button title="Retry Permission" onPress={requestMediaPermission} />
     </View>
   );
 };
 
-export default Add;
+export default GalleryScreen;
