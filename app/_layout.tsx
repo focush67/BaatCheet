@@ -1,29 +1,52 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { useFonts } from 'expo-font';
-import { Stack } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
-import 'react-native-reanimated';
+import { ThemeProvider, useTheme } from "@/context/ThemeContext";
+import { Stack } from "expo-router";
+import { useEffect } from "react";
+import { StatusBar, View } from "react-native";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { PaperProvider } from "react-native-paper";
+import "./globals.css";
 
-import { useColorScheme } from '@/hooks/useColorScheme';
+const RootLayoutContent = () => {
+  const { colorScheme } = useTheme();
 
-export default function RootLayout() {
-  const colorScheme = useColorScheme();
-  const [loaded] = useFonts({
-    SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
-  });
-
-  if (!loaded) {
-    // Async font loading only occurs in development.
-    return null;
-  }
+  useEffect(() => {
+    if (colorScheme === "light") {
+      StatusBar.setBarStyle("dark-content");
+      StatusBar.setBackgroundColor("white");
+    } else {
+      StatusBar.setBarStyle("light-content");
+      StatusBar.setBackgroundColor("black");
+    }
+  }, [colorScheme]);
 
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="+not-found" />
-      </Stack>
-      <StatusBar style="auto" />
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <PaperProvider>
+        <View
+          style={{
+            flex: 1,
+            backgroundColor: colorScheme === "dark" ? "#000" : "#fff",
+          }}
+        >
+          <Stack
+            screenOptions={{
+              headerShown: false,
+              animation: "slide_from_right",
+              contentStyle: {
+                backgroundColor: colorScheme === "dark" ? "#000" : "#fff",
+              },
+            }}
+          />
+        </View>
+      </PaperProvider>
+    </GestureHandlerRootView>
+  );
+};
+
+export default function RootLayout() {
+  return (
+    <ThemeProvider>
+      <RootLayoutContent />
     </ThemeProvider>
   );
 }
