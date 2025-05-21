@@ -11,3 +11,9 @@ declare global {
 }
 
 export type ActiveTab = "posts" | "saved" | "tagged";
+
+declare namespace NodeJS {
+  export interface ProcessEnv {
+    EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY: string;
+  }
+}

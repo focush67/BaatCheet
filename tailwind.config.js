@@ -1,4 +1,4 @@
-const { colors } = require("../baatcheet/constants/theme");
+const { colors } = require("../baatcheet/constants/theme.js");
 /** @type {import('tailwindcss').Config} */
 
 module.exports = {

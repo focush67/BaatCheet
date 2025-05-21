@@ -3,7 +3,7 @@ import { useNavigation } from "@react-navigation/native";
 import { useLocalSearchParams } from "expo-router";
 import { useEffect } from "react";
 import { Image, Pressable, Text, View } from "react-native";
-
+import { SafeAreaView } from "react-native-safe-area-context";
 const getPostById = (id: string) => ({
   id,
   imageUrl: `https://picsum.photos/500/500?random=${id}`,
@@ -25,7 +25,7 @@ export default function PostScreen() {
   }, []);
 
   return (
-    <View className="flex-1 bg-white pt-10">
+    <SafeAreaView className="flex-1 bg-white pt-10" edges={["top"]}>
       {/* Header */}
       <View className="flex-row items-center justify-between px-4 mb-2.5">
         <Pressable onPress={() => navigation.goBack()}>
@@ -42,7 +42,7 @@ export default function PostScreen() {
       />
 
       <Text className="mt-3 px-4 text-sm">{post.caption}</Text>
-    </View>
+    </SafeAreaView>
   );
 }
 

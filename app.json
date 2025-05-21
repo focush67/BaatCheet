@@ -4,7 +4,7 @@
     "slug": "baatcheet",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/favicon.png",
+    "icon": "./assets/images/baatcheet.png",
     "scheme": "baatcheet",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
@@ -13,7 +13,7 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/adaptive-icon.png",
+        "foregroundImage": "./assets/images/baatcheet.png",
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
@@ -22,14 +22,14 @@
     "web": {
       "bundler": "metro",
       "output": "static",
-      "favicon": "./assets/images/favicon.png"
+      "favicon": "./assets/images/baatcheet.png"
     },
     "plugins": [
       "expo-router",
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/splash-icon.png",
+          "image": "./assets/images/baatcheet.png",
           "imageWidth": 200,
           "resizeMode": "contain",
           "backgroundColor": "#ffffff"
@@ -50,7 +50,8 @@
       "router": {},
       "eas": {
         "projectId": "225770f6-8ca4-4dfb-b29d-729de37a7fdb"
-      }
+      },
+      "CLERK_PUBLISHABLE_KEY": "$EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY"
     }
   }
 }

@@ -31,14 +31,14 @@ export default function AuthRoutesLayout() {
         }}
       >
         <Stack.Screen
-          name="sign-in"
+          name="login"
           options={{
             animation: "fade",
             statusBarAnimation: "fade",
           }}
         />
         <Stack.Screen
-          name="sign-up"
+          name="register"
           options={{
             animation: "slide_from_bottom",
             statusBarAnimation: "slide",

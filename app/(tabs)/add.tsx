@@ -13,7 +13,7 @@ import {
   useWindowDimensions,
   View,
 } from "react-native";
-
+import { SafeAreaView } from "react-native-safe-area-context";
 export default function UploadScreen() {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [albums, setAlbums] = useState<MediaLibrary.Album[]>([]);
@@ -28,21 +28,6 @@ export default function UploadScreen() {
   const router = useRouter();
   const { colorScheme } = useTheme();
   const thumbnailSize = width / 3 - 4;
-
-  // Theme-aware colors
-  const colors = {
-    background: colorScheme === "light" ? "bg-white" : "bg-black",
-    text: colorScheme === "light" ? "text-gray-800" : "text-gray-200",
-    textSecondary: colorScheme === "light" ? "text-gray-500" : "text-gray-400",
-    border: colorScheme === "light" ? "border-gray-200" : "border-gray-800",
-    button: colorScheme === "light" ? "bg-blue-500" : "bg-blue-600",
-    buttonDisabled: colorScheme === "light" ? "bg-gray-400" : "bg-gray-700",
-    albumSelected: colorScheme === "light" ? "bg-blue-100" : "bg-blue-900",
-    albumUnselected: colorScheme === "light" ? "bg-gray-100" : "bg-gray-800",
-    icon: colorScheme === "light" ? "#333" : "#ccc",
-    iconSelected: colorScheme === "light" ? "#0095f6" : "#3b82f6",
-    previewBackground: colorScheme === "light" ? "bg-gray-100" : "bg-gray-900",
-  };
 
   useEffect(() => {
     checkPermissions();
@@ -168,20 +153,22 @@ export default function UploadScreen() {
     return (
       <TouchableOpacity
         className={`flex-row items-center px-4 py-2 mr-2 rounded-full ${
-          isSelected ? colors.albumSelected : colors.albumUnselected
+          isSelected
+            ? "bg-blue-100 dark:bg-blue-900"
+            : "bg-gray-100 dark:bg-gray-800"
         }`}
         onPress={() => setSelectedAlbum(item)}
       >
         <Ionicons
           name="folder"
           size={24}
-          color={isSelected ? colors.iconSelected : colors.icon}
+          color={isSelected ? "#3b82f6" : "gray"}
         />
-        <Text className={`ml-2 mr-2 max-w-[100px] ${colors.text} truncate`}>
+        <Text className="ml-2 mr-2 max-w-[100px] text-gray-800 dark:text-gray-200 truncate">
           {item.title}
         </Text>
         {showCount && (
-          <Text className={`text-xs ${colors.textSecondary}`}>
+          <Text className="text-xs text-gray-500 dark:text-gray-400">
             {item.assetCount ?? "?"}
           </Text>
         )}
@@ -198,7 +185,7 @@ export default function UploadScreen() {
           height: thumbnailSize,
           margin: 2,
           borderWidth: selectedImage === item.uri ? 2 : 0,
-          borderColor: colors.iconSelected,
+          borderColor: "#3b82f6", // Using your primary color
         }}
       />
     </TouchableOpacity>
@@ -206,13 +193,11 @@ export default function UploadScreen() {
 
   if (permissionStatus === "denied") {
     return (
-      <View
-        className={`flex-1 items-center justify-center ${colors.background} p-4`}
-      >
-        <Text className={`${colors.text} text-center mb-4`}>
+      <View className="flex-1 items-center justify-center bg-white dark:bg-black p-4">
+        <Text className="text-gray-800 dark:text-gray-200 text-center mb-4">
           Media library permission is required to access your photos.
         </Text>
-        <Text className={`${colors.textSecondary} text-center`}>
+        <Text className="text-gray-500 dark:text-gray-400 text-center">
           Please enable it in your device settings.
         </Text>
       </View>
@@ -221,11 +206,9 @@ export default function UploadScreen() {
 
   if (isLoading && albums.length === 0) {
     return (
-      <View
-        className={`flex-1 items-center justify-center ${colors.background}`}
-      >
-        <ActivityIndicator size="large" color={colors.iconSelected} />
-        <Text className={`mt-4 ${colors.textSecondary}`}>
+      <View className="flex-1 items-center justify-center bg-white dark:bg-black">
+        <ActivityIndicator size="large" color="#3b82f6" />
+        <Text className="mt-4 text-gray-500 dark:text-gray-400">
           Loading your media...
         </Text>
       </View>
@@ -233,22 +216,22 @@ export default function UploadScreen() {
   }
 
   return (
-    <View className={`flex-1 ${colors.background}`}>
+    <SafeAreaView className="flex-1 bg-white dark:bg-black" edges={["top"]}>
       {/* Back Button */}
       <View className="px-4 py-3">
         <TouchableOpacity
-          onPress={() => router.back()} // 👈 Go back
+          onPress={() => router.back()}
           className="flex-row items-center"
         >
-          <Ionicons name="arrow-back" size={24} color={colors.icon} />
-          <Text className={`ml-2 text-lg ${colors.text}`}>Back</Text>
+          <Ionicons name="arrow-back" size={24} color="gray" />
+          <Text className="ml-2 text-lg text-gray-800 dark:text-gray-200">
+            Back
+          </Text>
         </TouchableOpacity>
       </View>
 
       {/* Image Preview Section */}
-      <View
-        className={`flex-1 ${colors.previewBackground} items-center justify-center`}
-      >
+      <View className="flex-1 bg-gray-100 dark:bg-gray-900 items-center justify-center">
         {selectedImage ? (
           <Image
             source={{ uri: selectedImage }}
@@ -257,8 +240,8 @@ export default function UploadScreen() {
           />
         ) : (
           <View className="items-center justify-center">
-            <Ionicons name="image" size={60} color={colors.icon} />
-            <Text className={`mt-2 ${colors.textSecondary} text-lg`}>
+            <Ionicons name="image" size={60} color="gray" />
+            <Text className="mt-2 text-gray-500 dark:text-gray-400 text-lg">
               {assets.length === 0
                 ? "No media in this album"
                 : "No image selected"}
@@ -268,9 +251,8 @@ export default function UploadScreen() {
       </View>
 
       {/* Bottom Section */}
-      <View className={`flex-1 border-t ${colors.border}`}>
-        {/* Albums Row */}
-        <View className={`h-[60px] border-b ${colors.border}`}>
+      <View className="flex-1 border-t border-gray-200 dark:border-gray-800">
+        <View className="h-[60px] border-b border-gray-200 dark:border-gray-800">
           {albums.length > 0 ? (
             <FlatList
               data={albums}
@@ -285,7 +267,9 @@ export default function UploadScreen() {
             />
           ) : (
             <View className="flex-1 items-center justify-center">
-              <Text className={colors.textSecondary}>No albums found</Text>
+              <Text className="text-gray-500 dark:text-gray-400">
+                No albums found
+              </Text>
             </View>
           )}
         </View>
@@ -294,7 +278,7 @@ export default function UploadScreen() {
         <View className="flex-1">
           {isLoading ? (
             <View className="flex-1 items-center justify-center">
-              <ActivityIndicator size="large" color={colors.iconSelected} />
+              <ActivityIndicator size="large" color="#3b82f6" />
             </View>
           ) : assets.length > 0 ? (
             <FlatList
@@ -306,7 +290,7 @@ export default function UploadScreen() {
             />
           ) : (
             <View className="flex-1 items-center justify-center">
-              <Text className={colors.textSecondary}>
+              <Text className="text-gray-500 dark:text-gray-400">
                 No media found in this album
               </Text>
             </View>
@@ -315,8 +299,10 @@ export default function UploadScreen() {
 
         {/* Next Button */}
         <TouchableOpacity
-          className={`m-2 p-4 rounded items-center justify-center ${
-            !selectedImage ? colors.buttonDisabled : colors.button
+          className={`m-4 p-4 rounded items-center justify-center ${
+            !selectedImage
+              ? "bg-gray-400 dark:bg-gray-700"
+              : "bg-blue-500 dark:bg-blue-600"
           }`}
           onPress={handleNext}
           disabled={!selectedImage}
@@ -324,6 +310,6 @@ export default function UploadScreen() {
           <Text className="text-white font-bold text-base">Next</Text>
         </TouchableOpacity>
       </View>
-    </View>
+    </SafeAreaView>
   );
 }

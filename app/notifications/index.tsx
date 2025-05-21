@@ -4,7 +4,7 @@ import { Feather, FontAwesome, Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import { Image, ScrollView, Text, TouchableOpacity, View } from "react-native";
-
+import { SafeAreaView } from "react-native-safe-area-context";
 const NotificationsPage = () => {
   const { colorScheme } = useTheme();
   const [activeTab, setActiveTab] = useState("all");
@@ -41,7 +41,7 @@ const NotificationsPage = () => {
     };
 
     return (
-      <View className="flex-1">
+      <SafeAreaView className="flex-1" edges={["top"]}>
         <Text
           className={`text-sm leading-snug ${
             n.read
@@ -55,7 +55,7 @@ const NotificationsPage = () => {
           {notificationTextMap[n.type]}
         </Text>
         <Text className="text-xs text-gray-400 mt-0.5">{n.time}</Text>
-      </View>
+      </SafeAreaView>
     );
   };
 
@@ -77,10 +77,11 @@ const NotificationsPage = () => {
   });
 
   return (
-    <View
+    <SafeAreaView
+      edges={["bottom"]}
       className={`flex-1 ${colorScheme === "dark" ? "bg-black" : "bg-white"}`}
     >
-      <View
+      <SafeAreaView
         className={`flex-row justify-between items-center px-4 py-3 border-b ${
           colorScheme === "light" ? "border-gray-200" : "border-gray-700"
         }`}
@@ -110,7 +111,7 @@ const NotificationsPage = () => {
             color={colorScheme === "light" ? "#000" : "#fff"}
           />
         </TouchableOpacity>
-      </View>
+      </SafeAreaView>
 
       <View
         className={`flex-row border-b ${
@@ -172,7 +173,7 @@ const NotificationsPage = () => {
           </TouchableOpacity>
         ))}
       </ScrollView>
-    </View>
+    </SafeAreaView>
   );
 };
 

@@ -1,4 +1,7 @@
 import { ThemeProvider, useTheme } from "@/context/ThemeContext";
+import { ClerkProvider } from "@clerk/clerk-expo";
+import { tokenCache } from "@clerk/clerk-expo/token-cache";
+import Constants from "expo-constants";
 import { Stack } from "expo-router";
 import { useEffect } from "react";
 import { StatusBar, View } from "react-native";
@@ -6,6 +9,13 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { PaperProvider } from "react-native-paper";
 import "./globals.css";
 
+const CLERK_KEY =
+  process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY ||
+  Constants?.expoConfig?.extra?.CLERK_PUBLISHABLE_KEY;
+
+if (!CLERK_KEY) {
+  throw new Error("Missing Clerk Publishable Key");
+}
 const RootLayoutContent = () => {
   const { colorScheme } = useTheme();
 
@@ -45,8 +55,10 @@ const RootLayoutContent = () => {
 
 export default function RootLayout() {
   return (
-    <ThemeProvider>
-      <RootLayoutContent />
-    </ThemeProvider>
+    <ClerkProvider tokenCache={tokenCache} publishableKey={CLERK_KEY}>
+      <ThemeProvider>
+        <RootLayoutContent />
+      </ThemeProvider>
+    </ClerkProvider>
   );
 }

@@ -2,7 +2,7 @@ import PostCard from "@/components/post/PostCard";
 import { useLocalSearchParams } from "expo-router";
 import React, { useEffect, useState } from "react";
 import { FlatList, Text } from "react-native";
-
+import { SafeAreaView } from "react-native-safe-area-context";
 export default function UserPostWall() {
   const { username } = useLocalSearchParams<{ username: string }>();
   const [posts, setPosts] = useState<PostCard[]>([]);
@@ -32,12 +32,14 @@ export default function UserPostWall() {
   }
 
   return (
-    <FlatList
-      data={posts}
-      renderItem={({ item }) => <PostCard post={item} />}
-      keyExtractor={(item) => item.id.toString()}
-      showsVerticalScrollIndicator={false}
-      contentContainerStyle={{ paddingBottom: 30 }}
-    />
+    <SafeAreaView edges={["top"]}>
+      <FlatList
+        data={posts}
+        renderItem={({ item }) => <PostCard post={item} />}
+        keyExtractor={(item) => item.id.toString()}
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ paddingBottom: 30 }}
+      />
+    </SafeAreaView>
   );
 }
