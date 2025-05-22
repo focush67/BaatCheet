@@ -3,32 +3,39 @@ import { useUser } from "@clerk/clerk-expo";
 import { Ionicons } from "@expo/vector-icons";
 import { Redirect, useRouter } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-import { Text, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, Text, TouchableOpacity, View } from "react-native";
 
 export default function LandingScreen() {
   const { user, isLoaded } = useUser();
   const { colorScheme } = useTheme();
   const router = useRouter();
 
-  // If user is signed in, redirect to home
-  if (isLoaded && user) {
-    return <Redirect href="/(tabs)/home" />;
-  }
-
   const isLightMode = colorScheme === "light";
   const bgColor = isLightMode ? "bg-white" : "bg-gray-900";
   const textColor = isLightMode ? "text-gray-900" : "text-white";
-  const cardBgColor = isLightMode ? "bg-gray-50" : "bg-gray-800";
-  const borderColor = isLightMode ? "border-gray-200" : "border-gray-700";
   const buttonSecondaryBg = isLightMode ? "bg-gray-100" : "bg-gray-800";
+
+  if (!isLoaded) {
+    return (
+      <View className={`flex-1 ${bgColor} items-center justify-center`}>
+        <ActivityIndicator
+          size="large"
+          color={isLightMode ? "#3b82f6" : "#60a5fa"}
+        />
+      </View>
+    );
+  }
+
+  // Redirect if user is already authenticated
+  if (user) {
+    return <Redirect href="/(tabs)/home" />;
+  }
 
   return (
     <View className={`flex-1 ${bgColor}`}>
       <StatusBar style={isLightMode ? "dark" : "light"} />
 
-      {/* Main Content */}
       <View className="flex-1 items-center justify-center p-6">
-        {/* App Logo/Icon */}
         <View className="items-center mb-8">
           <Ionicons
             name="chatbubbles"
@@ -68,7 +75,6 @@ export default function LandingScreen() {
           </TouchableOpacity>
         </View>
 
-        {/* Footer */}
         <View className="absolute bottom-8">
           <Text
             className={`text-sm ${

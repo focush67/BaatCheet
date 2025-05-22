@@ -16,7 +16,7 @@ export const ChatInput = () => {
 
   return (
     <View
-      className={`absolute bottom-0 left-0 right-0 px-6 py-4 border-t ${
+      className={`absolute bottom-2 left-0 right-0 px-6 py-4 border-t ${
         colorScheme === "light"
           ? "border-gray-200 bg-white"
           : "border-gray-800 bg-black"
