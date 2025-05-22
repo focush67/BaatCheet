@@ -1,10 +1,10 @@
 import { VideoScreen } from "@/components/reel/ReelCard";
+import { videos } from "@/constants/data";
 import React, { useRef, useState } from "react";
-import { FlatList, ViewToken } from "react-native";
-
-const DATA = [1, 2, 3, 4, 5];
+import { FlatList, ViewToken, useWindowDimensions } from "react-native";
 
 const Reels = () => {
+  const { height: SCREEN_HEIGHT, width: SCREEN_WIDTH } = useWindowDimensions();
   const [currentVisibleIndex, setCurrentVisibleIndex] = useState<number | null>(
     null
   );
@@ -33,22 +33,26 @@ const Reels = () => {
 
   return (
     <FlatList
+      className="bg-black "
       windowSize={3}
       ref={flatListRef}
-      data={DATA}
+      data={videos}
       keyExtractor={(item, index) => index.toString()}
       renderItem={({ item, index }) => (
         <VideoScreen
           shouldPlay={index === currentVisibleIndex}
-          videoSource={
-            "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
-          }
+          videoSource={item}
         />
       )}
       pagingEnabled
       showsVerticalScrollIndicator={false}
       onViewableItemsChanged={onViewableItemsChanged}
       viewabilityConfig={viewabilityConfig}
+      getItemLayout={(data, index) => ({
+        length: SCREEN_HEIGHT,
+        offset: SCREEN_HEIGHT * index,
+        index,
+      })}
     />
   );
 };

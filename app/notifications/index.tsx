@@ -5,6 +5,7 @@ import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import { Image, ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+
 const NotificationsPage = () => {
   const { colorScheme } = useTheme();
   const [activeTab, setActiveTab] = useState("all");
@@ -150,7 +151,7 @@ const NotificationsPage = () => {
           <TouchableOpacity
             key={n.id}
             onPress={() => markAsRead(n.id)}
-            className={`flex-row items-start gap-3 px-4 py-3 border-b ${
+            className={`flex-row items-center gap-3 px-4 py-1 border-b ${
               colorScheme === "light" ? "border-gray-100" : "border-gray-800"
             } ${!n.read ? "bg-gray-100 dark:bg-gray-900" : ""}`}
           >

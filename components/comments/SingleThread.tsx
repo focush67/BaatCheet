@@ -33,7 +33,7 @@ const SingleThread: React.FC<any> = ({
             <View className="flex-row items-center">
               <Text
                 style={{ color: textPrimaryColor }}
-                className="font-semibold text-[11px] mr-1.5"
+                className="font-semibold text-[12px] mr-1.5"
               >
                 {data.username}
               </Text>
@@ -49,53 +49,52 @@ const SingleThread: React.FC<any> = ({
             </Text>
           </View>
 
-          {/* Like button */}
-          <TouchableOpacity
-            onPress={() => toggleLike(data.id, isReply, parentId)}
-            className="ml-2"
-            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-          >
-            <Ionicons
-              name={data.liked ? "heart" : "heart-outline"}
-              size={14}
-              color={likeIconColor}
-            />
-          </TouchableOpacity>
+          {/* Like button with count below */}
+          <View className="ml-2 items-center">
+            <TouchableOpacity
+              onPress={() => toggleLike(data.id, isReply, parentId)}
+              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+            >
+              <Ionicons
+                name={data.liked ? "heart" : "heart-outline"}
+                size={16}
+                color={likeIconColor}
+              />
+            </TouchableOpacity>
+            {data.likes > 0 && (
+              <Text
+                style={{ color: textSecondaryColor }}
+                className="text-[12px] mt-0.5"
+              >
+                {data.likes}
+              </Text>
+            )}
+          </View>
         </View>
 
-        {/* Meta info */}
         <View className="flex-row items-center mt-1.5">
           <Text
             style={{ color: textSecondaryColor }}
-            className="text-[11px] mr-4"
+            className="text-[10px] mr-4"
           >
             {data.time}
           </Text>
-          {data.likes > 0 && (
-            <Text
-              style={{ color: textSecondaryColor }}
-              className="text-[11px] mr-4"
-            >
-              {data.likes} like{data.likes !== 1 ? "s" : ""}
-            </Text>
-          )}
           <TouchableOpacity
             onPress={() => startReply(data)}
             hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
           >
-            <Text style={{ color: textSecondaryColor }} className="text-[11px]">
+            <Text style={{ color: textSecondaryColor }} className="text-[10px]">
               Reply
             </Text>
           </TouchableOpacity>
         </View>
 
-        {/* View replies */}
         {!isReply && data.replies.length > 0 && (
           <TouchableOpacity
             onPress={() => toggleReplies?.(data.id)}
             className="mt-1"
           >
-            <Text style={{ color: textSecondaryColor }} className="text-[11px]">
+            <Text style={{ color: textSecondaryColor }} className="text-[10px]">
               {data.showReplies
                 ? "Hide replies"
                 : `View ${data.replies.length} ${

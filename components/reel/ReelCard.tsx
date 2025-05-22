@@ -1,5 +1,5 @@
 import { useTheme } from "@/context/ThemeContext";
-import { Feather, FontAwesome, Ionicons } from "@expo/vector-icons";
+import { Feather, Ionicons } from "@expo/vector-icons";
 import { useVideoPlayer, VideoView } from "expo-video";
 import { useEffect, useState } from "react";
 import {
@@ -9,7 +9,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { TouchableWithoutFeedback } from "react-native-gesture-handler";
+import { Pressable } from "react-native-gesture-handler";
 import CommentsModal from "../comments/PostWithComments";
 
 const { height: SCREEN_HEIGHT, width: SCREEN_WIDTH } = Dimensions.get("window");
@@ -25,7 +25,12 @@ export const VideoScreen = ({
   const [isFollowing, setIsFollowing] = useState(false);
   const [captionExpanded, setCaptionExpanded] = useState(false);
   const [showComments, setShowComments] = useState(false);
-
+  const [isLiked, setIsLiked] = useState(true);
+  const [likeCount, setLikeCount] = useState(235);
+  const handleLike = () => {
+    setIsLiked((prev) => !prev);
+    setLikeCount(isLiked ? likeCount - 1 : likeCount + 1);
+  };
   const player = useVideoPlayer(videoSource, (player) => {
     player.loop = true;
   });
@@ -74,25 +79,34 @@ export const VideoScreen = ({
   const btnText = "text-black";
 
   return (
-    <View className={`flex-1 ${bgColor} relative`}>
-      {/* Video Area with play/pause control */}
-      <TouchableWithoutFeedback onPress={togglePlayPause}>
+    <View className={`${bgColor} relative`}>
+      <Pressable onPress={togglePlayPause}>
         <VideoView
           style={styles.video}
           player={player}
           nativeControls={false}
           contentFit="cover"
         />
-      </TouchableWithoutFeedback>
+      </Pressable>
 
       <View
         className="absolute right-4 bottom-24 items-center gap-y-4"
         pointerEvents="box-none"
       >
-        <TouchableOpacity onPress={() => {}} activeOpacity={0.7}>
+        <TouchableOpacity onPress={handleLike} activeOpacity={0.7}>
           <View className="items-center">
-            <FontAwesome name={"heart-o"} size={28} color={iconColor} />
-            <Text className={`text-sm ${textColor}`}>24.5k</Text>
+            <Ionicons
+              name={isLiked ? "heart" : "heart-outline"}
+              size={26}
+              color={
+                isLiked
+                  ? "#ed4956"
+                  : colorScheme === "light"
+                  ? "#262626"
+                  : "#ffffff"
+              }
+            />
+            <Text className={`text-sm ${textColor}`}>{likeCount}</Text>
           </View>
         </TouchableOpacity>
 

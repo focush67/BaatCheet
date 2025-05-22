@@ -1,3 +1,10 @@
+export const videos = [
+  "https://videos.pexels.com/video-files/30280414/12980115_1440_2560_25fps.mp4",
+  "https://videos.pexels.com/video-files/5532771/5532771-sd_226_426_25fps.mp4",
+  "https://videos.pexels.com/video-files/30043254/12887771_1080_1920_30fps.mp4",
+  "https://videos.pexels.com/video-files/28836213/12491352_1440_2560_30fps.mp4",
+];
+
 export const messages = [
   {
     id: "1",

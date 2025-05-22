@@ -7,6 +7,7 @@ import { useAssets } from "@/hooks/media/useAssets";
 import { useMediaLibrary } from "@/hooks/media/useMediaLibrary";
 import { Ionicons } from "@expo/vector-icons";
 import {
+  ActivityIndicator,
   FlatList,
   Modal,
   Text,
@@ -30,7 +31,12 @@ export const StoryUploadModal = ({
   const { permissionStatus } = useMediaLibrary();
   const { albums, selectedAlbum, setSelectedAlbum } =
     useAlbums(permissionStatus);
-  const { assets, selectedImage, setSelectedImage } = useAssets(selectedAlbum);
+  const {
+    assets,
+    selectedImage,
+    setSelectedImage,
+    isLoading: isAssetLoading,
+  } = useAssets(selectedAlbum);
 
   const handleSubmit = () => {
     if (selectedImage) {
@@ -91,20 +97,26 @@ export const StoryUploadModal = ({
 
         {/* Thumbnails Grid */}
         <View className="flex-1 px-2 pt-2">
-          <FlatList
-            data={assets.slice(0, 20)}
-            renderItem={({ item }) => (
-              <AssetItem
-                item={item}
-                isSelected={selectedImage === item.uri}
-                onPress={() => setSelectedImage(item.uri)}
-                size={thumbnailSize}
-              />
-            )}
-            keyExtractor={(item) => item.id}
-            numColumns={4}
-            contentContainerStyle={{ paddingBottom: 100 }}
-          />
+          {isAssetLoading ? (
+            <View className="flex-1 items-center justify-center">
+              <ActivityIndicator size="large" color="#3b82f6" />
+            </View>
+          ) : (
+            <FlatList
+              data={assets}
+              renderItem={({ item }) => (
+                <AssetItem
+                  item={item}
+                  isSelected={selectedImage === item.uri}
+                  onPress={() => setSelectedImage(item.uri)}
+                  size={thumbnailSize}
+                />
+              )}
+              keyExtractor={(item) => item.id}
+              numColumns={4}
+              contentContainerStyle={{ paddingBottom: 100 }}
+            />
+          )}
         </View>
 
         {/* Next Button */}

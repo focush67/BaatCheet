@@ -15,7 +15,7 @@ const ReplyComposer: React.FC<any> = ({
       </View>
 
       <TextInput
-        className="text-sm p-2 border border-gray-300 rounded-lg bg-gray-50 text-black"
+        className="text-xs p-2 border border-gray-300 rounded-lg bg-gray-50 text-black"
         placeholder="Write a reply..."
         placeholderTextColor="#8e8e8e"
         multiline
@@ -29,7 +29,7 @@ const ReplyComposer: React.FC<any> = ({
           onPress={onCancel}
           hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
         >
-          <Text className="text-sm text-gray-500">Cancel</Text>
+          <Text className="text-xs text-gray-500">Cancel</Text>
         </TouchableOpacity>
         <TouchableOpacity
           onPress={onSubmit}
@@ -38,7 +38,7 @@ const ReplyComposer: React.FC<any> = ({
             replyText.trim() ? "bg-blue-600" : "bg-blue-300"
           }`}
         >
-          <Text className="text-sm font-semibold text-white">Reply</Text>
+          <Text className="text-xs font-semibold text-white">Reply</Text>
         </TouchableOpacity>
       </View>
     </View>
