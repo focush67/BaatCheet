@@ -13,7 +13,6 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import Toast from "react-native-toast-message";
 
 export default function SignUpScreen() {
   const router = useRouter();
@@ -30,7 +29,7 @@ export default function SignUpScreen() {
     pendingVerification,
     setPendingVerification,
     isLoading,
-    error,
+
     handleSignUp,
     handleVerify,
     isFormValid,
@@ -64,14 +63,6 @@ export default function SignUpScreen() {
                 router.push({
                   pathname: "/(auth)/setup",
                   params: {},
-                });
-              } else {
-                Toast.show({
-                  type: "error",
-                  text1: "Verification Failed",
-                  text2:
-                    error?.message ||
-                    "Please enter the correct code sent to your email",
                 });
               }
             }}
@@ -150,9 +141,6 @@ export default function SignUpScreen() {
               onChangeText={setConfirmPassword}
               secureTextEntry
             />
-            {error && error.message && (
-              <Text className="text-red-500 mt-2 text-sm">{error.message}</Text>
-            )}
 
             <TouchableOpacity
               className={`h-12 rounded-lg bg-blue-500 items-center justify-center mt-4 ${

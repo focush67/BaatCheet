@@ -1,11 +1,9 @@
 import ImagePicker from "@/components/story/ImagePicker";
 import { useTheme } from "@/context/ThemeContext";
+import { uploadFile } from "@/services/uploadService";
 import { updateUserByEmail } from "@/services/userService";
-import { supabase } from "@/utils/supabase";
 import { useUser } from "@clerk/clerk-expo";
-import * as FileSystem from "expo-file-system";
 import { useRouter } from "expo-router";
-import mime from "mime";
 import React, { useState } from "react";
 import {
   ActivityIndicator,
@@ -36,72 +34,48 @@ const ProfileSetupScreen = () => {
       );
       return;
     }
-
     setLoading(true);
-
     try {
-      let publicUrl = null;
-      const path = selectedImage;
-      const fileExt = path.split(".").pop();
-      const fileName = `${user?.id}_${Date.now()}.${fileExt}`;
-      const fileType = mime.getType(path) || "image/jpeg";
-
-      const fileContent = await FileSystem.readAsStringAsync(path, {
-        encoding: FileSystem.EncodingType.Base64,
-      });
-
-      const { data, error: uploadError } = await supabase.storage
-        .from("profile-pictures")
-        .upload(fileName, Buffer.from(fileContent, "base64"), {
-          contentType: fileType,
-          upsert: true,
-        });
-
-      if (uploadError) {
-        throw new Error("Upload failed");
-      }
-
-      const { data: publicUrlData } = supabase.storage
-        .from("profile-pictures")
-        .getPublicUrl(fileName);
-
-      publicUrl = publicUrlData?.publicUrl;
-
-      if (!publicUrl) {
-        throw new Error("Failed to retrieve image URL");
-      }
-
-      const response = await updateUserByEmail(
-        user?.emailAddresses[0].emailAddress!,
+      const { publicUrl, blob } = await uploadFile(
+        selectedImage,
+        `${user?.id}_avatar`,
         {
-          name,
-          username,
-          profilePicture: publicUrl,
-          bio,
+          bucket: "upload-assets",
+          pathPrefix: "profile_pictures",
+          upsert: true,
+          updateClerkUser: {
+            user,
+            updateMetadata: true,
+            updateProfileImage: true,
+          },
         }
       );
-
-      console.log("Response", response);
-      await user?.update({
-        unsafeMetadata: {
-          hasCompletedSetup: true,
-        },
+      await updateUserByEmail(user?.emailAddresses[0].emailAddress!, {
+        name,
+        username,
+        profilePicture: publicUrl,
+        bio,
       });
-      await new Promise((resolve) => setTimeout(resolve, 300));
+      await user?.update({ unsafeMetadata: { hasCompletedSetup: true } });
 
-      router.navigate({
-        pathname: "/(tabs)/home",
-        params: { refresh: Date.now() },
-      });
+      if (blob) {
+        await user?.setProfileImage({
+          file: blob,
+        });
+      }
+      router.replace("/(tabs)/home");
     } catch (error) {
-      console.error("Error updating user profile", error);
-      Alert.alert("Error", "Failed to update your profile. Please try again.");
+      console.error("Profile update error:", error);
+      Alert.alert(
+        "Error",
+        error instanceof Error ? error.message : "Failed to update profile"
+      );
     } finally {
       setLoading(false);
     }
   };
 
-  const isFormValid = name && username && selectedImage;
+  const isFormValid = name && username;
 
   return (
     <KeyboardAvoidingView

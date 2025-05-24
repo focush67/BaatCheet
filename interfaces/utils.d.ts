@@ -19,3 +19,14 @@ interface ModalHeaderProps {
 interface HeaderBarProps {
   unreadMessages?: number;
 }
+
+interface UploadOptions {
+  bucket: string;
+  pathPrefix?: string;
+  upsert?: boolean;
+  updateClerkUser?: {
+    user: any;
+    updateMetadata?: boolean;
+    updateProfileImage?: boolean;
+  };
+}

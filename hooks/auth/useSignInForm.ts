@@ -1,7 +1,7 @@
 import { useSignIn } from "@clerk/clerk-expo";
 import { useRouter } from "expo-router";
 import { useState } from "react";
-
+import Toast from "react-native-toast-message";
 export const useSignInForm = () => {
   const { signIn, setActive, isLoaded } = useSignIn();
   const router = useRouter();
@@ -9,15 +9,10 @@ export const useSignInForm = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<{ title: string; message: string } | null>(
-    null
-  );
 
   const handleSubmit = async () => {
     if (!isLoaded) return;
     setIsLoading(true);
-    setError(null);
-
     try {
       const result = await signIn.create({
         identifier: email,
@@ -30,17 +25,18 @@ export const useSignInForm = () => {
       }
     } catch (err: any) {
       const errorData = JSON.parse(JSON.stringify(err, null));
+      console.error("❌ Sign In Error:", errorData.errors[0]?.longMessage);
       if (errorData.status === 422) {
-        setError({
-          title: "Account Not Found",
-          message:
-            "This email isn't registered. Would you like to create an account?",
+        Toast.show({
+          type: "error",
+          text1: "Login Failed",
+          text2: errorData.errors?.[0]?.longMessage,
         });
       } else {
-        setError({
-          title: "Sign In Failed",
-          message:
-            errorData.errors?.[0]?.message || "Invalid email or password",
+        Toast.show({
+          type: "error",
+          text1: "Login Failed",
+          text2: errorData.errors?.[0]?.message || "Invalid email or password",
         });
       }
     } finally {
@@ -54,8 +50,6 @@ export const useSignInForm = () => {
     password,
     setPassword,
     isLoading,
-    error,
-    setError,
     handleSubmit,
     isFormValid: !!email && !!password,
   };

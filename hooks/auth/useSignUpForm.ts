@@ -1,11 +1,6 @@
 import { useSignUp } from "@clerk/clerk-expo";
 import { useState } from "react";
-
-type AuthError = {
-  code?: string;
-  message: string;
-  field?: string;
-};
+import Toast from "react-native-toast-message";
 
 export const useSignUpForm = () => {
   const { isLoaded, signUp, setActive } = useSignUp();
@@ -16,19 +11,23 @@ export const useSignUpForm = () => {
   const [code, setCode] = useState("");
   const [pendingVerification, setPendingVerification] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<AuthError | null>(null);
   const [success, setSuccess] = useState("");
+
+  const showToast = (title: string, message: string) => {
+    Toast.show({
+      type: "error",
+      text1: title,
+      text2: message,
+    });
+  };
 
   const validatePassword = (): boolean => {
     if (password !== confirmPassword) {
-      setError({ message: "Passwords do not match", field: "confirmPassword" });
+      showToast("Password Mismatch", "Passwords do not match.");
       return false;
     }
     if (password.length < 8) {
-      setError({
-        message: "Password must be at least 8 characters",
-        field: "password",
-      });
+      showToast("Weak Password", "Password must be at least 8 characters.");
       return false;
     }
     return true;
@@ -38,28 +37,32 @@ export const useSignUpForm = () => {
     if (!isLoaded || !validatePassword()) return;
 
     setIsLoading(true);
-    setError(null);
     setSuccess("");
 
     try {
       await signUp.create({ emailAddress: email, password });
-      console.log("✅ Account created successfully");
-
       await signUp.prepareEmailAddressVerification({ strategy: "email_code" });
-      console.log("✅ Email verification code sent");
 
       setPendingVerification(true);
       setSuccess("Account created. Verification code sent to your email.");
+      Toast.show({
+        type: "success",
+        text1: "Account Created",
+        text2: "Check your email for the verification code.",
+      });
     } catch (err: any) {
-      console.error("❌ Error in sign-up:", JSON.stringify(err, null, 2));
+      console.log("❌ Sign Up Error:", JSON.parse(JSON.stringify(err, null)));
 
       const firstError = err?.errors?.[0] || {};
-      setError({
-        message:
-          firstError?.message || "Failed to create account. Please try again.",
-        code: firstError?.code,
-        field: firstError?.meta?.param,
-      });
+      const title =
+        firstError?.code === "form_email_address_exists"
+          ? "Email Already Registered"
+          : "Sign Up Failed";
+      const message =
+        firstError?.longMessage ||
+        "Failed to create account. Please try again.";
+
+      showToast(title, message);
     } finally {
       setIsLoading(false);
     }
@@ -68,7 +71,6 @@ export const useSignUpForm = () => {
   const handleVerify = async () => {
     if (!isLoaded) return;
     setIsLoading(true);
-    setError(null);
     setSuccess("");
 
     try {
@@ -77,19 +79,25 @@ export const useSignUpForm = () => {
       if (result.status === "complete") {
         await setActive({ session: result.createdSessionId });
         setSuccess("Email verified successfully!");
+        Toast.show({
+          type: "success",
+          text1: "Email Verified",
+          text2: "Welcome aboard!",
+        });
         return true;
       }
 
       return false;
     } catch (err: any) {
-      console.error("❌ Verification failed:", JSON.stringify(err, null, 2));
+      console.log(
+        "❌ Verification Error:",
+        JSON.parse(JSON.stringify(err, null))
+      );
       const firstError = err?.errors?.[0] || {};
-      setError({
-        message:
-          firstError?.message || "Verification failed. Please try again.",
-        code: firstError?.code,
-        field: "code",
-      });
+      showToast(
+        "Verification Failed",
+        firstError?.longMessage || "Invalid code."
+      );
       return false;
     } finally {
       setIsLoading(false);
@@ -108,9 +116,8 @@ export const useSignUpForm = () => {
     pendingVerification,
     setPendingVerification,
     isLoading,
-    error,
     success,
-    setError,
+    setSuccess,
     handleSignUp,
     handleVerify,
     isFormValid: !!email && !!password && !!confirmPassword,

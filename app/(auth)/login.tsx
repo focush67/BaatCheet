@@ -1,4 +1,3 @@
-import { AuthDialog } from "@/components/auth/AuthDialog";
 import { FormInput } from "@/components/auth/FormInput";
 import { useTheme } from "@/context/ThemeContext";
 import { useSignInForm } from "@/hooks/auth/useSignInForm";
@@ -15,8 +14,6 @@ export default function SignInScreen() {
     password,
     setPassword,
     isLoading,
-    error,
-    setError,
     handleSubmit,
     isFormValid,
   } = useSignInForm();
@@ -118,19 +115,6 @@ export default function SignInScreen() {
           <Text className="text-blue-500 font-medium">Sign up</Text>
         </TouchableOpacity>
       </View>
-
-      {/* Error Dialog */}
-      <AuthDialog
-        visible={!!error}
-        onDismiss={() => setError(null)}
-        title={error?.title || ""}
-        message={error?.message || ""}
-        showSignUp={error?.title === "Account Not Found"}
-        onSignUp={() => {
-          setError(null);
-          router.push("/register");
-        }}
-      />
     </View>
   );
 }
