@@ -1,5 +1,7 @@
 import { useTheme } from "@/context/ThemeContext";
-import { Text, TextInput, View } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+import { useState } from "react";
+import { Text, TextInput, TouchableOpacity, View } from "react-native";
 
 export const FormInput = ({
   label,
@@ -18,6 +20,7 @@ export const FormInput = ({
 }) => {
   const { colorScheme } = useTheme();
   const isLight = colorScheme === "light";
+  const [showText, setShowText] = useState(false);
 
   return (
     <View className="mb-4">
@@ -28,18 +31,33 @@ export const FormInput = ({
       >
         {label}
       </Text>
-      <TextInput
-        className={`h-12 px-4 rounded-lg border ${
-          isLight
-            ? "bg-gray-50 border-gray-200 text-gray-900"
-            : "bg-gray-800 border-gray-700 text-white"
-        }`}
-        value={value}
-        onChangeText={onChangeText}
-        secureTextEntry={secureTextEntry}
-        autoCapitalize={autoCapitalize}
-        keyboardType={keyboardType}
-      />
+      <View className="relative">
+        <TextInput
+          className={`h-12 px-4 rounded-lg border ${
+            isLight
+              ? "bg-gray-50 border-gray-200 text-gray-900"
+              : "bg-gray-800 border-gray-700 text-white"
+          }`}
+          value={value}
+          onChangeText={onChangeText}
+          secureTextEntry={secureTextEntry && !showText}
+          autoCapitalize={autoCapitalize}
+          keyboardType={keyboardType}
+        />
+        {secureTextEntry && (
+          <TouchableOpacity
+            className="absolute right-3 top-3"
+            onPress={() => setShowText(!showText)}
+            hitSlop={{ top: 15, bottom: 15, left: 15, right: 15 }}
+          >
+            <Ionicons
+              name={showText ? "eye-off-outline" : "eye-outline"}
+              size={24}
+              color={isLight ? "#6b7280" : "#9ca3af"}
+            />
+          </TouchableOpacity>
+        )}
+      </View>
     </View>
   );
 };

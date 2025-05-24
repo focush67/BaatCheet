@@ -1,6 +1,12 @@
 import { useSignUp } from "@clerk/clerk-expo";
 import { useState } from "react";
 
+type AuthError = {
+  code?: string;
+  message: string;
+  field?: string;
+};
+
 export const useSignUpForm = () => {
   const { isLoaded, signUp, setActive } = useSignUp();
 
@@ -10,26 +16,29 @@ export const useSignUpForm = () => {
   const [code, setCode] = useState("");
   const [pendingVerification, setPendingVerification] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState(""); // ✅ success message state
+  const [error, setError] = useState<AuthError | null>(null);
+  const [success, setSuccess] = useState("");
 
-  const validatePassword = () => {
+  const validatePassword = (): boolean => {
     if (password !== confirmPassword) {
-      setError("Passwords do not match");
+      setError({ message: "Passwords do not match", field: "confirmPassword" });
       return false;
     }
     if (password.length < 8) {
-      setError("Password must be at least 8 characters");
+      setError({
+        message: "Password must be at least 8 characters",
+        field: "password",
+      });
       return false;
     }
-    setError("");
     return true;
   };
 
   const handleSignUp = async () => {
     if (!isLoaded || !validatePassword()) return;
+
     setIsLoading(true);
-    setError("");
+    setError(null);
     setSuccess("");
 
     try {
@@ -43,7 +52,14 @@ export const useSignUpForm = () => {
       setSuccess("Account created. Verification code sent to your email.");
     } catch (err: any) {
       console.error("❌ Error in sign-up:", JSON.stringify(err, null, 2));
-      setError("Failed to create account. Please try again.");
+
+      const firstError = err?.errors?.[0] || {};
+      setError({
+        message:
+          firstError?.message || "Failed to create account. Please try again.",
+        code: firstError?.code,
+        field: firstError?.meta?.param,
+      });
     } finally {
       setIsLoading(false);
     }
@@ -52,23 +68,28 @@ export const useSignUpForm = () => {
   const handleVerify = async () => {
     if (!isLoaded) return;
     setIsLoading(true);
-    setError("");
+    setError(null);
     setSuccess("");
 
     try {
       const result = await signUp.attemptEmailAddressVerification({ code });
+
       if (result.status === "complete") {
         await setActive({ session: result.createdSessionId });
-        console.log("✅ Email verified and session activated");
         setSuccess("Email verified successfully!");
         return true;
-      } else {
-        setError("Verification incomplete. Please try again.");
-        return false;
       }
+
+      return false;
     } catch (err: any) {
       console.error("❌ Verification failed:", JSON.stringify(err, null, 2));
-      setError("Invalid verification code");
+      const firstError = err?.errors?.[0] || {};
+      setError({
+        message:
+          firstError?.message || "Verification failed. Please try again.",
+        code: firstError?.code,
+        field: "code",
+      });
       return false;
     } finally {
       setIsLoading(false);
@@ -92,6 +113,6 @@ export const useSignUpForm = () => {
     setError,
     handleSignUp,
     handleVerify,
-    isFormValid: !!email && !!password && !!confirmPassword && !error,
+    isFormValid: !!email && !!password && !!confirmPassword,
   };
 };
