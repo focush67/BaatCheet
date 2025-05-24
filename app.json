@@ -41,6 +41,13 @@
           "supportsBackgroundPlayback": false,
           "supportsPictureInPicture": false
         }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Allow access to your photos to upload images.",
+          "cameraPermission": "Allow access to your camera to take photos."
+        }
       ]
     ],
     "experiments": {
@@ -51,7 +58,9 @@
       "eas": {
         "projectId": "225770f6-8ca4-4dfb-b29d-729de37a7fdb"
       },
-      "CLERK_PUBLISHABLE_KEY": "$EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY"
+      "CLERK_PUBLISHABLE_KEY": "$EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY",
+      "SUPABASE_URL":"$EXPO_PUBLIC_SUPABASE_URL",
+      "SUPABASE_ANON_KEY":"$EXPO_PUBLIC_SUPABASE_ANON_KEY"
     }
   }
 }

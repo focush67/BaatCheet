@@ -16,18 +16,25 @@ import {
   View,
 } from "react-native";
 
-export const StoryUploadModal = ({
-  visible,
-  onClose,
-  onStorySelected,
-}: {
+type ImageUploadModalProps = {
   visible: boolean;
   onClose: () => void;
-  onStorySelected: (imageUri: string) => void;
-}) => {
+  onImageSelected: (imageUri: string) => Promise<void>;
+  title?: string;
+  emptyPreviewText?: string;
+};
+
+export const ImageUploadModal = ({
+  visible,
+  onClose,
+  onImageSelected,
+  title = "Select Photo",
+  emptyPreviewText = "Select a photo",
+}: ImageUploadModalProps) => {
   const { width, height } = useWindowDimensions();
   const thumbnailSize = width / 4 - 6;
   const previewHeight = height * 0.4;
+
   const { permissionStatus } = useMediaLibrary();
   const { albums, selectedAlbum, setSelectedAlbum } =
     useAlbums(permissionStatus);
@@ -38,9 +45,9 @@ export const StoryUploadModal = ({
     isLoading: isAssetLoading,
   } = useAssets(selectedAlbum);
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (selectedImage) {
-      onStorySelected(selectedImage);
+      await onImageSelected(selectedImage); // Wait for upload
       onClose();
     }
   };
@@ -59,7 +66,7 @@ export const StoryUploadModal = ({
             <Ionicons name="close" size={24} color="gray" />
           </TouchableOpacity>
           <Text className="text-lg font-semibold text-gray-900 dark:text-zinc-100">
-            Add to Story
+            {title}
           </Text>
           <View style={{ width: 24 }} />
         </View>
@@ -69,7 +76,7 @@ export const StoryUploadModal = ({
           className="bg-gray-100 dark:bg-zinc-800 items-center justify-center rounded-md m-3"
           style={{ height: previewHeight }}
         >
-          <ImagePreview uri={selectedImage} emptyText="Select a photo" />
+          <ImagePreview uri={selectedImage} emptyText={emptyPreviewText} />
         </View>
 
         {/* Album Selector */}

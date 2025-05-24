@@ -26,11 +26,9 @@ export default function LandingScreen() {
     );
   }
 
-  // Redirect if user is already authenticated
   if (user) {
     return <Redirect href="/(tabs)/home" />;
   }
-
   return (
     <View className={`flex-1 ${bgColor}`}>
       <StatusBar style={isLightMode ? "dark" : "light"} />

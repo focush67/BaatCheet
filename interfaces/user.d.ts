@@ -37,3 +37,10 @@ interface ProfileStatistics {
   followers: string;
   following: string;
 }
+
+interface GUpdateUserInput {
+  name: string;
+  username: string;
+  profilePicture: string;
+  bio: string;
+}

@@ -11,6 +11,7 @@ export const useSignUpForm = () => {
   const [pendingVerification, setPendingVerification] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState(""); // ✅ success message state
 
   const validatePassword = () => {
     if (password !== confirmPassword) {
@@ -28,13 +29,20 @@ export const useSignUpForm = () => {
   const handleSignUp = async () => {
     if (!isLoaded || !validatePassword()) return;
     setIsLoading(true);
+    setError("");
+    setSuccess("");
 
     try {
       await signUp.create({ emailAddress: email, password });
+      console.log("✅ Account created successfully");
+
       await signUp.prepareEmailAddressVerification({ strategy: "email_code" });
+      console.log("✅ Email verification code sent");
+
       setPendingVerification(true);
-    } catch (err) {
-      console.error(JSON.stringify(err, null, 2));
+      setSuccess("Account created. Verification code sent to your email.");
+    } catch (err: any) {
+      console.error("❌ Error in sign-up:", JSON.stringify(err, null, 2));
       setError("Failed to create account. Please try again.");
     } finally {
       setIsLoading(false);
@@ -44,15 +52,22 @@ export const useSignUpForm = () => {
   const handleVerify = async () => {
     if (!isLoaded) return;
     setIsLoading(true);
+    setError("");
+    setSuccess("");
 
     try {
       const result = await signUp.attemptEmailAddressVerification({ code });
       if (result.status === "complete") {
         await setActive({ session: result.createdSessionId });
-        return true; // Verification successful
+        console.log("✅ Email verified and session activated");
+        setSuccess("Email verified successfully!");
+        return true;
+      } else {
+        setError("Verification incomplete. Please try again.");
+        return false;
       }
-    } catch (err) {
-      console.error(JSON.stringify(err, null, 2));
+    } catch (err: any) {
+      console.error("❌ Verification failed:", JSON.stringify(err, null, 2));
       setError("Invalid verification code");
       return false;
     } finally {
@@ -73,6 +88,7 @@ export const useSignUpForm = () => {
     setPendingVerification,
     isLoading,
     error,
+    success,
     setError,
     handleSignUp,
     handleVerify,

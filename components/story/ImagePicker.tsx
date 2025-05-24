@@ -3,13 +3,7 @@ import * as MediaLibrary from "expo-media-library";
 import React from "react";
 import { Image, Text, TouchableOpacity, View } from "react-native";
 
-interface ImagePickerProps {
-  onImageSelected: (uri: string) => void;
-  selectedImage: string | null;
-  theme: "light" | "dark";
-}
-
-const ImagePicker: React.FC<ImagePickerProps> = ({
+const ImagePicker: React.FC<HighlightImagePickerProps> = ({
   onImageSelected,
   selectedImage,
   theme,

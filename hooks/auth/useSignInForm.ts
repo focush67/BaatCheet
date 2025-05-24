@@ -26,7 +26,7 @@ export const useSignInForm = () => {
 
       if (result.status === "complete") {
         await setActive({ session: result.createdSessionId });
-        router.replace("/");
+        router.push("/(tabs)/home");
       }
     } catch (err: any) {
       const errorData = JSON.parse(JSON.stringify(err, null));

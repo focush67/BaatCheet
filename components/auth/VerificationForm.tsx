@@ -25,7 +25,6 @@ export const VerificationForm = ({
 
   return (
     <>
-      {/* Verification Header with Back Button */}
       <View className="flex-row items-start mb-10">
         <TouchableOpacity
           onPress={onBack}
@@ -59,9 +58,7 @@ export const VerificationForm = ({
           label="Verification Code"
           value={code}
           onChangeText={setCode}
-          keyboardType="number-pad"
-          autoFocus
-          placeholder="Enter 6-digit code"
+          keyboardType="numeric"
         />
       </View>
 

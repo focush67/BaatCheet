@@ -57,7 +57,14 @@ export default function SignUpScreen() {
             isLoading={isLoading}
             onVerify={async () => {
               const success = await handleVerify();
-              if (success) router.replace("/");
+              console.log("Success Log", success);
+              if (success) {
+                console.log("Navigating to /(auth)/setup");
+                router.push({
+                  pathname: "/(auth)/setup",
+                  params: {},
+                });
+              }
             }}
             onBack={() => setPendingVerification(false)}
             onResend={handleResendCode}
@@ -82,7 +89,6 @@ export default function SignUpScreen() {
             isLight ? "bg-white" : "bg-gray-900"
           } p-6 justify-center`}
         >
-          {/* Header with Back Button */}
           <View className="flex-row items-start mb-1">
             <TouchableOpacity
               onPress={() => router.back()}
