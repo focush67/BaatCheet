@@ -1,11 +1,14 @@
 import { useTheme } from "@/context/ThemeContext";
+import { useUser } from "@clerk/clerk-expo";
 import React, { memo } from "react";
 import { Image, Text, TouchableOpacity, View } from "react-native";
 
 export const Story = memo(({ story, onPress }: StoryPress) => {
   const { colorScheme } = useTheme();
+  const { user } = useUser();
   const isYourStory = story.id === 1;
   const hasUnseen = story.hasUnseenStory;
+  const profilePicture = user?.unsafeMetadata?.profilePicture as string;
   return (
     <TouchableOpacity
       className="flex-1 px-1 items-center mr-[10px]"
@@ -17,7 +20,9 @@ export const Story = memo(({ story, onPress }: StoryPress) => {
         }`}
       >
         <Image
-          source={{ uri: story.avatar || story.image }}
+          source={{
+            uri: isYourStory ? profilePicture : story.avatar || story.image,
+          }}
           className="w-20 h-20 rounded-full"
         />
         {isYourStory && (

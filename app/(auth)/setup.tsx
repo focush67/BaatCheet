@@ -57,8 +57,14 @@ const ProfileSetupScreen = () => {
         bio,
       });
       await user?.update({
-        unsafeMetadata: { hasCompletedSetup: true, profilePicture: publicUrl },
+        unsafeMetadata: {
+          hasCompletedSetup: true,
+          profilePicture: publicUrl,
+          username: username,
+          ownerName: name,
+        },
       });
+
       router.replace("/(tabs)/home");
     } catch (error) {
       const errorMessage =

@@ -1,5 +1,5 @@
 import { useTheme } from "@/context/ThemeContext";
-import { useAuth } from "@clerk/clerk-expo";
+import { useAuth, useUser } from "@clerk/clerk-expo";
 import { Feather, Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
@@ -13,6 +13,7 @@ export const ProfileHeader = ({ username }: { username: string }) => {
   const { signOut } = useAuth();
   const openMenu = () => setMenuVisible(true);
   const closeMenu = () => setMenuVisible(false);
+  const { user } = useUser();
 
   const handleSignOut = async () => {
     closeMenu();
@@ -31,7 +32,7 @@ export const ProfileHeader = ({ username }: { username: string }) => {
           colorScheme === "light" ? "text-black" : "text-white"
         }`}
       >
-        {username}
+        {(user?.unsafeMetadata?.username as string) || "Username"}
       </Text>
 
       <View className="flex-row items-center">
