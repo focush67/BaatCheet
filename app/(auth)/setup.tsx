@@ -45,31 +45,56 @@ const ProfileSetupScreen = () => {
           upsert: true,
           updateClerkUser: {
             user,
-            updateMetadata: true,
             updateProfileImage: true,
           },
         }
       );
+
       await updateUserByEmail(user?.emailAddresses[0].emailAddress!, {
         name,
         username,
         profilePicture: publicUrl,
         bio,
       });
-      await user?.update({ unsafeMetadata: { hasCompletedSetup: true } });
-
-      if (blob) {
-        await user?.setProfileImage({
-          file: blob,
-        });
-      }
+      await user?.update({
+        unsafeMetadata: { hasCompletedSetup: true, profilePicture: publicUrl },
+      });
       router.replace("/(tabs)/home");
     } catch (error) {
-      console.error("Profile update error:", error);
-      Alert.alert(
-        "Error",
-        error instanceof Error ? error.message : "Failed to update profile"
-      );
+      const errorMessage =
+        error instanceof Error ? error.message : "An unknown error occurred";
+      const [errorCode, errorText] = errorMessage
+        .split(":")
+        .map((s) => s.trim());
+
+      const errorMap: Record<string, string> = {
+        NO_INTERNET: "Please check your internet connection and try again",
+        FILE_NOT_FOUND:
+          "The selected image could not be accessed. Please choose a different image",
+        UPLOAD_FAILED:
+          "Failed to upload your profile picture. Please try again",
+        URL_GENERATION_FAILED:
+          "Could not generate image URL. Please contact support",
+        UNKNOWN_ERROR: "Something went wrong. Please try again later",
+      };
+
+      const userMessage = errorMap[errorCode] || errorMap["UNKNOWN_ERROR"];
+      const technicalDetails = __DEV__ ? `\n\n(Technical: ${errorCode})` : "";
+
+      Alert.alert("Error", `${userMessage}${technicalDetails}`, [
+        { text: "OK" },
+        ...(__DEV__
+          ? [
+              {
+                text: "View Details",
+                onPress: () => console.log("Error details:", error),
+              },
+            ]
+          : []),
+      ]);
+      if (!__DEV__) {
+        Alert.alert(`Production Error ${error}`);
+      }
     } finally {
       setLoading(false);
     }
