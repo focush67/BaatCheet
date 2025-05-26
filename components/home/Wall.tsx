@@ -2,8 +2,9 @@ import { samplePosts } from "@/constants/data";
 import React from "react";
 import { FlatList } from "react-native";
 import PostCard from "../post/PostCard";
-
 export default function Wall() {
+  // const posts = usePostStore((state) => state.posts);
+  // const postArray = React.useMemo(() => Object.values(posts), [posts]);
   return (
     <FlatList
       data={samplePosts}

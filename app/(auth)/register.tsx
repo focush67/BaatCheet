@@ -105,16 +105,9 @@ export default function SignUpScreen() {
               <Text
                 className={`text-3xl font-bold ${
                   isLight ? "text-gray-900" : "text-white"
-                } mb-1`}
+                } mb-5`}
               >
                 Create Account
-              </Text>
-              <Text
-                className={`text-lg ${
-                  isLight ? "text-gray-500" : "text-gray-400"
-                }`}
-              >
-                Join us today
               </Text>
             </View>
           </View>

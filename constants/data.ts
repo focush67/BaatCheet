@@ -548,7 +548,7 @@ export const sampleReels = [
 
 export const samplePosts = [
   {
-    id: 1,
+    id: "1",
     username: "john",
     avatar: "https://i.pravatar.cc/150?img=2",
     image: "https://picsum.photos/400/400?random=1",
@@ -558,9 +558,10 @@ export const samplePosts = [
     timeAgo: "2h ago",
     isLiked: false,
     isBookmarked: false,
+    saves: 12,
   },
   {
-    id: 2,
+    id: "2",
     username: "lisa",
     avatar: "https://i.pravatar.cc/150?img=3",
     image: "https://picsum.photos/400/400?random=2",
@@ -570,9 +571,10 @@ export const samplePosts = [
     timeAgo: "1h ago",
     isLiked: true,
     isBookmarked: true,
+    saves: 12,
   },
   {
-    id: 3,
+    id: "3",
     username: "traveler",
     avatar: "https://i.pravatar.cc/150?img=4",
     image: "https://picsum.photos/400/400?random=3",
@@ -582,9 +584,10 @@ export const samplePosts = [
     timeAgo: "4h ago",
     isLiked: false,
     isBookmarked: false,
+    saves: 12,
   },
   {
-    id: 4,
+    id: "4",
     username: "dave",
     avatar: "https://i.pravatar.cc/150?img=6",
     image: "https://picsum.photos/400/400?random=4",
@@ -594,6 +597,7 @@ export const samplePosts = [
     timeAgo: "3h ago",
     isLiked: false,
     isBookmarked: true,
+    saves: 12,
   },
 ];
 

@@ -1,9 +1,10 @@
 import axios from "axios";
-
+import Constants from "expo-constants";
 const api = axios.create({
   baseURL: __DEV__
     ? "http://192.168.155.54:4000/graphql"
-    : "https://2521-2409-40d0-2021-adf3-9574-3d5c-cc3-9f61.ngrok-free.app/graphql", // Ngrok production
+    : process.env.EXPO_PUBLIC_PRODUCTION_SERVER ||
+      Constants?.expoConfig?.extra?.PRODUCTION_SERVER,
   timeout: 10000,
   headers: {
     "Content-Type": "application/json",

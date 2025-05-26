@@ -3,19 +3,13 @@ import { Feather, FontAwesome, Ionicons } from "@expo/vector-icons";
 import React, { useState } from "react";
 import { Image, Text, TouchableOpacity, View } from "react-native";
 import CommentsModal from "../comments/PostWithComments";
+import LikeButton from "./LikeButton";
 
 const PostCard = ({ post }: PostCardProps) => {
   const { colorScheme } = useTheme();
-  const [isLiked, setIsLiked] = useState(post.isLiked);
   const [isBookmarked, setIsBookmarked] = useState(post.isBookmarked);
-  const [likeCount, setLikeCount] = useState(post.likes);
   const [showComments, setShowComments] = useState(false);
   const [commentCount] = useState(post.comments);
-
-  const handleLike = () => {
-    setIsLiked(!isLiked);
-    setLikeCount(isLiked ? likeCount - 1 : likeCount + 1);
-  };
 
   const formatNumber = (num: number): string => {
     if (num >= 1_000_000) return (num / 1_000_000).toFixed(1) + "m";
@@ -77,31 +71,8 @@ const PostCard = ({ post }: PostCardProps) => {
       {/* Post Actions */}
       <View className="flex-row justify-between items-center px-4 py-3">
         <View className="flex-row items-center space-x-4">
-          <TouchableOpacity
-            onPress={handleLike}
-            className={`w-8 h-8 rounded-full justify-center items-center ${
-              colorScheme === "light" ? "bg-white" : "bg-gray-900"
-            }`}
-          >
-            <Ionicons
-              name={isLiked ? "heart" : "heart-outline"}
-              size={26}
-              color={
-                isLiked
-                  ? "#ed4956"
-                  : colorScheme === "light"
-                  ? "#262626"
-                  : "#ffffff"
-              }
-            />
-          </TouchableOpacity>
-          <Text
-            className={`text-md ml-1 mr-2 ${
-              colorScheme === "light" ? "text-gray-700" : "text-gray-300"
-            }`}
-          >
-            {formatNumber(likeCount)}
-          </Text>
+          {/* Like Button inserted here*/}
+          <LikeButton post={post} />
 
           <TouchableOpacity
             className={`w-8 h-8 rounded-full justify-center items-center ${

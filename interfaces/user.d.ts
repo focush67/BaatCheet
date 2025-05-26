@@ -44,3 +44,9 @@ interface GUpdateUserInput {
   profilePicture: string;
   bio: string;
 }
+
+interface ZUser {
+  id: string;
+  username: string;
+  profilePicture: string;
+}
