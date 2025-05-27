@@ -2,18 +2,11 @@ import HeaderBar from "@/components/home/Header";
 import Wall from "@/components/home/Wall";
 import { Stories } from "@/components/story/Stories";
 import { useTheme } from "@/context/ThemeContext";
-import { usePostStore } from "@/stores/PostStore";
-import { useLayoutEffect } from "react";
 import { FlatList } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function Home() {
   const { colorScheme } = useTheme();
-  const { loadPosts } = usePostStore();
-
-  useLayoutEffect(() => {
-    loadPosts();
-  }, []);
 
   return (
     <SafeAreaView

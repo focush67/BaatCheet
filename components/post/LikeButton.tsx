@@ -1,34 +1,36 @@
 import { useTheme } from "@/context/ThemeContext";
+import { usePostStore } from "@/stores/PostStore";
 import { Ionicons } from "@expo/vector-icons";
-import React, { useState } from "react";
+import React from "react";
 import { Text, TouchableOpacity, View } from "react-native";
 
-const LikeButton = ({ post }: { post: PostCard }) => {
+const LikeButton = ({ postId }: { postId: string }) => {
   const { colorScheme } = useTheme();
-  const [likes, setLikes] = useState(post.likes);
-  const [liked, setLiked] = useState(post.isLiked);
-  const incrementLike = () => {
-    if (liked) {
-      setLiked(false);
-      setLikes((prev) => prev - 1);
-    } else {
-      setLiked(true);
-      setLikes((prev) => prev + 1);
-    }
-  };
+  const post = usePostStore((state) =>
+    state.posts.find((p) => p.id === postId)
+  );
+  const toggleLike = usePostStore((state) => state.toggleLike);
+  if (!post) {
+    return null;
+  }
+
   return (
     <View className="flex-row items-center mr-2">
       <TouchableOpacity
         className={`w-8 h-8 rounded-full justify-center items-center  ${
           colorScheme === "light" ? "bg-white" : "bg-gray-900"
         }`}
-        onPress={() => incrementLike()}
+        onPress={() => toggleLike(postId)}
       >
         <Ionicons
-          name={liked ? "heart" : "heart-outline"}
+          name={post.isLiked ? "heart" : "heart-outline"}
           size={22}
           color={
-            liked ? "#ed4956" : colorScheme === "light" ? "#262626" : "#ffffff"
+            post.isLiked
+              ? "#ed4956"
+              : colorScheme === "light"
+              ? "#262626"
+              : "#ffffff"
           }
         />
       </TouchableOpacity>
@@ -37,7 +39,7 @@ const LikeButton = ({ post }: { post: PostCard }) => {
           colorScheme === "light" ? "text-gray-700" : "text-gray-300"
         }`}
       >
-        {likes}
+        {post.likes}
       </Text>
     </View>
   );

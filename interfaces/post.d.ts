@@ -33,12 +33,9 @@ interface ReelCardProps {
   isFollowing?: boolean;
 }
 
-interface ZPostStore {
-  posts: Record<string, PostCard>;
-  setPost: (post: PostCard) => void;
-  loadPosts: () => void;
-  incrementLike: (postId: string) => void;
-  incrementComment: (postId: string) => void;
-  incrementSave: (postId: string) => void;
-  postArray: PostCard[];
+interface PostStore {
+  posts: PostCard[];
+  setPosts: (posts: PostCard[]) => void;
+  toggleLike: (postId: string) => void;
+  toggleBookmark: (postId: string) => void;
 }

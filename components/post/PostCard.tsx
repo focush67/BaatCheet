@@ -1,21 +1,23 @@
 import { useTheme } from "@/context/ThemeContext";
-import { Feather, FontAwesome, Ionicons } from "@expo/vector-icons";
+import { usePostStore } from "@/stores/PostStore";
+import { Ionicons } from "@expo/vector-icons";
 import React, { useState } from "react";
 import { Image, Text, TouchableOpacity, View } from "react-native";
 import CommentsModal from "../comments/PostWithComments";
+import CommentButton from "./CommentButton";
 import LikeButton from "./LikeButton";
+import SaveButton from "./SaveButton";
+import ShareButton from "./ShareButton";
 
 const PostCard = ({ post }: PostCardProps) => {
   const { colorScheme } = useTheme();
-  const [isBookmarked, setIsBookmarked] = useState(post.isBookmarked);
   const [showComments, setShowComments] = useState(false);
-  const [commentCount] = useState(post.comments);
+  const toggleBookmark = usePostStore((state) => state.toggleBookmark);
+  const storePost = usePostStore((state) =>
+    state.posts.find((p) => p.id === post.id)
+  );
 
-  const formatNumber = (num: number): string => {
-    if (num >= 1_000_000) return (num / 1_000_000).toFixed(1) + "m";
-    if (num >= 1_000) return (num / 1_000).toFixed(1) + "k";
-    return num.toString();
-  };
+  const isBookmarked = storePost?.isBookmarked ?? post.isBookmarked;
 
   return (
     <View
@@ -68,58 +70,17 @@ const PostCard = ({ post }: PostCardProps) => {
         </View>
       </View>
 
-      {/* Post Actions */}
       <View className="flex-row justify-between items-center px-4 py-3">
         <View className="flex-row items-center space-x-4">
-          {/* Like Button inserted here*/}
-          <LikeButton post={post} />
-
-          <TouchableOpacity
-            className={`w-8 h-8 rounded-full justify-center items-center ${
-              colorScheme === "light" ? "bg-white" : "bg-gray-900"
-            }`}
-            onPress={() => setShowComments(true)}
-          >
-            <FontAwesome
-              name="comment-o"
-              size={24}
-              color={colorScheme === "light" ? "#262626" : "#ffffff"}
-              style={{ transform: [{ scaleX: -1 }] }}
-            />
-          </TouchableOpacity>
-          <Text
-            className={`text-md ml-1 mr-2 ${
-              colorScheme === "light" ? "text-gray-700" : "text-gray-300"
-            }`}
-          >
-            {formatNumber(commentCount)}
-          </Text>
-
-          <TouchableOpacity
-            className={`w-8 h-8 rounded-full justify-center items-center ${
-              colorScheme === "light" ? "bg-white" : "bg-gray-900"
-            }`}
-          >
-            <Feather
-              name="send"
-              size={24}
-              color={colorScheme === "light" ? "#262626" : "#ffffff"}
-            />
-          </TouchableOpacity>
+          <LikeButton postId={post.id} />
+          <CommentButton post={post} setShowComments={setShowComments} />
+          <ShareButton post={post} />
         </View>
 
-        <TouchableOpacity
-          onPress={() => setIsBookmarked(!isBookmarked)}
-          className={`w-8 h-8 rounded-full justify-center items-center ${
-            colorScheme === "light" ? "bg-white" : "bg-gray-900"
-          }`}
-        >
-          <Ionicons
-            name={isBookmarked ? "bookmark" : "bookmark-outline"}
-            size={26}
-            color={colorScheme === "light" ? "#262626" : "#ffffff"}
-          />
-        </TouchableOpacity>
+        <SaveButton
+          isBookmarked={isBookmarked}
+          setIsBookmarked={() => toggleBookmark(post.id)}
+        />
       </View>
 
       {post.caption && (
