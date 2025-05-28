@@ -23,6 +23,7 @@ interface CommentItemProps {
 interface TComment {
   id: string;
   username: string;
+  postId?: string;
   avatar: string;
   text: string;
   time: string;
@@ -37,4 +38,16 @@ interface CommentModalProps {
   visible: boolean;
   onClose: () => void;
   comments?: TComment[];
+}
+
+interface CommentStore {
+  commentsByPost: Record<string, TComment[]>;
+  addComment: (postId: string, comment: TComment) => void;
+  addReply: (postId: string, parentCommentId: string, reply: TComment) => void;
+  toggleCommentLike: (
+    postId: string,
+    commentId: string,
+    parentId?: string
+  ) => void;
+  toggleShowReplies: (postId: string, commentId: string) => void;
 }

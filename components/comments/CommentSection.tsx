@@ -5,7 +5,7 @@ import { ScrollView, View } from "react-native";
 import CommentThread from "./CommentThread";
 import TopLevelCommentBox from "./TopLevelCommentBox";
 
-const CommentsSection = () => {
+const CommentsSection = ({ postId }: { postId: string }) => {
   const {
     comments,
     newComment,
@@ -38,6 +38,7 @@ const CommentsSection = () => {
             setReplyText={setReplyText}
             replyingTo={replyingTo}
             cancelReply={cancelReply}
+            postId={postId}
           />
         ))}
       </ScrollView>

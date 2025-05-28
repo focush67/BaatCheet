@@ -7,6 +7,7 @@ const ReplyComposer: React.FC<any> = ({
   onSubmit,
   onCancel,
   username,
+  postId,
 }) => {
   return (
     <View className="ml-11 mt-2 pr-4">

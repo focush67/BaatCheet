@@ -10,6 +10,7 @@ const SingleThread: React.FC<any> = ({
   toggleLike,
   toggleReplies,
   startReply,
+  postId,
 }) => {
   const { colorScheme } = useTheme();
   const isDark = colorScheme === "dark";
@@ -20,14 +21,11 @@ const SingleThread: React.FC<any> = ({
 
   return (
     <View className={`flex-row py-2 ${isReply ? "pl-11" : "pl-4"} pr-4`}>
-      {/* Avatar */}
       <View className="mr-3">
         <Image source={{ uri: data.avatar }} className="w-8 h-8 rounded-full" />
       </View>
 
-      {/* Content */}
       <View className="flex-1">
-        {/* Username and text */}
         <View className="flex-row">
           <View className="flex-1">
             <View className="flex-row items-center">
@@ -49,7 +47,6 @@ const SingleThread: React.FC<any> = ({
             </Text>
           </View>
 
-          {/* Like button with count below */}
           <View className="ml-2 items-center">
             <TouchableOpacity
               onPress={() => toggleLike(data.id, isReply, parentId)}

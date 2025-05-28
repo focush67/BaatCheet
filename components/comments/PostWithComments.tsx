@@ -3,9 +3,11 @@ import { useTheme } from "@/context/ThemeContext";
 import { Ionicons } from "@expo/vector-icons";
 import React from "react";
 import { Modal, Text, TouchableOpacity, View } from "react-native";
-const CommentsModal = ({ visible, onClose }: any) => {
+
+const CommentsModal = ({ visible, onClose, postId }: any) => {
   const { colorScheme } = useTheme();
   const isDark = colorScheme === "dark";
+
   return (
     <Modal animationType="slide" transparent={true} visible={visible}>
       <View className="flex-1 justify-end bg-black/50">
@@ -23,7 +25,7 @@ const CommentsModal = ({ visible, onClose }: any) => {
             </TouchableOpacity>
           </View>
 
-          <CommentsSection />
+          <CommentsSection postId={postId} />
         </View>
       </View>
     </Modal>

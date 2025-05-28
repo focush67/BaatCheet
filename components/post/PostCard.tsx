@@ -118,6 +118,7 @@ const PostCard = ({ post }: PostCardProps) => {
         </Text>
       </View>
       <CommentsModal
+        postId={post.id}
         visible={showComments}
         onClose={() => setShowComments(false)}
       />

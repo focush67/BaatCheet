@@ -13,6 +13,7 @@ const CommentThread = ({
   replyText,
   setReplyText,
   cancelReply,
+  postId,
 }: any) => {
   return (
     <View className="pb-4">
@@ -22,6 +23,7 @@ const CommentThread = ({
         toggleLike={toggleLike}
         toggleReplies={toggleReplies}
         startReply={startReply}
+        postId={postId}
       />
 
       {comment.showReplies && (
@@ -40,6 +42,7 @@ const CommentThread = ({
 
           {replyingTo?.id === comment.id && (
             <ReplyComposer
+              postId={postId}
               replyText={replyText}
               onChange={setReplyText}
               onSubmit={() => addReply(comment.id, replyText)}
