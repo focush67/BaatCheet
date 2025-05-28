@@ -1,19 +1,17 @@
 import { useTheme } from "@/context/ThemeContext";
+import { useCommentStore } from "@/stores/CommentStore";
 import { FontAwesome } from "@expo/vector-icons";
-import React, { useState } from "react";
+import React from "react";
 import { Text, TouchableOpacity } from "react-native";
-
 const CommentButton = ({
-  post,
+  postId,
   setShowComments,
 }: {
-  post: PostCard;
+  postId: string;
   setShowComments: (_: boolean) => void;
 }) => {
   const { colorScheme } = useTheme();
-
-  const [commentCount] = useState(post.comments);
-  console.log("Comments", commentCount);
+  const commentCount = useCommentStore((state) => state.commentsByPost[postId]);
   const formatNumber = (num: number): string => {
     if (num >= 1_000_000) return (num / 1_000_000).toFixed(1) + "m";
     if (num >= 1_000) return (num / 1_000).toFixed(1) + "k";
@@ -39,7 +37,7 @@ const CommentButton = ({
           colorScheme === "light" ? "text-gray-700" : "text-gray-300"
         }`}
       >
-        {formatNumber(commentCount)}
+        {formatNumber(commentCount?.length || 0)}
       </Text>
     </>
   );

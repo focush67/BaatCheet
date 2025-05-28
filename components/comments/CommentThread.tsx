@@ -15,6 +15,7 @@ const CommentThread = ({
   cancelReply,
   postId,
 }: any) => {
+  console.log(`Comment Thread Rendered for ${postId}`);
   return (
     <View className="pb-4">
       <SingleThread

@@ -1,6 +1,7 @@
 import { sampleComments } from "@/constants/data";
 import { useComments } from "@/hooks/comments/useComments";
 import { useReply } from "@/hooks/comments/useReply";
+import { useCommentStore } from "@/stores/CommentStore";
 import React from "react";
 import { ScrollView, View } from "react-native";
 import CommentThread from "./CommentThread";
@@ -8,7 +9,6 @@ import TopLevelCommentBox from "./TopLevelCommentBox";
 
 const CommentsSection = ({ postId }: { postId: string }) => {
   const {
-    comments,
     newComment,
     setNewComment,
     toggleReplies,
@@ -19,7 +19,8 @@ const CommentsSection = ({ postId }: { postId: string }) => {
 
   const { replyingTo, replyText, setReplyText, startReply, cancelReply } =
     useReply();
-
+  const commentStore = useCommentStore((state) => state.commentsByPost[postId]);
+  console.log(`Comment Section rendered for ${postId}`);
   return (
     <View className="flex-1">
       <ScrollView
@@ -27,7 +28,7 @@ const CommentsSection = ({ postId }: { postId: string }) => {
         contentContainerStyle={{ paddingBottom: 16 }}
         showsVerticalScrollIndicator={false}
       >
-        {comments.map((comment) => (
+        {commentStore.map((comment) => (
           <CommentThread
             key={comment.id}
             comment={comment}

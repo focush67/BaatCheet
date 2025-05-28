@@ -35,7 +35,7 @@ interface ReelCardProps {
 
 interface PostStore {
   posts: PostCard[];
-  setPosts: (posts: PostCard[]) => void;
+  setPosts: () => void;
   toggleLike: (postId: string) => void;
   toggleBookmark: (postId: string) => void;
   reset: () => void;

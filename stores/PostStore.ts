@@ -8,7 +8,7 @@ export const usePostStore = create<PostStore>()(
     (set, get) => ({
       posts: samplePosts,
 
-      setPosts: (posts) => set({ posts }),
+      setPosts: () => set({ posts: samplePosts }),
 
       toggleLike: (id) =>
         set((state) => ({

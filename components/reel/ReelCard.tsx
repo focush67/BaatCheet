@@ -27,10 +27,12 @@ export const VideoScreen = ({
   const [showComments, setShowComments] = useState(false);
   const [isLiked, setIsLiked] = useState(true);
   const [likeCount, setLikeCount] = useState(235);
+
   const handleLike = () => {
     setIsLiked((prev) => !prev);
     setLikeCount(isLiked ? likeCount - 1 : likeCount + 1);
   };
+
   const player = useVideoPlayer(videoSource, (player) => {
     player.loop = true;
   });

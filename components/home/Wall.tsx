@@ -1,4 +1,3 @@
-import { samplePosts } from "@/constants/data";
 import { usePostStore } from "@/stores/PostStore";
 import React, { useEffect } from "react";
 import { FlatList } from "react-native";
@@ -6,9 +5,13 @@ import PostCard from "../post/PostCard";
 
 export default function Wall() {
   const posts = usePostStore((state) => state.posts);
+
   useEffect(() => {
-    usePostStore.getState().setPosts(samplePosts);
-  }, []);
+    if (!posts || posts.length === 0) {
+      usePostStore.getState().setPosts();
+    }
+  }, [posts]);
+
   return (
     <FlatList
       data={posts}

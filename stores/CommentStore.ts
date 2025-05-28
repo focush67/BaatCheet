@@ -134,3 +134,6 @@ export const useCommentStore = create<CommentStore>()(
     }
   )
 );
+
+export const usePostComments = (postId: string) =>
+  useCommentStore((state) => state.commentsByPost[postId] || []);

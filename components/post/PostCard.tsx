@@ -16,7 +16,6 @@ const PostCard = ({ post }: PostCardProps) => {
   const storePost = usePostStore((state) =>
     state.posts.find((p) => p.id === post.id)
   );
-
   const isBookmarked = storePost?.isBookmarked ?? post.isBookmarked;
 
   return (
@@ -27,7 +26,6 @@ const PostCard = ({ post }: PostCardProps) => {
           : "bg-black border-gray-800"
       }`}
     >
-      {/* Post Header */}
       <View className="flex-row items-center justify-between px-4 py-3">
         <View className="flex-row items-center">
           <Image
@@ -51,7 +49,6 @@ const PostCard = ({ post }: PostCardProps) => {
         </TouchableOpacity>
       </View>
 
-      {/* Post Image */}
       <View className="relative">
         <Image
           source={{ uri: post.image }}
@@ -61,7 +58,6 @@ const PostCard = ({ post }: PostCardProps) => {
           resizeMode="cover"
         />
 
-        {/* Tag icon at bottom-left */}
         <View
           className="absolute bottom-2 left-2 p-2 bg-gray-800 rounded-full"
           style={{ zIndex: 10 }}
@@ -73,7 +69,7 @@ const PostCard = ({ post }: PostCardProps) => {
       <View className="flex-row justify-between items-center px-4 py-3">
         <View className="flex-row items-center space-x-4">
           <LikeButton postId={post.id} />
-          <CommentButton post={post} setShowComments={setShowComments} />
+          <CommentButton postId={post.id} setShowComments={setShowComments} />
           <ShareButton post={post} />
         </View>
 
@@ -103,7 +99,8 @@ const PostCard = ({ post }: PostCardProps) => {
               colorScheme === "light" ? "text-gray-500" : "text-gray-400"
             }`}
           >
-            View all {post.comments} comment{post.comments !== 1 ? "s" : ""}
+            View all {storePost?.comments} comment
+            {storePost?.comments !== 1 ? "s" : ""}
           </Text>
         </TouchableOpacity>
       )}

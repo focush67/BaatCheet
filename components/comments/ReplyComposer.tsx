@@ -9,6 +9,7 @@ const ReplyComposer: React.FC<any> = ({
   username,
   postId,
 }) => {
+  console.log(`Reply composer rendered for ${postId}`);
   return (
     <View className="ml-11 mt-2 pr-4">
       <View className="flex-row items-center mb-1">

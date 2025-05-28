@@ -2,6 +2,7 @@ import { useTheme } from "@/context/ThemeContext";
 import { Ionicons } from "@expo/vector-icons";
 import React from "react";
 import { TextInput, TouchableOpacity, View } from "react-native";
+
 const TopLevelCommentBox: React.FC<any> = ({ value, onChange, onSubmit }) => {
   const { colorScheme } = useTheme();
   return (
