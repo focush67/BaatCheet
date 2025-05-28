@@ -14,10 +14,8 @@ export const usePostStore = create<PostStore>()(
         set((state) => ({
           posts: state.posts.map((p) => {
             if (p.id !== id) return p;
-
             const isNowLiked = !p.isLiked;
             const likes = isNowLiked ? p.likes + 1 : p.likes - 1;
-
             return {
               ...p,
               isLiked: isNowLiked,
@@ -34,7 +32,13 @@ export const usePostStore = create<PostStore>()(
               : post
           ),
         })),
+
+      reset: () => {
+        usePostStore.persist.clearStorage();
+        usePostStore.setState({ posts: [] });
+      },
     }),
+
     {
       name: "post-storage",
       storage: {

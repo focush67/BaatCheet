@@ -1,74 +1,55 @@
 import { sampleComments } from "@/constants/data";
-import { useState } from "react";
+import { useCommentStore } from "@/stores/CommentStore";
+import { useEffect, useMemo, useState } from "react";
 
-export const useComments = (initialComments = sampleComments) => {
-  const [comments, setComments] = useState<TComment[]>(initialComments);
+export const useComments = (
+  initialComments = sampleComments,
+  postId: string
+) => {
   const [newComment, setNewComment] = useState("");
 
-  const toggleReplies = (commentId: string) => {
-    setComments((prev) =>
-      prev.map((comment) =>
-        comment.id === commentId
-          ? { ...comment, showReplies: !comment.showReplies }
-          : comment
-      )
-    );
-  };
+  const {
+    commentsByPost,
+    addComment: addCommentToStore,
+    addReply: addReplyToStore,
+    toggleCommentLike,
+    toggleShowReplies,
+    initializeComments,
+  } = useCommentStore();
 
-  const toggleLike = (
-    commentId: string,
-    isReply = false,
-    parentId?: string
-  ) => {
-    setComments((prev) =>
-      prev.map((comment) => {
-        if (isReply && parentId && comment.id === parentId) {
-          return {
-            ...comment,
-            replies: comment.replies.map((reply) =>
-              reply.id === commentId
-                ? {
-                    ...reply,
-                    liked: !reply.liked,
-                    likes: reply.liked ? reply.likes - 1 : reply.likes + 1,
-                  }
-                : reply
-            ),
-          };
-        } else if (!isReply && comment.id === commentId) {
-          return {
-            ...comment,
-            liked: !comment.liked,
-            likes: comment.liked ? comment.likes - 1 : comment.likes + 1,
-          };
-        }
-        return comment;
-      })
-    );
-  };
+  const comments = useMemo(
+    () => commentsByPost[postId] || [],
+    [commentsByPost, postId]
+  );
+
+  useEffect(() => {
+    initializeComments(postId, sampleComments);
+  }, []);
 
   const addComment = (text: string) => {
     const comment: TComment = {
       id: Date.now().toString(),
-      username: "current_user",
+      postId,
+      username: "Current User",
       avatar: "https://i.pravatar.cc/150?img=3",
       text,
-      time: "Just now",
+      time: "Just Now",
       liked: false,
       likes: 0,
       replies: [],
       isVerified: false,
     };
-
-    setComments([comment, ...comments]);
+    addCommentToStore(postId, comment);
     setNewComment("");
   };
 
   const addReply = (parentId: string, text: string) => {
-    if (!text.trim()) return;
-
+    if (!text.trim()) {
+      return;
+    }
     const reply: TComment = {
       id: `${parentId}-${Date.now()}`,
+      postId,
       username: "current_user",
       avatar: "https://i.pravatar.cc/150?img=3",
       text,
@@ -78,26 +59,16 @@ export const useComments = (initialComments = sampleComments) => {
       replies: [],
       isVerified: false,
     };
-
-    setComments((prev) =>
-      prev.map((comment) =>
-        comment.id === parentId
-          ? {
-              ...comment,
-              replies: [...comment.replies, reply],
-              showReplies: true,
-            }
-          : comment
-      )
-    );
+    addReplyToStore(postId, parentId, reply);
   };
 
   return {
     comments,
     newComment,
     setNewComment,
-    toggleReplies,
-    toggleLike,
+    toggleReplies: (id: string) => toggleShowReplies(postId, id),
+    toggleLike: (id: string, isReply = false, parentId?: string) =>
+      toggleCommentLike(postId, id, parentId),
     addComment,
     addReply,
   };

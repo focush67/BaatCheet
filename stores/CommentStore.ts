@@ -90,7 +90,33 @@ export const useCommentStore = create<CommentStore>()(
           },
         });
       },
+
+      initializeComments(postId, comments) {
+        const hasComments = !!get().commentsByPost[postId];
+        if (!hasComments) {
+          const addPostId = (commentList: TComment[]): TComment[] =>
+            commentList.map((c) => ({
+              ...c,
+              postId,
+              replies: addPostId(c.replies || []),
+            }));
+
+          const formattedComments = addPostId(comments);
+
+          set((state) => ({
+            commentsByPost: {
+              ...state.commentsByPost,
+              [postId]: formattedComments,
+            },
+          }));
+        }
+      },
+      reset: () => {
+        useCommentStore.persist.clearStorage();
+        set({ commentsByPost: {} });
+      },
     }),
+
     {
       name: "comments-store",
       storage: {

@@ -1,3 +1,4 @@
+import { sampleComments } from "@/constants/data";
 import { useComments } from "@/hooks/comments/useComments";
 import { useReply } from "@/hooks/comments/useReply";
 import React from "react";
@@ -14,7 +15,7 @@ const CommentsSection = ({ postId }: { postId: string }) => {
     toggleLike,
     addComment,
     addReply,
-  } = useComments();
+  } = useComments(sampleComments, postId);
 
   const { replyingTo, replyText, setReplyText, startReply, cancelReply } =
     useReply();

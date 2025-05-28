@@ -1,4 +1,6 @@
 import { useTheme } from "@/context/ThemeContext";
+import { useCommentStore } from "@/stores/CommentStore";
+import { usePostStore } from "@/stores/PostStore";
 import { useAuth, useUser } from "@clerk/clerk-expo";
 import { Feather, Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
@@ -17,6 +19,8 @@ export const ProfileHeader = ({ username }: { username: string }) => {
 
   const handleSignOut = async () => {
     closeMenu();
+    usePostStore.getState().reset();
+    useCommentStore.getState().reset();
     await signOut();
     router.replace("/login");
   };

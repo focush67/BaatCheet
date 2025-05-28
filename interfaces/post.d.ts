@@ -38,4 +38,5 @@ interface PostStore {
   setPosts: (posts: PostCard[]) => void;
   toggleLike: (postId: string) => void;
   toggleBookmark: (postId: string) => void;
+  reset: () => void;
 }

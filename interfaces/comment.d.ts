@@ -40,8 +40,12 @@ interface CommentModalProps {
   comments?: TComment[];
 }
 
+interface CommentsByPost {
+  [postId: string]: TComment[];
+}
+
 interface CommentStore {
-  commentsByPost: Record<string, TComment[]>;
+  commentsByPost: CommentsByPost;
   addComment: (postId: string, comment: TComment) => void;
   addReply: (postId: string, parentCommentId: string, reply: TComment) => void;
   toggleCommentLike: (
@@ -50,4 +54,6 @@ interface CommentStore {
     parentId?: string
   ) => void;
   toggleShowReplies: (postId: string, commentId: string) => void;
+  initializeComments: (postId: string, comments: TComment[]) => void;
+  reset: () => void;
 }
