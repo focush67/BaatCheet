@@ -45,13 +45,15 @@ const CommentsSection = ({ postId }: { postId: string }) => {
         ))}
       </ScrollView>
 
-      <TopLevelCommentBox
-        value={newComment}
-        onChange={setNewComment}
-        onSubmit={addComment}
-      />
+      {!replyingTo && (
+        <TopLevelCommentBox
+          value={newComment}
+          onChange={setNewComment}
+          onSubmit={addComment}
+        />
+      )}
     </View>
   );
 };
 
-export default CommentsSection;
+export default React.memo(CommentsSection);

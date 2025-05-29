@@ -77,7 +77,10 @@ const SingleThread: React.FC<any> = ({
             {data.time}
           </Text>
           <TouchableOpacity
-            onPress={() => startReply(data)}
+            onPress={() => {
+              toggleReplies?.(data.id);
+              startReply(data);
+            }}
             hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
           >
             <Text style={{ color: textSecondaryColor }} className="text-[10px]">
@@ -105,4 +108,4 @@ const SingleThread: React.FC<any> = ({
   );
 };
 
-export default SingleThread;
+export default React.memo(SingleThread);

@@ -34,7 +34,10 @@ const ReplyComposer: React.FC<any> = ({
           <Text className="text-xs text-gray-500">Cancel</Text>
         </TouchableOpacity>
         <TouchableOpacity
-          onPress={onSubmit}
+          onPress={() => {
+            onSubmit();
+            onCancel();
+          }}
           disabled={!replyText.trim()}
           className={`px-3 py-1 rounded-lg ${
             replyText.trim() ? "bg-blue-600" : "bg-blue-300"
@@ -47,4 +50,4 @@ const ReplyComposer: React.FC<any> = ({
   );
 };
 
-export default ReplyComposer;
+export default React.memo(ReplyComposer);

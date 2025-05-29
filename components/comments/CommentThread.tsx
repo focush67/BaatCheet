@@ -15,6 +15,7 @@ const CommentThread = ({
   cancelReply,
   postId,
 }: any) => {
+  console.log("\n");
   console.log(`Comment Thread Rendered for ${postId}`);
   return (
     <View className="pb-4">
@@ -29,17 +30,18 @@ const CommentThread = ({
 
       {comment.showReplies && (
         <View className="ml-12 space-y-3 mt-3">
-          {comment.replies.map((reply: any) => (
-            <SingleThread
-              key={reply.id}
-              data={reply}
-              isReply={true}
-              parentId={comment.id}
-              toggleLike={toggleLike}
-              startReply={startReply}
-              toggleReplies={toggleReplies}
-            />
-          ))}
+          {comment.showReplies &&
+            comment.replies.map((reply: any) => (
+              <SingleThread
+                key={reply.id}
+                data={reply}
+                isReply={true}
+                parentId={comment.id}
+                toggleLike={toggleLike}
+                startReply={startReply}
+                toggleReplies={toggleReplies}
+              />
+            ))}
 
           {replyingTo?.id === comment.id && (
             <ReplyComposer
@@ -48,6 +50,7 @@ const CommentThread = ({
               onChange={setReplyText}
               onSubmit={() => addReply(comment.id, replyText)}
               onCancel={cancelReply}
+              username={replyingTo.username}
             />
           )}
         </View>
@@ -56,4 +59,4 @@ const CommentThread = ({
   );
 };
 
-export default CommentThread;
+export default React.memo(CommentThread);
