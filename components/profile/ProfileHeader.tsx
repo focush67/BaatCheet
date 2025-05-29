@@ -8,7 +8,13 @@ import React, { useState } from "react";
 import { Text, TouchableOpacity, View } from "react-native";
 import { Menu } from "react-native-paper";
 
-export const ProfileHeader = ({ username }: { username: string }) => {
+export const ProfileHeader = ({
+  username,
+  self,
+}: {
+  username: string;
+  self: boolean;
+}) => {
   const { colorScheme } = useTheme();
   const [menuVisible, setMenuVisible] = useState(false);
   const router = useRouter();
@@ -39,41 +45,47 @@ export const ProfileHeader = ({ username }: { username: string }) => {
         {(user?.unsafeMetadata?.username as string) || "Username"}
       </Text>
 
-      <View className="flex-row items-center">
-        <TouchableOpacity className="mr-4" onPress={() => router.push("/add")}>
-          <Feather
-            name="plus-square"
-            size={24}
-            color={colorScheme === "light" ? "#262626" : "#ffffff"}
-          />
-        </TouchableOpacity>
+      {self === true ? (
+        <View className="flex-row items-center">
+          <TouchableOpacity
+            className="mr-4"
+            onPress={() => router.push("/add")}
+          >
+            <Feather
+              name="plus-square"
+              size={24}
+              color={colorScheme === "light" ? "#262626" : "#ffffff"}
+            />
+          </TouchableOpacity>
 
-        {/* Menu dropdown */}
-        <Menu
-          visible={menuVisible}
-          onDismiss={closeMenu}
-          anchor={
-            <TouchableOpacity onPress={openMenu}>
-              <Ionicons
-                name="menu"
-                size={24}
-                color={colorScheme === "light" ? "#262626" : "#ffffff"}
-              />
-            </TouchableOpacity>
-          }
-          contentStyle={{
-            backgroundColor: colorScheme === "light" ? "#fff" : "#222",
-          }}
-        >
-          <Menu.Item
-            onPress={handleSignOut}
-            title="Sign Out"
-            titleStyle={{
-              color: colorScheme === "light" ? "#000" : "#fff",
+          <Menu
+            visible={menuVisible}
+            onDismiss={closeMenu}
+            anchor={
+              <TouchableOpacity onPress={openMenu}>
+                <Ionicons
+                  name="menu"
+                  size={24}
+                  color={colorScheme === "light" ? "#262626" : "#ffffff"}
+                />
+              </TouchableOpacity>
+            }
+            contentStyle={{
+              backgroundColor: colorScheme === "light" ? "#fff" : "#222",
             }}
-          />
-        </Menu>
-      </View>
+          >
+            <Menu.Item
+              onPress={handleSignOut}
+              title="Sign Out"
+              titleStyle={{
+                color: colorScheme === "light" ? "#000" : "#fff",
+              }}
+            />
+          </Menu>
+        </View>
+      ) : (
+        <Feather name="menu" size={18} />
+      )}
     </View>
   );
 };

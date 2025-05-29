@@ -1,6 +1,7 @@
 import { useTheme } from "@/context/ThemeContext";
 import { usePostStore } from "@/stores/PostStore";
 import { Ionicons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import { Image, Text, TouchableOpacity, View } from "react-native";
 import CommentsModal from "../comments/PostWithComments";
@@ -11,8 +12,10 @@ import ShareButton from "./ShareButton";
 
 const PostCard = ({ post }: PostCardProps) => {
   const { colorScheme } = useTheme();
+  const router = useRouter();
   const [showComments, setShowComments] = useState(false);
   const toggleBookmark = usePostStore((state) => state.toggleBookmark);
+
   const storePost = usePostStore((state) =>
     state.posts.find((p) => p.id === post.id)
   );
@@ -28,10 +31,19 @@ const PostCard = ({ post }: PostCardProps) => {
     >
       <View className="flex-row items-center justify-between px-4 py-3">
         <View className="flex-row items-center">
-          <Image
-            source={{ uri: post.avatar }}
-            className="w-12 h-12 rounded-full mr-3"
-          />
+          <TouchableOpacity
+            onPress={() =>
+              router.push({
+                pathname: `/profile/${post.username}`,
+              })
+            }
+          >
+            <Image
+              source={{ uri: post.avatar }}
+              className="w-12 h-12 rounded-full mr-3"
+            />
+          </TouchableOpacity>
+
           <Text
             className={`font-semibold text-md ${
               colorScheme === "light" ? "text-black" : "text-white"

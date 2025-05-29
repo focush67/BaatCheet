@@ -111,6 +111,7 @@ export const useCommentStore = create<CommentStore>()(
           }));
         }
       },
+
       reset: () => {
         useCommentStore.persist.clearStorage();
         set({ commentsByPost: {} });
@@ -134,6 +135,3 @@ export const useCommentStore = create<CommentStore>()(
     }
   )
 );
-
-export const usePostComments = (postId: string) =>
-  useCommentStore((state) => state.commentsByPost[postId] || []);

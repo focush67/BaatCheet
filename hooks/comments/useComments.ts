@@ -2,10 +2,7 @@ import { sampleComments } from "@/constants/data";
 import { useCommentStore } from "@/stores/CommentStore";
 import { useEffect, useMemo, useState } from "react";
 
-export const useComments = (
-  initialComments = sampleComments,
-  postId: string
-) => {
+export const useComments = (postId: string) => {
   const [newComment, setNewComment] = useState("");
 
   const {

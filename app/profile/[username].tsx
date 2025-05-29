@@ -79,18 +79,18 @@ const ProfileScreen = () => {
     >
       <ScrollView>
         <View className="px-4">
-          <ProfileHeader username={user.username} self={true} />
+          <ProfileHeader username={user.username} self={false} />
           <View className="flex-row items-center mt-3">
             <ProfileAvatar size={86} />
             <Statistics {...user} />
           </View>
           <Bio {...user} />
           <ProfileActions
-            self={true}
+            self={false}
             isFollowing={isFollowing}
             toggleFollow={() => setIsFollowing(!isFollowing)}
           />
-          <Highlights self={true} />
+          <Highlights self={false} />
         </View>
 
         <ContentTabs activeTab={activeTab} setActiveTab={setActiveTab} />

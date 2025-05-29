@@ -1,4 +1,3 @@
-import { sampleComments } from "@/constants/data";
 import { useComments } from "@/hooks/comments/useComments";
 import { useReply } from "@/hooks/comments/useReply";
 import { useCommentStore } from "@/stores/CommentStore";
@@ -15,12 +14,11 @@ const CommentsSection = ({ postId }: { postId: string }) => {
     toggleLike,
     addComment,
     addReply,
-  } = useComments(sampleComments, postId);
+  } = useComments(postId);
 
   const { replyingTo, replyText, setReplyText, startReply, cancelReply } =
     useReply();
   const commentStore = useCommentStore((state) => state.commentsByPost[postId]);
-  console.log(`Comment Section rendered for ${postId}`);
   return (
     <View className="flex-1">
       <ScrollView
@@ -28,21 +26,23 @@ const CommentsSection = ({ postId }: { postId: string }) => {
         contentContainerStyle={{ paddingBottom: 16 }}
         showsVerticalScrollIndicator={false}
       >
-        {commentStore.map((comment) => (
-          <CommentThread
-            key={comment.id}
-            comment={comment}
-            toggleReplies={toggleReplies}
-            toggleLike={toggleLike}
-            startReply={startReply}
-            addReply={addReply}
-            replyText={replyText}
-            setReplyText={setReplyText}
-            replyingTo={replyingTo}
-            cancelReply={cancelReply}
-            postId={postId}
-          />
-        ))}
+        {commentStore &&
+          commentStore.length > 0 &&
+          commentStore.map((comment) => (
+            <CommentThread
+              key={comment.id}
+              comment={comment}
+              toggleReplies={toggleReplies}
+              toggleLike={toggleLike}
+              startReply={startReply}
+              addReply={addReply}
+              replyText={replyText}
+              setReplyText={setReplyText}
+              replyingTo={replyingTo}
+              cancelReply={cancelReply}
+              postId={postId}
+            />
+          ))}
       </ScrollView>
 
       {!replyingTo && (

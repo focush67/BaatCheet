@@ -4,7 +4,7 @@ import { useTheme } from "@/context/ThemeContext";
 import React, { useState } from "react";
 import { ScrollView } from "react-native";
 
-const Highlights: React.FC = () => {
+const Highlights = ({ self }: { self: boolean }) => {
   const { colorScheme } = useTheme();
   const [showModal, setShowModal] = useState(false);
   const [highlightName, setHighlightName] = useState("");
@@ -34,7 +34,6 @@ const Highlights: React.FC = () => {
     setSelectedImage(null);
   };
 
-  // Default highlights (can be replaced with actual data)
   const defaultHighlights = [
     {
       id: 2,
@@ -62,11 +61,13 @@ const Highlights: React.FC = () => {
         showsHorizontalScrollIndicator={false}
         className="mt-6 px-4"
       >
-        <HighlightItem
-          id={1}
-          onPress={() => setShowModal(true)}
-          theme={colorScheme}
-        />
+        {self === true && (
+          <HighlightItem
+            id={1}
+            onPress={() => setShowModal(true)}
+            theme={colorScheme}
+          />
+        )}
         {allHighlights.map((highlight) => (
           <HighlightItem
             key={highlight.id}
