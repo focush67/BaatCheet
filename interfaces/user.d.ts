@@ -50,3 +50,57 @@ interface ZUser {
   username: string;
   profilePicture: string;
 }
+
+// GraphQL types for backend type checks
+
+interface GUser {
+  id: string;
+  username?: string;
+  email: string;
+  name?: string;
+  profilePicture: string;
+  bio: string;
+  createdAt: string;
+  followers: GUser[];
+  following: GUser[];
+  likes: GLike[];
+  comments: GComment[];
+  collections: GUserCollection[];
+  highlights: GHighlightOwner[];
+  stories: GUserStory[];
+  posts: GPost[];
+  taggedPosts: GTag[];
+}
+
+interface GUserCollection {
+  collection: GCollection;
+  posts: GPost[];
+}
+
+interface GUserHighlight {
+  highlight: GHighlight;
+  stories: GStory[];
+}
+
+interface GUserStory {
+  is: string;
+  content: string;
+  createdAt: string;
+  likes: GLike[];
+  comments: GComment[];
+}
+
+interface GCreatUserInput {
+  username: string;
+  email: string;
+  name?: string;
+  profilePicture?: string;
+  bio?: string;
+}
+
+interface GUpdateUserInput {
+  name?: string;
+  profilePicture?: string;
+  username?: string;
+  bio?: string;
+}

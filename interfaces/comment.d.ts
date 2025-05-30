@@ -57,3 +57,21 @@ interface CommentStore {
   initializeComments: (postId: string, comments: TComment[]) => void;
   reset: () => void;
 }
+
+// GraphQL types for backend type checks
+
+interface GComment {
+  id: string;
+  postId?: string;
+  storyId?: string;
+  content: string;
+  ownerId: string;
+  isReply: boolean;
+  replyToId?: string;
+  post?: GPost;
+  story?: GStory;
+  owner?: GUser;
+  replyTo?: GComment;
+  likes: GLike[];
+  replies: GComment[];
+}

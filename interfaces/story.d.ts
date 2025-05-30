@@ -47,3 +47,37 @@ interface THighlight {
   name: string;
   imageUri: string;
 }
+
+interface GStory {
+  id: string;
+  content: string;
+  ownerId: string;
+  owner: GUser;
+  highlights: GHighlightUser[]; //c
+  likes: Like[]; //c
+  comments: Comment[]; //c;
+}
+
+interface GHighlightStory {
+  id: string;
+  highlightId: string;
+  storyId: string;
+  highlight: GHighlight;
+  story: GStory;
+}
+
+interface GHighlight {
+  id: string;
+  coverPhoto: string;
+  title: string;
+  owners: GHighlightOwner[];
+  stories: GHighlightStory[];
+}
+
+interface GHighlightOwner {
+  id: string;
+  highlightId: string;
+  userId: string;
+  highlight: GHighlight;
+  user: GUser;
+}
