@@ -46,8 +46,8 @@ interface PostStore {
 interface GPost {
   id: string;
   coverPhoto: string;
-  caption: string;
-  createdAt: string;
+  caption?: string;
+  createdAt?: string;
   ownerId: string;
   likes: GLike[];
   comments: GComment[];

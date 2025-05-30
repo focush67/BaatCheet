@@ -48,14 +48,16 @@ interface THighlight {
   imageUri: string;
 }
 
+// GraphQL types for backend type checks
+
 interface GStory {
   id: string;
   content: string;
   ownerId: string;
   owner: GUser;
-  highlights: GHighlightUser[]; //c
-  likes: Like[]; //c
-  comments: Comment[]; //c;
+  highlights: GHighlightStory[];
+  likes: GLike[];
+  comments: GComment[];
 }
 
 interface GHighlightStory {
