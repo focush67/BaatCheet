@@ -86,5 +86,5 @@ interface GCollectionPost {
 interface GCreatePostInput {
   coverPhoto: string;
   caption?: string;
-  ownerId: string;
+  email: string;
 }

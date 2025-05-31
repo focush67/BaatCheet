@@ -41,21 +41,32 @@ export default function CreatePostScreen() {
       tags: tags.split(",").map((tag) => tag.trim()),
     });
 
+    if (user) {
+      if (user.user) {
+        if (
+          !user.user.emailAddresses ||
+          user.user.emailAddresses.length === 0
+        ) {
+          throw new Error(
+            "Email Address is not valid or absent inside upload screen"
+          );
+        }
+      }
+    }
     const results = await handlePostCreation({
-      user: user?.user?.emailAddresses[0],
+      user: user.user?.emailAddresses[0].emailAddress!,
       selectedImage: typeof imageUri === "string" ? imageUri : imageUri?.[0],
       setLoading,
     });
     const input: GCreatePostInput = {
       coverPhoto: results?.publicUrl!,
       caption: caption,
-      ownerId: user?.user?.id!,
+      email: user.user?.emailAddresses[0].emailAddress!,
     };
 
     const response = await createNewPost(input);
     console.log("Response for Post Upload", response);
-    // After submission you might want to navigate back or to home
-    // router.replace("/(tabs)/home");
+    router.replace("/(tabs)/home");
   };
 
   return (
