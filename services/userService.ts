@@ -1,4 +1,4 @@
-import { UPDATE_USER_BY_EMAIL } from "@/api/graphql/mutations/user/queries";
+import { UPDATE_USER_BY_EMAIL } from "@/api/graphql/mutations/user";
 import api from "@/utils/axios";
 
 export const updateUserByEmail = async (

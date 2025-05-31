@@ -47,7 +47,7 @@ export const ImageUploadModal = ({
 
   const handleSubmit = async () => {
     if (selectedImage) {
-      await onImageSelected(selectedImage); // Wait for upload
+      await onImageSelected(selectedImage);
       onClose();
     }
   };
@@ -60,7 +60,6 @@ export const ImageUploadModal = ({
       onRequestClose={onClose}
     >
       <View className="flex-1 bg-gray-50 dark:bg-zinc-900">
-        {/* Header */}
         <View className="flex-row justify-between items-center px-4 py-3 border-b border-gray-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 shadow-sm">
           <TouchableOpacity onPress={onClose}>
             <Ionicons name="close" size={24} color="gray" />
@@ -71,7 +70,6 @@ export const ImageUploadModal = ({
           <View style={{ width: 24 }} />
         </View>
 
-        {/* Image Preview */}
         <View
           className="bg-gray-100 dark:bg-zinc-800 items-center justify-center rounded-md m-3"
           style={{ height: previewHeight }}
@@ -79,7 +77,6 @@ export const ImageUploadModal = ({
           <ImagePreview uri={selectedImage} emptyText={emptyPreviewText} />
         </View>
 
-        {/* Album Selector */}
         <View className="h-16 border-b border-gray-200 dark:border-zinc-700 bg-white dark:bg-zinc-900">
           {albums.length > 0 && (
             <FlatList
@@ -102,7 +99,6 @@ export const ImageUploadModal = ({
           )}
         </View>
 
-        {/* Thumbnails Grid */}
         <View className="flex-1 px-2 pt-2">
           {isAssetLoading ? (
             <View className="flex-1 items-center justify-center">
@@ -126,7 +122,6 @@ export const ImageUploadModal = ({
           )}
         </View>
 
-        {/* Next Button */}
         <View className="absolute bottom-4 left-0 right-0 px-5">
           <NextButton disabled={!selectedImage} onPress={handleSubmit} />
         </View>

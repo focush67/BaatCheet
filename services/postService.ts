@@ -66,9 +66,7 @@ export const createNewPost = async (
     });
 
     const userFriendlyError = new Error(
-      __DEV__
-        ? errorMessage
-        : "Failed to update user profile. Please try again."
+      __DEV__ ? errorMessage : "Failed to create new post. Please try again."
     );
     userFriendlyError.stack = error.stack;
     throw userFriendlyError;

@@ -8,7 +8,7 @@ export const NextButton = ({
   onPress: () => void;
 }) => (
   <TouchableOpacity
-    className={`m-1 p-4 rounded items-center justify-center ${
+    className={`m-1 mb-2 p-4 rounded items-center justify-center ${
       disabled ? "bg-gray-400 dark:bg-gray-700" : "bg-blue-500 dark:bg-blue-600"
     }`}
     onPress={onPress}

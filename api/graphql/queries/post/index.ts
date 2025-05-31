@@ -1,86 +1,86 @@
 export const GET_ALL_POSTS = `
- query fetchAllPosts(){
+ query fetchAllPosts{
     getAllPosts{
-        id,
-        caption,
-        coverPhoto,
+        id
+        caption
+        coverPhoto
         likes {
             owner {
-                id,
-                email,
-                username
-            },
-        },
-        comments {
-            content,
-            owner {
-                username,
+                id
                 email
-            },
-        },
-        tags {
-            referenceUser {
-                email,
                 username
             }
         }
-    },
- },
+        comments {
+            content
+            owner {
+                username
+                email
+            }
+        }
+        tags {
+            referenceUser {
+                email
+                username
+            }
+        }
+    }
+ }
 `;
 
 export const GET_POST_BY_ID = `
     query getIndividualPost($postID:String!){
-        getPostById{
-        id,
-        caption,
-        coverPhoto,
+        getPostById(postID:$postID){
+        id
+        caption
+        coverPhoto
         likes {
             owner {
-                id,
-                email,
-                username
-            },
-        },
-        comments {
-            content,
-            owner {
-                username,
+                id
                 email
-            },
-        },
-        tags {
-            referenceUser {
-                email,
                 username
             }
         }
-    },
+        comments {
+            content
+            owner {
+                username
+                email
+            }
+        }
+        tags {
+            referenceUser {
+                email
+                username
+            }
+        }
+    }
     }
 `;
 
 export const GET_POSTS_FOR_USER = `
     query getPersonalPosts($userID:String!){
         getPostsForUser(userID:$userID){
-        id,
-        caption,
-        coverPhoto,
+        id
+        caption
+        coverPhoto
         likes {
             owner {
-                id,
-                email,
-                username
-            },
-        },
-        comments {
-            content,
-            owner {
-                username,
+                id
                 email
-            },
-        },
+                username
+            }
+        }
+        comments {
+            content
+            owner {
+                username
+                email
+            }
+        }
         tags {
             referenceUser {
-                email,
+                email
                 username
             }
         }

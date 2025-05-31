@@ -1,5 +1,7 @@
 import { initialStories } from "@/constants/data";
-import { supabase } from "@/utils/supabase";
+import { handleStoryCreation } from "@/hooks/story/useCreateStory";
+import { createNewStory } from "@/services/storyService";
+import { useUser } from "@clerk/clerk-expo";
 import React, { useState } from "react";
 import { ScrollView, View } from "react-native";
 import { Story } from "./Story";
@@ -11,6 +13,8 @@ export const Stories = () => {
   const [selectedStory, setSelectedStory] = useState<UserStory | null>(null);
   const [storyModalVisible, setStoryModalVisible] = useState(false);
   const [uploadModalVisible, setUploadModalVisible] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const { user } = useUser();
 
   const handleStoryPress = (id: number) => {
     if (id === 1) {
@@ -38,29 +42,34 @@ export const Stories = () => {
   };
 
   const handleImageUpload = async (imageUri: string) => {
+    if (!user) {
+      throw new Error("Session Required to create Story");
+    }
     try {
-      const response = await fetch(imageUri);
-      const blob = await response.blob();
-      const fileName = `stories/${Date.now()}-${Math.random()
-        .toString(36)
-        .slice(2)}.jpg`;
+      setLoading(true);
+      const uploadResults = await handleStoryCreation({
+        selectedImage: imageUri,
+        setLoading,
+        user: user?.emailAddresses[0].emailAddress!,
+      });
 
-      const { error } = await supabase.storage
-        .from("story-uploads")
-        .upload(fileName, blob);
+      if (!uploadResults) {
+        throw new Error("Upload Failed to Supabase");
+      }
 
-      if (error) throw error;
+      const response = await createNewStory({
+        coverPhoto: uploadResults.publicUrl,
+        email: user.emailAddresses[0].emailAddress,
+      });
 
-      const {
-        data: { publicUrl },
-      } = supabase.storage.from("story-uploads").getPublicUrl(fileName);
+      console.log("Response for Story Upload", response);
 
       setStories((prev) => [
         {
           id: 1,
-          username: "Your Story",
-          avatar: "user_avatar_url", // Replace with actual user avatar
-          image: publicUrl, // Use the Supabase URL
+          username: user?.unsafeMetadata?.username as string,
+          avatar: user?.unsafeMetadata?.profilePicture as string,
+          image: uploadResults?.publicUrl!,
           hasUnseenStory: false,
           createdAt: new Date().toISOString(),
         },

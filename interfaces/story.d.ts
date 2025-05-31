@@ -83,3 +83,9 @@ interface GHighlightOwner {
   highlight: GHighlight;
   user: GUser;
 }
+
+interface GCreateStoryInput {
+  coverPhoto: string;
+  email: string;
+  content?: String;
+}

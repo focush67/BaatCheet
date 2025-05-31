@@ -27,7 +27,7 @@ export default function CreatePostScreen() {
   const { colorScheme } = useTheme();
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const user = useUser();
+  const { user } = useUser();
   const isLightMode = colorScheme === "light";
   const bgColor = isLightMode ? "bg-white" : "bg-black";
   const textColor = isLightMode ? "text-black" : "text-white";
@@ -41,28 +41,22 @@ export default function CreatePostScreen() {
       tags: tags.split(",").map((tag) => tag.trim()),
     });
 
-    if (user) {
-      if (user.user) {
-        if (
-          !user.user.emailAddresses ||
-          user.user.emailAddresses.length === 0
-        ) {
-          throw new Error(
-            "Email Address is not valid or absent inside upload screen"
-          );
-        }
-      }
+    if (!user) {
+      throw new Error("Session required to create posts");
     }
     const results = await handlePostCreation({
-      user: user.user?.emailAddresses[0].emailAddress!,
+      user: user.emailAddresses[0].emailAddress,
       selectedImage: typeof imageUri === "string" ? imageUri : imageUri?.[0],
       setLoading,
     });
 
+    if (!results) {
+      throw new Error("Supabase Upload for New Post Failed");
+    }
     const response = await createNewPost({
-      coverPhoto: results?.publicUrl!,
+      coverPhoto: results.publicUrl,
       caption: caption,
-      email: user.user?.emailAddresses[0].emailAddress!,
+      email: user.emailAddresses[0].emailAddress,
     });
     console.log("Response for Post Upload", response);
     router.replace("/(tabs)/home");

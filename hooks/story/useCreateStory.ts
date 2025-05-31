@@ -1,11 +1,11 @@
 import { uploadFileWrapper } from "@/utils/upload";
 
-export const handlePostCreation = async ({
+export const handleStoryCreation = async ({
   user,
   selectedImage,
   setLoading,
 }: {
-  user: any;
+  user: string;
   selectedImage: string;
   setLoading: (_: boolean) => void;
 }) => {
@@ -13,9 +13,9 @@ export const handlePostCreation = async ({
     selectedImage,
     user,
     setLoading,
-    folder: "posts",
-    identifier: "post",
-    purpose: "uploads",
+    folder: "stories",
+    identifier: "story",
+    purpose: "upload",
   });
 
   return uploadResults;
