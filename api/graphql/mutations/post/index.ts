@@ -6,3 +6,12 @@ export const CREATE_USER_POST = `
     }
   }
 `;
+
+export const DELETE_USER_POST = `
+  mutation DeleteUserPost($postID:String!){
+    deletePost(postID:$postID){
+      id,
+      ownerId
+    }
+  }
+`;
