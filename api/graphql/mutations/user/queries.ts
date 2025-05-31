@@ -1,6 +1,4 @@
-import { gql } from "@apollo/client";
-
-export const UPDATE_USER_BY_EMAIL = gql`
+export const UPDATE_USER_BY_EMAIL = `
   mutation UpdateUserByEmail($email: String!, $input: UpdateUserInput!) {
     updateUserByEmail(email: $email, input: $input) {
       id

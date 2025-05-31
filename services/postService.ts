@@ -19,7 +19,7 @@ export const createNewPost = async (
     const response = await api.post("", {
       query: CREATE_USER_POST,
       variables: {
-        input,
+        input: input,
       },
     });
 

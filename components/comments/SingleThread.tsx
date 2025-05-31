@@ -14,7 +14,6 @@ const SingleThread: React.FC<any> = ({
 }) => {
   const { colorScheme } = useTheme();
   const isDark = colorScheme === "dark";
-  console.log(`Single Thread rendered for ${postId}`);
   const textPrimaryColor = isDark ? "#fff" : "#262626";
   const textSecondaryColor = isDark ? "#888" : "#999";
   const likeIconColor = data.liked ? "#ed4956" : isDark ? "#ccc" : "#262626";
