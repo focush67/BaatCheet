@@ -70,7 +70,7 @@ export default function UploadScreen() {
       </View>
     );
   }
-
+  console.log("Add component rendered");
   return (
     <SafeAreaView className="flex-1 bg-white dark:bg-black" edges={["top"]}>
       {/* Back Button */}

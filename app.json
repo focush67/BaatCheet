@@ -4,7 +4,7 @@
     "slug": "baatcheet",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/baatcheet.png",
+    "icon": "./assets/images/baatcheet2.png",
     "scheme": "baatcheet",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
@@ -13,7 +13,7 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/baatcheet.png",
+        "foregroundImage": "./assets/images/baatcheet2.png",
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
@@ -27,14 +27,14 @@
     "web": {
       "bundler": "metro",
       "output": "static",
-      "favicon": "./assets/images/baatcheet.png"
+      "favicon": "./assets/images/baatcheet2.png"
     },
     "plugins": [
       "expo-router",
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/baatcheet.png",
+          "image": "./assets/images/baatcheet2.png",
           "imageWidth": 200,
           "resizeMode": "contain",
           "backgroundColor": "#ffffff"

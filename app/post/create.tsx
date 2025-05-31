@@ -1,4 +1,7 @@
 import { useTheme } from "@/context/ThemeContext";
+import { handlePostCreation } from "@/hooks/posts/useCreatePost";
+import { createNewPost } from "@/services/postService";
+import { useUser } from "@clerk/clerk-expo";
 import { Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useState } from "react";
@@ -20,23 +23,37 @@ export default function CreatePostScreen() {
   const { imageUri } = useLocalSearchParams();
   const [caption, setCaption] = useState("");
   const [tags, setTags] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isLoading, setLoading] = useState(false);
   const { colorScheme } = useTheme();
   const router = useRouter();
   const insets = useSafeAreaInsets();
-
+  const user = useUser();
   const isLightMode = colorScheme === "light";
   const bgColor = isLightMode ? "bg-white" : "bg-black";
   const textColor = isLightMode ? "text-black" : "text-white";
   const borderColor = isLightMode ? "border-gray-200" : "border-gray-800";
 
-  const handleSubmit = () => {
-    setIsSubmitting(true);
+  const handleSubmit = async () => {
+    setLoading(true);
     console.log({
       imageUri,
       caption,
       tags: tags.split(",").map((tag) => tag.trim()),
     });
+
+    const results = await handlePostCreation({
+      user: user?.user?.emailAddresses[0],
+      selectedImage: typeof imageUri === "string" ? imageUri : imageUri?.[0],
+      setLoading,
+    });
+    const input: GCreatePostInput = {
+      coverPhoto: results?.publicUrl!,
+      caption: caption,
+      ownerId: user?.user?.id!,
+    };
+
+    const response = await createNewPost(input);
+    console.log("Response for Post Upload", response);
     // After submission you might want to navigate back or to home
     // router.replace("/(tabs)/home");
   };
@@ -57,8 +74,8 @@ export default function CreatePostScreen() {
 
         <Text className={`text-lg font-semibold ${textColor}`}>New Post</Text>
 
-        <TouchableOpacity onPress={handleSubmit} disabled={isSubmitting}>
-          {isSubmitting ? (
+        <TouchableOpacity onPress={handleSubmit} disabled={isLoading}>
+          {isLoading ? (
             <ActivityIndicator color={isLightMode ? "#262626" : "#ffffff"} />
           ) : (
             <Text className="text-blue-500 font-semibold">Share</Text>
