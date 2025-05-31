@@ -6,7 +6,7 @@ export const createNewPost = async (
 ): Promise<GPost> => {
   const startTime = Date.now();
   const requestId = Math.random().toString(36).substring(2, 9);
-
+  console.log("Sending this input from postService", input);
   console.log(
     `[Post API][${requestId}] Starting update for ${input.coverPhoto}`,
     {

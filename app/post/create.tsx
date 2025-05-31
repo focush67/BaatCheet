@@ -58,20 +58,18 @@ export default function CreatePostScreen() {
       selectedImage: typeof imageUri === "string" ? imageUri : imageUri?.[0],
       setLoading,
     });
-    const input: GCreatePostInput = {
+
+    const response = await createNewPost({
       coverPhoto: results?.publicUrl!,
       caption: caption,
       email: user.user?.emailAddresses[0].emailAddress!,
-    };
-
-    const response = await createNewPost(input);
+    });
     console.log("Response for Post Upload", response);
     router.replace("/(tabs)/home");
   };
 
   return (
     <SafeAreaView edges={["top", "bottom"]} className={`flex-1 ${bgColor}`}>
-      {/* Header */}
       <View
         className={`flex-row items-center justify-between px-4 py-3 border-b ${borderColor}`}
       >

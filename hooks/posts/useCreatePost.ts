@@ -1,4 +1,5 @@
 import { uploadFile } from "@/services/uploadService";
+import { generateUniqueFileName } from "@/utils/fileNaming";
 import { Alert } from "react-native";
 
 export const handlePostCreation = async ({
@@ -19,11 +20,16 @@ export const handlePostCreation = async ({
   }
   setLoading(true);
   try {
-    const uploadResults = await uploadFile(selectedImage, `$post_${user.id}`, {
-      bucket: "upload-assets",
-      pathPrefix: "posts",
-      upsert: true,
-    });
+    const uniqueName = generateUniqueFileName("post", user, "uploaded");
+    const uploadResults = await uploadFile(
+      selectedImage,
+      `$post_${uniqueName}`,
+      {
+        bucket: "upload-assets",
+        pathPrefix: "posts",
+        upsert: true,
+      }
+    );
 
     return uploadResults;
   } catch (error: any) {
