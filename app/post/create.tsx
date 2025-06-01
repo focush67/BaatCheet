@@ -18,6 +18,7 @@ import {
   SafeAreaView,
   useSafeAreaInsets,
 } from "react-native-safe-area-context";
+import Toast from "react-native-toast-message";
 
 export default function CreatePostScreen() {
   const { imageUri } = useLocalSearchParams();
@@ -35,31 +36,58 @@ export default function CreatePostScreen() {
 
   const handleSubmit = async () => {
     setLoading(true);
-    console.log({
-      imageUri,
-      caption,
-      tags: tags.split(",").map((tag) => tag.trim()),
-    });
+    try {
+      console.log({
+        imageUri,
+        caption,
+        tags: tags.split(",").map((tag) => tag.trim()),
+      });
 
-    if (!user) {
-      throw new Error("Session required to create posts");
-    }
-    const results = await handlePostCreation({
-      user: user.emailAddresses[0].emailAddress,
-      selectedImage: typeof imageUri === "string" ? imageUri : imageUri?.[0],
-      setLoading,
-    });
+      if (!user) {
+        throw new Error("Session required to create posts");
+      }
+      const results = await handlePostCreation({
+        user: user.emailAddresses[0].emailAddress,
+        selectedImage: typeof imageUri === "string" ? imageUri : imageUri?.[0],
+        setLoading,
+      });
 
-    if (!results) {
-      throw new Error("Supabase Upload for New Post Failed");
+      if (!results) {
+        throw new Error("Supabase Upload for New Post Failed");
+      }
+
+      const response = await createNewPost({
+        coverPhoto: results.publicUrl,
+        caption: caption,
+        email: user.emailAddresses[0].emailAddress,
+      });
+
+      console.log("Response for Post Upload", response);
+
+      Toast.show({
+        type: "success",
+        text1: "Post created!",
+        text2: "Your post has been successfully uploaded.",
+        visibilityTime: 2000,
+        position: "top",
+      });
+
+      setTimeout(() => {
+        router.replace("/(tabs)/home");
+      }, 2100);
+    } catch (error: any) {
+      console.error(error);
+
+      Toast.show({
+        type: "error",
+        text1: "Upload failed",
+        text2: error.message || "Something went wrong.",
+        visibilityTime: 3000,
+        position: "top",
+      });
+    } finally {
+      setLoading(false);
     }
-    const response = await createNewPost({
-      coverPhoto: results.publicUrl,
-      caption: caption,
-      email: user.emailAddresses[0].emailAddress,
-    });
-    console.log("Response for Post Upload", response);
-    router.replace("/(tabs)/home");
   };
 
   return (

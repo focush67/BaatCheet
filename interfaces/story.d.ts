@@ -6,6 +6,15 @@ interface UserStory {
   avatar: string;
 }
 
+interface ImageUploadModalProps {
+  loading: boolean;
+  visible: boolean;
+  onClose: () => void;
+  onImageSelected: (imageUri: string) => Promise<void>;
+  title?: string;
+  emptyPreviewText?: string;
+}
+
 interface StoryModalProps {
   visible: boolean;
   story: UserStory | null;

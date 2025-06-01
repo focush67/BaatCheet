@@ -3,6 +3,7 @@ import { handleStoryCreation } from "@/hooks/story/useCreateStory";
 import { createNewStory } from "@/services/storyService";
 import { useUser } from "@clerk/clerk-expo";
 import { AntDesign, Feather, Ionicons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
   Image,
@@ -12,6 +13,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import Toast from "react-native-toast-message";
 import { StoryModal } from "../story/StoryModal";
 import { ImageUploadModal } from "../story/UploadStory";
 
@@ -26,6 +28,7 @@ const ProfileAvatar = ({
 }) => {
   const { colorScheme } = useTheme();
   const { user } = useUser();
+  const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [isFollowing, setIsFollowing] = useState(false);
@@ -38,7 +41,12 @@ const ProfileAvatar = ({
 
   const handleImageUpload = async (imageUri: string) => {
     if (!user) {
-      throw new Error("Session is required to create Story. Please login");
+      Toast.show({
+        type: "error",
+        text1: "Upload Failed",
+        text2: "You must be logged in to create a story.",
+      });
+      return;
     }
     try {
       setLoading(true);
@@ -57,9 +65,18 @@ const ProfileAvatar = ({
       });
 
       console.log(`Response for Story Upload`, response);
+      Toast.show({
+        type: "success",
+        text1: "Story Uploaded",
+        text2: "Your story has been uploaded successfully.",
+      });
     } catch (error: any) {
       console.log(`Story Upload Failed`);
-      throw new Error(error);
+      Toast.show({
+        type: "error",
+        text1: "Upload Failed",
+        text2: error.message || "Something went wrong",
+      });
     }
   };
 
@@ -169,6 +186,7 @@ const ProfileAvatar = ({
       />
 
       <ImageUploadModal
+        loading={loading}
         visible={storyMode}
         onClose={() => setStoryMode(false)}
         onImageSelected={handleImageUpload}

@@ -4,6 +4,7 @@ import { createNewStory } from "@/services/storyService";
 import { useUser } from "@clerk/clerk-expo";
 import React, { useState } from "react";
 import { ScrollView, View } from "react-native";
+import Toast from "react-native-toast-message";
 import { Story } from "./Story";
 import { StoryModal } from "./StoryModal";
 import { ImageUploadModal } from "./UploadStory";
@@ -43,7 +44,12 @@ export const Stories = () => {
 
   const handleImageUpload = async (imageUri: string) => {
     if (!user) {
-      throw new Error("Session Required to create Story");
+      Toast.show({
+        type: "error",
+        text1: "Upload Failed",
+        text2: "You must be logged in to create a story.",
+      });
+      return;
     }
     try {
       setLoading(true);
@@ -63,7 +69,11 @@ export const Stories = () => {
       });
 
       console.log("Response for Story Upload", response);
-
+      Toast.show({
+        type: "success",
+        text1: "Story Uploaded",
+        text2: "Your story has been uploaded successfully.",
+      });
       setStories((prev) => [
         {
           id: 1,
@@ -77,8 +87,13 @@ export const Stories = () => {
       ]);
 
       handleCloseUploadModal();
-    } catch (error) {
+    } catch (error: any) {
       console.error("Story upload failed:", error);
+      Toast.show({
+        type: "error",
+        text1: "Upload Failed",
+        text2: error.message || "Something went wrong",
+      });
     }
   };
 
@@ -105,6 +120,7 @@ export const Stories = () => {
       />
 
       <ImageUploadModal
+        loading={loading}
         visible={uploadModalVisible}
         onClose={handleCloseUploadModal}
         onImageSelected={handleImageUpload}

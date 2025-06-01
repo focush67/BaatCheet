@@ -16,15 +16,8 @@ import {
   View,
 } from "react-native";
 
-type ImageUploadModalProps = {
-  visible: boolean;
-  onClose: () => void;
-  onImageSelected: (imageUri: string) => Promise<void>;
-  title?: string;
-  emptyPreviewText?: string;
-};
-
 export const ImageUploadModal = ({
+  loading,
   visible,
   onClose,
   onImageSelected,
@@ -123,7 +116,16 @@ export const ImageUploadModal = ({
         </View>
 
         <View className="absolute bottom-4 left-0 right-0 px-5">
-          <NextButton disabled={!selectedImage} onPress={handleSubmit} />
+          {loading ? (
+            <View className="items-center justify-center py-3 bg-white/80 dark:bg-zinc-900/80 rounded-md shadow">
+              <ActivityIndicator size="small" color="#3b82f6" />
+              <Text className="text-sm text-gray-600 dark:text-gray-300 mt-2">
+                Uploading...
+              </Text>
+            </View>
+          ) : (
+            <NextButton disabled={!selectedImage} onPress={handleSubmit} />
+          )}
         </View>
       </View>
     </Modal>
