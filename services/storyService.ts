@@ -105,7 +105,6 @@ export const getStories = async (): Promise<GStory[]> => {
       );
       throw new Error(`Server returned unexpected response format`);
     }
-    console.log("Response of All Stories", response.data.data.getAllStories);
     return response.data.data.getAllStories;
   } catch (error: any) {
     const duration = Date.now() - startTime;

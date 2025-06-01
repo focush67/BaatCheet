@@ -1,10 +1,6 @@
 interface UserStory {
-  id: number;
-  username: string;
-  email: string;
-  image: string;
-  hasUnseenStory: boolean;
-  avatar: string;
+  owner: GUser;
+  stories: GStory[];
 }
 
 interface ImageUploadModalProps {
@@ -18,25 +14,13 @@ interface ImageUploadModalProps {
 
 interface StoryModalProps {
   visible: boolean;
-  story: GStory | null;
+  stories: GStory[];
   onClose: () => void;
   duration?: number;
 }
 
-interface StoryPress {
-  story: UserStory;
-  onPress: (id: number) => void;
-}
-
 interface StoryProps {
   story: GStory;
-  onPress: () => void;
-}
-
-interface StoryViewProps {
-  email: string;
-  username: string;
-  profilePicture: string;
   onPress: () => void;
 }
 
@@ -68,11 +52,6 @@ interface THighlight {
   id: number;
   name: string;
   imageUri: string;
-}
-
-interface UserStory {
-  owner: GUser;
-  stories: GStory[];
 }
 
 interface ZStoriesState {

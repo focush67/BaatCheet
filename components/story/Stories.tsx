@@ -1,4 +1,5 @@
 import { getStories } from "@/services/storyService";
+import { groupStoriesByOwner } from "@/utils/misc";
 import React, { useEffect, useState } from "react";
 import { ScrollView, View } from "react-native";
 import { Story } from "./Story";
@@ -6,23 +7,30 @@ import { StoryModal } from "./StoryModal";
 
 export const Stories = () => {
   const [stories, setStories] = useState<GStory[]>([]);
-  const [selectedStory, setSelectedStory] = useState<GStory | null>(null);
+  const [selectedStoryGroup, setSelectedStoryGroup] =
+    useState<UserStory | null>(null); // 🔁 Changed to store full group
   const [storyModalVisible, setStoryModalVisible] = useState(false);
+  const [userStories, setUserStories] = useState<UserStory[]>([]);
+  const [selectedUserStories, setSelectedUserStories] = useState<GStory[]>([]);
 
   useEffect(() => {
     getStories()
-      .then((response) => setStories(response))
+      .then((response) => {
+        const grouped = groupStoriesByOwner(response);
+        setUserStories(grouped);
+        setStories(response);
+      })
       .catch((error) => console.error("Error", error));
   }, []);
 
-  const openStoryModal = (story: GStory) => {
-    setSelectedStory(story);
+  const openStoryModal = (storyList: GStory[]) => {
+    setSelectedUserStories(storyList);
     setStoryModalVisible(true);
   };
 
   const handleCloseModal = () => {
     setStoryModalVisible(false);
-    setSelectedStory(null);
+    setSelectedStoryGroup(null);
   };
 
   return (
@@ -32,18 +40,18 @@ export const Stories = () => {
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={{ paddingHorizontal: 15, paddingTop: 8 }}
       >
-        {stories.map((story) => (
+        {userStories.map((storyGroup) => (
           <Story
-            key={story.id}
-            story={story}
-            onPress={() => openStoryModal(story)}
+            key={storyGroup.owner.email}
+            story={storyGroup.stories[0]}
+            onPress={() => openStoryModal(storyGroup.stories)}
           />
         ))}
       </ScrollView>
 
       <StoryModal
         visible={storyModalVisible}
-        story={selectedStory}
+        stories={selectedUserStories}
         onClose={handleCloseModal}
       />
     </View>
