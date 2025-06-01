@@ -1,6 +1,7 @@
 interface UserStory {
   id: number;
   username: string;
+  email: string;
   image: string;
   hasUnseenStory: boolean;
   avatar: string;
@@ -17,7 +18,7 @@ interface ImageUploadModalProps {
 
 interface StoryModalProps {
   visible: boolean;
-  story: UserStory | null;
+  story: GStory | null;
   onClose: () => void;
   duration?: number;
 }
@@ -25,6 +26,18 @@ interface StoryModalProps {
 interface StoryPress {
   story: UserStory;
   onPress: (id: number) => void;
+}
+
+interface StoryProps {
+  story: GStory;
+  onPress: () => void;
+}
+
+interface StoryViewProps {
+  email: string;
+  username: string;
+  profilePicture: string;
+  onPress: () => void;
 }
 
 interface HighlightImagePickerProps {
@@ -57,14 +70,24 @@ interface THighlight {
   imageUri: string;
 }
 
+interface UserStory {
+  owner: GUser;
+  stories: GStory[];
+}
+
+interface ZStoriesState {
+  userStories: GStory[];
+  likeStory: (storyId: string, user: GUser) => void;
+  replyToStory: (storyId: string, comment: GComment) => void;
+  fetchUserStories: () => Promise<void>;
+}
 // GraphQL types for backend type checks
 
 interface GStory {
   id: string;
-  content: string;
-  ownerId: string;
+  content?: string;
+  coverPhoto: string;
   owner: GUser;
-  highlights: GHighlightStory[];
   likes: GLike[];
   comments: GComment[];
 }

@@ -409,6 +409,7 @@ export const initialStories = [
     username: "you",
     image: "https://i.pravatar.cc/150?img=1",
     hasUnseenStory: false,
+    email: "sparshv70@gmail.com",
     avatar: "https://randomuser.me/api/portraits/men/1.jpg",
   },
   {
@@ -416,6 +417,7 @@ export const initialStories = [
     username: "john",
     image: "https://i.pravatar.cc/150?img=2",
     hasUnseenStory: true,
+    email: "sparshv70@gmail.com",
     avatar: "https://randomuser.me/api/portraits/men/2.jpg",
   },
   {
@@ -423,6 +425,7 @@ export const initialStories = [
     username: "lisa",
     image: "https://i.pravatar.cc/150?img=3",
     hasUnseenStory: true,
+    email: "sparshv70@gmail.com",
     avatar: "https://randomuser.me/api/portraits/women/3.jpg",
   },
   {
@@ -430,6 +433,7 @@ export const initialStories = [
     username: "mike",
     image: "https://i.pravatar.cc/150?img=4",
     hasUnseenStory: false,
+    email: "sparshv70@gmail.com",
     avatar: "https://randomuser.me/api/portraits/men/4.jpg",
   },
   {
@@ -437,6 +441,7 @@ export const initialStories = [
     username: "ella",
     image: "https://i.pravatar.cc/150?img=5",
     hasUnseenStory: true,
+    email: "sparshv70@gmail.com",
     avatar: "https://randomuser.me/api/portraits/women/5.jpg",
   },
   {
@@ -444,6 +449,7 @@ export const initialStories = [
     username: "dave",
     image: "https://i.pravatar.cc/150?img=6",
     hasUnseenStory: true,
+    email: "sparshv70@gmail.com",
     avatar: "https://randomuser.me/api/portraits/men/6.jpg",
   },
   {
@@ -451,6 +457,7 @@ export const initialStories = [
     username: "sara",
     image: "https://i.pravatar.cc/150?img=7",
     hasUnseenStory: false,
+    email: "sparshv70@gmail.com",
     avatar: "https://randomuser.me/api/portraits/women/7.jpg",
   },
   {
@@ -458,6 +465,7 @@ export const initialStories = [
     username: "alex",
     image: "https://i.pravatar.cc/150?img=8",
     hasUnseenStory: true,
+    email: "sparshv70@gmail.com",
     avatar: "https://randomuser.me/api/portraits/men/8.jpg",
   },
   {
@@ -465,6 +473,7 @@ export const initialStories = [
     username: "nina",
     image: "https://i.pravatar.cc/150?img=9",
     hasUnseenStory: false,
+    email: "sparshv70@gmail.com",
     avatar: "https://randomuser.me/api/portraits/women/9.jpg",
   },
   {
@@ -472,6 +481,7 @@ export const initialStories = [
     username: "leo",
     image: "https://i.pravatar.cc/150?img=10",
     hasUnseenStory: true,
+    email: "sparshv70@gmail.com",
     avatar: "https://randomuser.me/api/portraits/men/10.jpg",
   },
   {
@@ -479,6 +489,7 @@ export const initialStories = [
     username: "maya",
     image: "https://i.pravatar.cc/150?img=11",
     hasUnseenStory: true,
+    email: "sparshv70@gmail.com",
     avatar: "https://randomuser.me/api/portraits/women/11.jpg",
   },
   {
@@ -486,6 +497,7 @@ export const initialStories = [
     username: "ryan",
     image: "https://i.pravatar.cc/150?img=12",
     hasUnseenStory: false,
+    email: "sparshv70@gmail.com",
     avatar: "https://randomuser.me/api/portraits/men/12.jpg",
   },
 ];

@@ -19,17 +19,14 @@ const ProfileScreen = () => {
   const { username } = useLocalSearchParams<{ username?: string }>();
   const { user } = useUser();
 
-  // State management
   const [activeTab, setActiveTab] = useState<ActiveTab>("posts");
   const [isFollowing, setIsFollowing] = useState(false);
   const [previewPost, setPreviewPost] = useState<UserPost | null>(null);
   const [previewVisible, setPreviewVisible] = useState(false);
 
-  // Determine if this is the user's own profile
   const isPersonalProfile = !username;
   const ownerUsername = user?.unsafeMetadata?.username as string;
 
-  // Profile data
   const profileData = {
     username: isPersonalProfile ? ownerUsername : (username as string),
     name: user?.unsafeMetadata?.ownerName as string,
@@ -39,7 +36,6 @@ const ProfileScreen = () => {
       : "https://picsum.photos/400/400?random=4",
   };
 
-  // Mock posts data
   const posts = Array.from({ length: 15 }, (_, i) => ({
     id: i.toString(),
     imageUrl: `https://picsum.photos/300/300?random=${i}`,
@@ -47,7 +43,6 @@ const ProfileScreen = () => {
     caption: `Sample caption ${i}`,
   })) as UserPost[];
 
-  // Handlers
   const handleLongPress = (post: UserPost | null) => {
     setPreviewPost(post);
     setPreviewVisible(true);
@@ -73,7 +68,7 @@ const ProfileScreen = () => {
           <Text className="text-center py-10 text-gray-500">
             Saved posts coming soon
           </Text>
-        ) : null; // Don't show saved tab for foreign profiles
+        ) : null;
       case "tagged":
         return (
           <Text className="text-center py-10 text-gray-500">
@@ -116,9 +111,7 @@ const ProfileScreen = () => {
         </View>
 
         <ContentTabs activeTab={activeTab} setActiveTab={setActiveTab} />
-
         {renderTabContent()}
-
         <PostPreview
           visible={previewVisible}
           post={previewPost}

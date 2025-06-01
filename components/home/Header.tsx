@@ -23,7 +23,6 @@ const HeaderBar = ({ unreadMessages = 4 }: HeaderBarProps) => {
         BaatCheet
       </Text>
 
-      {/* Icons */}
       <View className="flex-row items-center gap-x-2">
         <TouchableOpacity onPress={() => router.push("/notifications")}>
           <Ionicons

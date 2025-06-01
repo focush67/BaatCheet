@@ -27,3 +27,31 @@ export const GET_ALL_STORIES = `
         }
     }
 `;
+
+export const GET_STORIES_FOR_USER = `
+    query getPersonalStories($email:String!){
+        getStoriesForUser(email:$email){
+            id    
+            coverPhoto
+            content
+
+            likes {
+                owner {
+                    email,
+                    bio
+                    username,
+                    profilePicture
+                }
+            }
+            
+            comments {
+                owner {
+                    email,
+                    bio
+                    username,
+                    profilePicture
+                }
+            }
+        }
+    }
+`;

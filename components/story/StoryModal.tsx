@@ -15,7 +15,7 @@ export const StoryModal = ({
   visible,
   story,
   onClose,
-  duration = 5000,
+  duration = 8000,
 }: StoryModalProps) => {
   const [paused, setPaused] = useState(false);
   const [replyText, setReplyText] = useState("");
@@ -108,7 +108,6 @@ export const StoryModal = ({
       onRequestClose={onClose}
     >
       <View className="flex-1 bg-black">
-        {/* Progress Bar */}
         <View className="absolute top-2 w-full h-0.5 bg-white/30 z-50">
           <Animated.View
             style={{
@@ -122,21 +121,21 @@ export const StoryModal = ({
           />
         </View>
 
-        {/* Header */}
         <View className="absolute top-8 px-4 w-full flex-row justify-between items-center z-50">
           <View className="flex-row items-center">
             <Image
-              source={{ uri: story.avatar || story.image }}
+              source={{ uri: story.owner.profilePicture }}
               className="w-[30px] h-[30px] rounded-full mr-2"
             />
-            <Text className="text-white font-semibold">{story.username}</Text>
+            <Text className="text-white font-semibold">
+              {story.owner.username}
+            </Text>
           </View>
           <TouchableOpacity onPress={onClose}>
             <Ionicons name="close" size={24} color="white" />
           </TouchableOpacity>
         </View>
 
-        {/* Story Content */}
         <TouchableOpacity
           className="flex-1 justify-center"
           activeOpacity={1}
@@ -150,7 +149,7 @@ export const StoryModal = ({
           }}
         >
           <Image
-            source={{ uri: story.image }}
+            source={{ uri: story.coverPhoto }}
             resizeMode="contain"
             className="w-full h-full"
           />

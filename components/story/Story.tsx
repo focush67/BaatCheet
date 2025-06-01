@@ -3,16 +3,19 @@ import { useUser } from "@clerk/clerk-expo";
 import React, { memo } from "react";
 import { Image, Text, TouchableOpacity, View } from "react-native";
 
-export const Story = memo(({ story, onPress }: StoryPress) => {
+export const Story = memo(({ story, onPress }: StoryProps) => {
   const { colorScheme } = useTheme();
   const { user } = useUser();
-  const isYourStory = story.id === 1;
-  const hasUnseen = story.hasUnseenStory;
-  const profilePicture = user?.unsafeMetadata?.profilePicture as string;
+  const isYourStory =
+    story.owner.email === user?.emailAddresses?.[0].emailAddress;
+  const hasUnseen = true;
+
+  const profilePicture = story.owner.profilePicture || "";
+
   return (
     <TouchableOpacity
       className="flex-1 px-1 items-center mr-[10px]"
-      onPress={() => onPress(story.id)}
+      onPress={onPress}
     >
       <View
         className={`w-20 h-20 rounded-full justify-center items-center relative border-2 ${
@@ -20,16 +23,9 @@ export const Story = memo(({ story, onPress }: StoryPress) => {
         }`}
       >
         <Image
-          source={{
-            uri: isYourStory ? profilePicture : story.avatar || story.image,
-          }}
+          source={{ uri: profilePicture }}
           className="w-20 h-20 rounded-full"
         />
-        {isYourStory && (
-          <View className="absolute bottom-0 right-0 w-5 h-5 bg-[#0095F6] rounded-full border-2 border-white items-center justify-center">
-            <Text className="text-white text-xs font-bold">+</Text>
-          </View>
-        )}
       </View>
 
       <Text
@@ -39,7 +35,7 @@ export const Story = memo(({ story, onPress }: StoryPress) => {
           colorScheme === "light" ? "text-[#262626]" : "text-[#F5F5F5]"
         } ${isYourStory ? "font-bold" : ""}`}
       >
-        {isYourStory ? "Your Story" : story.username}
+        {isYourStory ? "Your Story" : story.owner.username}
       </Text>
     </TouchableOpacity>
   );
