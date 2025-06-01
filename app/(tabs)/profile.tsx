@@ -8,34 +8,46 @@ import ProfileAvatar from "@/components/profile/ProfileAvatar";
 import { ProfileHeader } from "@/components/profile/ProfileHeader";
 import { Statistics } from "@/components/profile/Statistics";
 import { useTheme } from "@/context/ThemeContext";
+import { useUser } from "@clerk/clerk-expo";
+import { useLocalSearchParams } from "expo-router";
 import React, { useState } from "react";
 import { ScrollView, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-const user: UserProfile = {
-  username: "sparshv70",
-  name: "Sparsh Verma",
-  bio: "Digital creator | Photography enthusiast ✨",
-  posts: 125,
-  followers: "4.5K",
-  following: 342,
-};
-
-const posts = Array.from({ length: 15 }, (_, i) => ({
-  id: i.toString(),
-  imageUrl: `https://picsum.photos/300/300?random=${i}`,
-  username: user.username,
-  caption: "Sample caption " + i,
-})) as UserPost[];
-
 const ProfileScreen = () => {
   const { colorScheme } = useTheme();
+  const { username } = useLocalSearchParams<{ username?: string }>();
+  const { user } = useUser();
+
+  // State management
   const [activeTab, setActiveTab] = useState<ActiveTab>("posts");
   const [isFollowing, setIsFollowing] = useState(false);
-
   const [previewPost, setPreviewPost] = useState<UserPost | null>(null);
   const [previewVisible, setPreviewVisible] = useState(false);
 
+  // Determine if this is the user's own profile
+  const isPersonalProfile = !username;
+  const ownerUsername = user?.unsafeMetadata?.username as string;
+
+  // Profile data
+  const profileData = {
+    username: isPersonalProfile ? ownerUsername : (username as string),
+    name: user?.unsafeMetadata?.ownerName as string,
+    bio: (user?.unsafeMetadata?.caption as string) || "Just a chill guy",
+    picture: isPersonalProfile
+      ? (user?.unsafeMetadata?.profilePicture as string)
+      : "https://picsum.photos/400/400?random=4",
+  };
+
+  // Mock posts data
+  const posts = Array.from({ length: 15 }, (_, i) => ({
+    id: i.toString(),
+    imageUrl: `https://picsum.photos/300/300?random=${i}`,
+    username: profileData.username,
+    caption: `Sample caption ${i}`,
+  })) as UserPost[];
+
+  // Handlers
   const handleLongPress = (post: UserPost | null) => {
     setPreviewPost(post);
     setPreviewVisible(true);
@@ -57,11 +69,11 @@ const ProfileScreen = () => {
           />
         );
       case "saved":
-        return (
+        return isPersonalProfile ? (
           <Text className="text-center py-10 text-gray-500">
             Saved posts coming soon
           </Text>
-        );
+        ) : null; // Don't show saved tab for foreign profiles
       case "tagged":
         return (
           <Text className="text-center py-10 text-gray-500">
@@ -79,21 +91,32 @@ const ProfileScreen = () => {
     >
       <ScrollView>
         <View className="px-4">
-          <ProfileHeader username={user.username} self={true} />
+          <ProfileHeader
+            username={profileData.username}
+            self={isPersonalProfile}
+          />
+
           <View className="flex-row items-center mt-3">
-            <ProfileAvatar size={86} />
-            <Statistics {...user} />
+            <ProfileAvatar
+              size={86}
+              username={profileData.username}
+              imageUrl={profileData.picture}
+            />
+            <Statistics posts={124} followers={"4.5k"} following={"300"} />
           </View>
-          <Bio {...user} />
+
+          <Bio name={profileData.name} bio={profileData.bio} />
           <ProfileActions
-            self={true}
+            self={isPersonalProfile}
             isFollowing={isFollowing}
             toggleFollow={() => setIsFollowing(!isFollowing)}
           />
-          <Highlights self={true} />
+
+          <Highlights self={isPersonalProfile} />
         </View>
 
         <ContentTabs activeTab={activeTab} setActiveTab={setActiveTab} />
+
         {renderTabContent()}
 
         <PostPreview

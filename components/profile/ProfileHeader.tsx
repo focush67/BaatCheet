@@ -42,7 +42,7 @@ export const ProfileHeader = ({
           colorScheme === "light" ? "text-black" : "text-white"
         }`}
       >
-        {(user?.unsafeMetadata?.username as string) || "Username"}
+        {username}
       </Text>
 
       {self === true ? (

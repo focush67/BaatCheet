@@ -1,9 +1,11 @@
 import { useTheme } from "@/context/ThemeContext";
 import { Ionicons } from "@expo/vector-icons";
-import { Tabs } from "expo-router";
+import { Tabs, useRouter } from "expo-router";
+import { TouchableOpacity } from "react-native";
 
 export default function TabsLayout() {
   const { colorScheme } = useTheme();
+  const router = useRouter();
   return (
     <Tabs
       screenOptions={{
@@ -107,17 +109,19 @@ export default function TabsLayout() {
           title: "Profile",
           headerShown: false,
           tabBarIcon: ({ color, size }) => (
-            <Ionicons
-              name="person-outline"
-              size={size + 2}
-              color={
-                colorScheme === "light"
-                  ? color === "#000"
-                    ? "#000"
-                    : "#7f7f7f"
-                  : "#fff"
-              }
-            />
+            <TouchableOpacity onPress={() => router.push("/profile")}>
+              <Ionicons
+                name="person-outline"
+                size={size + 2}
+                color={
+                  colorScheme === "light"
+                    ? color === "#000"
+                      ? "#000"
+                      : "#7f7f7f"
+                    : "#fff"
+                }
+              />
+            </TouchableOpacity>
           ),
         }}
       />

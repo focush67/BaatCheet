@@ -34,7 +34,7 @@ const PostCard = ({ post }: PostCardProps) => {
           <TouchableOpacity
             onPress={() =>
               router.push({
-                pathname: "/profile/[username]",
+                pathname: "/profile",
                 params: { username: post.username },
               })
             }
