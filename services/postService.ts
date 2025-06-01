@@ -108,7 +108,7 @@ export const getAllPosts = async (): Promise<GPost[]> => {
       );
       throw new Error(`Server returned unexpected response format`);
     }
-
+    console.log(`Response for posts fetching`, response.data.data.getAllPosts);
     return response.data.data.getAllPosts;
   } catch (error: any) {
     const duration = Date.now() - startTime;
