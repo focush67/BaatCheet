@@ -18,7 +18,7 @@ export const StoryModal = ({
   stories,
   onClose,
   duration = 5000,
-}: any) => {
+}: StoryModalProps) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [replyText, setReplyText] = useState("");
   const [liked, setLiked] = useState(false);
@@ -38,12 +38,17 @@ export const StoryModal = ({
     }
   };
 
-  const animValues = useRef(stories.map(() => new Animated.Value(0))).current;
+  const [animValues, setAnimValues] = useState<Animated.Value[]>([]);
+
+  useEffect(() => {
+    setAnimValues(stories.map(() => new Animated.Value(0)));
+  }, [stories]);
+
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     if (visible) {
-      animValues.forEach((val) => val.setValue(0));
+      animValues.forEach((val: any) => val.setValue(0));
       setCurrentIndex(0);
     }
   }, [visible]);
@@ -70,11 +75,13 @@ export const StoryModal = ({
       }
     }, animationDuration);
 
-    Animated.timing(animValues[index], {
-      toValue: 1,
-      duration: animationDuration,
-      useNativeDriver: false,
-    }).start();
+    if (animValues[index]) {
+      Animated.timing(animValues[index], {
+        toValue: 1,
+        duration: animationDuration,
+        useNativeDriver: false,
+      }).start();
+    }
   };
 
   const stopAnimation = () => {
@@ -86,7 +93,7 @@ export const StoryModal = ({
     const index = currentIndex;
     const startTime = startTimeRef.current;
 
-    animValues[index].stopAnimation((value) => {
+    animValues[index]?.stopAnimation((value: any) => {
       const elapsed = startTime ? Date.now() - startTime : 0;
       const remaining = duration - elapsed;
 
@@ -111,7 +118,7 @@ export const StoryModal = ({
       >
         <View className="flex-1 bg-black justify-end">
           <View className="absolute top-2 left-2 right-2 flex-row gap-1 z-50">
-            {stories.map((_, i) => (
+            {stories.map((_: any, i: number) => (
               <View
                 key={i}
                 className="flex-1 h-0.5 bg-white/30 overflow-hidden rounded"
@@ -120,7 +127,7 @@ export const StoryModal = ({
                   style={{
                     height: "100%",
                     backgroundColor: "white",
-                    width: animValues[i].interpolate({
+                    width: animValues[i]?.interpolate({
                       inputRange: [0, 1],
                       outputRange: ["0%", "100%"],
                     }),
