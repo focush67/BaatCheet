@@ -53,6 +53,11 @@ export const useStoryStore = create<ZStoriesState>()(
           return { userStories: updatedStories };
         });
       },
+
+      reset: () => {
+        useStoryStore.persist.clearStorage();
+        useStoryStore.setState({ userStories: [] });
+      },
     }),
     {
       name: "stories-storage",

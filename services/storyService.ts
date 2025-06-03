@@ -1,4 +1,8 @@
-import { CREATE_USER_STORY, LIKE_STORY } from "@/api/graphql/mutations/story";
+import {
+  CREATE_USER_STORY,
+  LIKE_STORY,
+  UNLIKE_STORY,
+} from "@/api/graphql/mutations/story";
 import {
   GET_ALL_STORIES,
   GET_STORIES_FOR_USER,
@@ -204,7 +208,7 @@ export const likeStory = async (
   const requestId = Math.random().toString(36).substring(2, 9);
 
   console.log(
-    `[Story LIKE API][${requestId}] Replying to story with ID ${storyId}`,
+    `[Story LIKE API][${requestId}] Liking story with ID ${storyId}`,
     {
       timestamp: new Date().toISOString(),
     }
@@ -253,6 +257,77 @@ export const likeStory = async (
       errorDetails: error.errorDetails || "No additional details",
       stack: error.stack,
     });
+
+    const userFriendlyError = new Error(
+      __DEV__
+        ? errorMessage
+        : "Failed to fetch singular post. Please try again."
+    );
+    userFriendlyError.stack = error.stack;
+    throw userFriendlyError;
+  }
+};
+
+export const unlikeStory = async (
+  storyId: string,
+  email: string
+): Promise<GLike[]> => {
+  const startTime = Date.now();
+  const requestId = Math.random().toString(36).substring(2, 9);
+
+  console.log(
+    `[Story UNLIKE API][${requestId}] Unliking story with ID ${storyId}`,
+    {
+      timestamp: new Date().toISOString(),
+    }
+  );
+
+  try {
+    const response = await api.post("", {
+      query: UNLIKE_STORY,
+      variables: {
+        storyID: storyId,
+        email: email,
+      },
+    });
+    const duration = Date.now() - startTime;
+    console.log(
+      `[Story UNLIKE API][${requestId}] Request completed in ${duration}ms`,
+      {
+        status: response.status,
+        data: response.data,
+      }
+    );
+
+    if (response.data.errors) {
+      const errorMessage = response.data.errors[0].message;
+      console.error(`[Story UNLIKE API][${requestId}] GraphQL Error`, {
+        errors: response.data.errors,
+        query: UNLIKE_STORY,
+      });
+      throw new Error(errorMessage);
+    }
+    if (!response.data.data?.removeLikeFromStory) {
+      console.error(
+        `[Story UNLIKE API][${requestId}] Malformed response`,
+        response.data
+      );
+      throw new Error(`Server returned unexpected response format`);
+    }
+
+    return response.data.data.removeLikeFromStory;
+  } catch (error: any) {
+    const duration = Date.now() - startTime;
+    const errorMessage =
+      error instanceof Error ? error.message : "Unknown Error";
+    console.error(
+      `[Story UNLIKE API][${requestId}] Failed after ${duration}ms`,
+      {
+        error: errorMessage,
+        errorDetails: error.errorDetails || "No additional details",
+        stack: error.stack,
+      }
+    );
 
     const userFriendlyError = new Error(
       __DEV__

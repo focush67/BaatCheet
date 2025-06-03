@@ -1,4 +1,4 @@
-import { likeStory } from "@/services/storyService";
+import { likeStory, unlikeStory } from "@/services/storyService";
 import { useUser } from "@clerk/clerk-expo";
 import { Ionicons } from "@expo/vector-icons";
 import React, { useEffect, useRef, useState } from "react";
@@ -14,56 +14,57 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { useStoryById } from "@/stores/StoryStore";
 
 export const StoryModal = ({
   visible,
-  stories,
+  stories = [],
   onClose,
   duration = 5000,
 }: StoryModalProps) => {
+  // 1. All hooks must come first
   const [currentIndex, setCurrentIndex] = useState(0);
   const [replyText, setReplyText] = useState("");
-  const [liked, setLiked] = useState(false);
+  const { user } = useUser();
+  const [animValues, setAnimValues] = useState<Animated.Value[]>([]);
+
+  // Refs
   const replyInputRef = useRef<TextInput>(null);
   const startTimeRef = useRef<number | null>(null);
   const remainingDurationRef = useRef<number>(duration);
-  const { user } = useUser();
-  if (!user) {
-    throw new Error("You need be be signed in to be on this page");
-  }
-  const handleLike = async (storyId: string) => {
-    const response = await likeStory(
-      storyId,
-      user.emailAddresses[0].emailAddress
-    );
-    console.log(`Story Like Response`, response);
-  };
-
-  const handleSendReply = () => {
-    if (replyText.trim()) {
-      console.log("Reply sent:", replyText);
-      setReplyText("");
-      Keyboard.dismiss();
-    }
-  };
-
-  const [animValues, setAnimValues] = useState<Animated.Value[]>([]);
-
-  useEffect(() => {
-    setAnimValues(stories.map(() => new Animated.Value(0)));
-  }, [stories]);
-
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
+  // Get current story safely
+  const currentStory = useStoryById(stories[currentIndex]?.id);
+
+  // 2. Early validation
+  if (!user) {
+    return null; // Or show a "sign in" message
+  }
+
+  // Initialize animation values safely
+  useEffect(() => {
+    if (stories.length > 0) {
+      setAnimValues(stories.map(() => new Animated.Value(0)));
+    }
+  }, [stories]);
+
+  // Safe user email access
+  const userEmail = user.emailAddresses[0]?.emailAddress;
+  const liked = currentStory?.likes?.some(
+    (like) => like?.owner?.email === userEmail
+  );
+
+  // Animation control effects
   useEffect(() => {
     if (visible) {
-      animValues.forEach((val: any) => val.setValue(0));
+      animValues.forEach((val) => val?.setValue(0));
       setCurrentIndex(0);
     }
   }, [visible]);
 
   useEffect(() => {
-    if (visible) {
+    if (visible && currentStory) {
       startAnimation(currentIndex);
     }
     return () => stopAnimation();
@@ -71,6 +72,7 @@ export const StoryModal = ({
 
   const startAnimation = (index: number, customDuration?: number) => {
     stopAnimation();
+    if (index >= stories.length) return;
 
     const animationDuration = customDuration ?? duration;
     startTimeRef.current = Date.now();
@@ -84,76 +86,80 @@ export const StoryModal = ({
       }
     }, animationDuration);
 
-    if (animValues[index]) {
-      Animated.timing(animValues[index], {
-        toValue: 1,
-        duration: animationDuration,
-        useNativeDriver: false,
-      }).start();
-    }
+    Animated.timing(animValues[index] || new Animated.Value(0), {
+      toValue: 1,
+      duration: animationDuration,
+      useNativeDriver: false,
+    }).start();
   };
 
   const stopAnimation = () => {
-    if (timerRef.current) {
-      clearTimeout(timerRef.current);
-      timerRef.current = null;
-    }
-
-    const index = currentIndex;
-    const startTime = startTimeRef.current;
-
-    animValues[index]?.stopAnimation((value: any) => {
-      const elapsed = startTime ? Date.now() - startTime : 0;
-      const remaining = duration - elapsed;
-
-      remainingDurationRef.current = Math.max(remaining, 0);
-    });
+    timerRef.current && clearTimeout(timerRef.current);
+    timerRef.current = null;
   };
 
-  const currentStory = stories[currentIndex];
+  const handleLike = async (storyId: string) => {
+    if (!userEmail || !currentStory) return;
 
-  if (!currentStory) return null;
+    try {
+      if (liked) {
+        await unlikeStory(storyId, userEmail);
+      } else {
+        await likeStory(storyId, userEmail);
+      }
+    } catch (error) {
+      console.error("Like error:", error);
+    }
+  };
+
+  const handleSendReply = () => {
+    replyText.trim() && Keyboard.dismiss();
+    setReplyText("");
+  };
+
+  // 3. Final null check after all hooks
+  if (!currentStory || !visible) return null;
 
   return (
-    <Modal
-      visible={visible}
-      transparent={false}
-      animationType="fade"
-      onRequestClose={onClose}
-    >
+    <Modal visible={visible} transparent={false} animationType="fade">
       <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : undefined}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={{ flex: 1 }}
       >
         <View className="flex-1 bg-black justify-end">
+          {/* Progress bars */}
           <View className="absolute top-2 left-2 right-2 flex-row gap-1 z-50">
-            {stories.map((_: any, i: number) => (
+            {stories.map((_, i) => (
               <View
                 key={i}
-                className="flex-1 h-0.5 bg-white/30 overflow-hidden rounded"
+                className="flex-1 h-0.5 bg-white/30 rounded overflow-hidden"
               >
                 <Animated.View
                   style={{
                     height: "100%",
                     backgroundColor: "white",
-                    width: animValues[i]?.interpolate({
-                      inputRange: [0, 1],
-                      outputRange: ["0%", "100%"],
-                    }),
+                    width:
+                      animValues[i]?.interpolate({
+                        inputRange: [0, 1],
+                        outputRange: ["0%", "100%"],
+                      }) || "0%",
                   }}
                 />
               </View>
             ))}
           </View>
 
+          {/* Header */}
           <View className="absolute top-8 px-4 w-full flex-row justify-between items-center z-50">
             <View className="flex-row items-center">
-              <Image
-                source={{ uri: currentStory.owner.profilePicture }}
-                className="w-[30px] h-[30px] rounded-full mr-2"
-              />
+              {currentStory.owner?.profilePicture && (
+                <Image
+                  source={{ uri: currentStory.owner.profilePicture }}
+                  className="w-[30px] h-[30px] rounded-full mr-2"
+                />
+              )}
               <Text className="text-white font-semibold">
-                {currentStory.owner.username}
+                {currentStory.owner?.username || "Unknown user"}
               </Text>
             </View>
             <TouchableOpacity onPress={onClose}>
@@ -161,40 +167,32 @@ export const StoryModal = ({
             </TouchableOpacity>
           </View>
 
+          {/* Navigation areas */}
           <View className="absolute inset-0 flex-row z-40">
             <TouchableOpacity
               className="flex-1"
-              onPress={() => {
-                if (currentIndex > 0) {
-                  animValues[currentIndex].setValue(0);
-                  setCurrentIndex(currentIndex - 1);
-                } else {
-                  onClose();
-                }
-              }}
+              onPress={() => setCurrentIndex((prev) => Math.max(prev - 1, 0))}
             />
-
             <TouchableOpacity
               className="flex-1"
-              onPress={() => {
-                if (currentIndex < stories.length - 1) {
-                  animValues[currentIndex].setValue(1);
-                  setCurrentIndex(currentIndex + 1);
-                } else {
-                  onClose();
-                }
-              }}
+              onPress={() =>
+                setCurrentIndex((prev) =>
+                  prev < stories.length - 1 ? prev + 1 : prev
+                )
+              }
             />
           </View>
 
           {/* Story image */}
-          <Image
-            source={{ uri: currentStory.coverPhoto }}
-            resizeMode="contain"
-            className="w-full h-full absolute"
-          />
+          {currentStory.coverPhoto && (
+            <Image
+              source={{ uri: currentStory.coverPhoto }}
+              resizeMode="contain"
+              className="w-full h-full absolute"
+            />
+          )}
 
-          {/* Bottom input bar */}
+          {/* Bottom bar */}
           <View className="absolute bottom-5 px-4 w-full flex-row items-center z-50">
             <View className="flex-1 flex-row items-center bg-white/20 rounded-full px-4 py-2 mr-2">
               <TextInput
@@ -205,15 +203,13 @@ export const StoryModal = ({
                 placeholderTextColor="rgba(255,255,255,0.5)"
                 className="flex-1 text-white text-sm"
                 onSubmitEditing={handleSendReply}
-                onFocus={() => stopAnimation()}
-                onBlur={() => {
-                  const remaining = remainingDurationRef.current;
-                  startAnimation(currentIndex, remaining);
-                }}
+                onFocus={stopAnimation}
+                onBlur={() =>
+                  startAnimation(currentIndex, remainingDurationRef.current)
+                }
               />
               <TouchableOpacity
                 onPress={handleSendReply}
-                className="ml-2"
                 disabled={!replyText.trim()}
               >
                 <Ionicons
@@ -225,8 +221,7 @@ export const StoryModal = ({
             </View>
 
             <TouchableOpacity
-              onPress={() => handleLike(currentStory.id)}
-              className="p-1.5"
+              onPress={() => currentStory && handleLike(currentStory.id)}
             >
               <Ionicons
                 name={liked ? "heart" : "heart-outline"}

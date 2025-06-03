@@ -46,7 +46,7 @@ export const LIKE_STORY = `
 
 export const UNLIKE_STORY = `
     mutation UnLikeStory($storyID:ID!,$email:String!){
-        removeLikeStory(storyID:$storyID,email:$email){
+        removeLikeFromStory(storyID:$storyID,email:$email){
             storyId,
             owner {
                 email

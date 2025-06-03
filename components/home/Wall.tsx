@@ -2,15 +2,20 @@ import { usePostStore } from "@/stores/PostStore";
 import React, { useEffect } from "react";
 import { FlatList } from "react-native";
 import PostCard from "../post/PostCard";
+import { useStoryStore } from "@/stores/StoryStore";
 
 export default function Wall() {
   const posts = usePostStore((state) => state.posts);
-
+  const stories = useStoryStore((state) => state.userStories);
   useEffect(() => {
     if (!posts || posts.length === 0) {
       usePostStore.getState().setPosts();
     }
-  }, [posts]);
+
+    if (!stories || stories.length === 0) {
+      useStoryStore.getState().fetchUserStories();
+    }
+  }, [posts, stories]);
 
   return (
     <FlatList

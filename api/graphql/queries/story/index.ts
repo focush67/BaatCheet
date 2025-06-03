@@ -4,24 +4,24 @@ export const GET_ALL_STORIES = `
         id    
         content
         coverPhoto
+        owner {
+            email
+            username
+            profilePicture
+        }
+
+        likes {
             owner {
                 email
                 username
-                profilePicture
             }
+        }
 
-            likes {
-                owner {
-                    email
-                    username
-                }
-            }
-
-            comments {
-                content
-                owner {
-                    username
-                    email
+        comments {
+            content
+            owner {
+                username
+                email
                 }
             }
         }

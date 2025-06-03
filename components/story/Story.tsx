@@ -2,7 +2,6 @@ import { useTheme } from "@/context/ThemeContext";
 import { useUser } from "@clerk/clerk-expo";
 import React, { memo } from "react";
 import { Image, Text, TouchableOpacity, View } from "react-native";
-
 export const Story = memo(({ story, onPress }: StoryProps) => {
   const { colorScheme } = useTheme();
   const { user } = useUser();

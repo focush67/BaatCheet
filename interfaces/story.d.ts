@@ -59,6 +59,7 @@ interface ZStoriesState {
   likeStory: (storyId: string, user: GUser) => void;
   replyToStory: (storyId: string, comment: GComment) => void;
   fetchUserStories: () => Promise<void>;
+  reset: () => void;
 }
 // GraphQL types for backend type checks
 
