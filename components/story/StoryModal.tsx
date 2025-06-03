@@ -1,3 +1,5 @@
+import { likeStory } from "@/services/storyService";
+import { useUser } from "@clerk/clerk-expo";
 import { Ionicons } from "@expo/vector-icons";
 import React, { useEffect, useRef, useState } from "react";
 import {
@@ -25,9 +27,16 @@ export const StoryModal = ({
   const replyInputRef = useRef<TextInput>(null);
   const startTimeRef = useRef<number | null>(null);
   const remainingDurationRef = useRef<number>(duration);
-
-  const handleLike = () => {
-    setLiked(!liked);
+  const { user } = useUser();
+  if (!user) {
+    throw new Error("You need be be signed in to be on this page");
+  }
+  const handleLike = async (storyId: string) => {
+    const response = await likeStory(
+      storyId,
+      user.emailAddresses[0].emailAddress
+    );
+    console.log(`Story Like Response`, response);
   };
 
   const handleSendReply = () => {
@@ -215,7 +224,10 @@ export const StoryModal = ({
               </TouchableOpacity>
             </View>
 
-            <TouchableOpacity onPress={handleLike} className="p-1.5">
+            <TouchableOpacity
+              onPress={() => handleLike(currentStory.id)}
+              className="p-1.5"
+            >
               <Ionicons
                 name={liked ? "heart" : "heart-outline"}
                 size={28}

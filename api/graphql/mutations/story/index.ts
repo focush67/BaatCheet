@@ -29,3 +29,31 @@ export const CREATE_USER_STORY = `
         }
     }
 `;
+
+export const LIKE_STORY = `
+    mutation LikeStory($storyID:ID!,$email:String!){
+        addLikeToStory(storyID:$storyID,email:$email){
+            storyId,
+            owner {
+                email
+                username
+                name
+                profilePicture
+            }
+        }
+    }
+`;
+
+export const UNLIKE_STORY = `
+    mutation UnLikeStory($storyID:ID!,$email:String!){
+        removeLikeStory(storyID:$storyID,email:$email){
+            storyId,
+            owner {
+                email
+                username
+                name
+                profilePicture
+            }
+        }
+    }
+`;

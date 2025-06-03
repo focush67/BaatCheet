@@ -1,4 +1,4 @@
-import { CREATE_USER_STORY } from "@/api/graphql/mutations/story";
+import { CREATE_USER_STORY, LIKE_STORY } from "@/api/graphql/mutations/story";
 import {
   GET_ALL_STORIES,
   GET_STORIES_FOR_USER,
@@ -11,7 +11,7 @@ export const createNewStory = async (
   const startTime = Date.now();
   const requestId = Math.random().toString(36).substring(2, 9);
   console.log(
-    `[Story API][${requestId}] Starting update for ${input.coverPhoto}`,
+    `[Story CREATE API][${requestId}] Starting update for ${input.coverPhoto}`,
     {
       input,
       timestamp: new Date().toISOString(),
@@ -27,7 +27,7 @@ export const createNewStory = async (
     });
     const duration = Date.now() - startTime;
     console.log(
-      `[Story API][${requestId}] Request completed in ${duration}ms`,
+      `[Story CREATE API][${requestId}] Request completed in ${duration}ms`,
       {
         status: response.status,
         data: response.data,
@@ -36,7 +36,7 @@ export const createNewStory = async (
 
     if (response.data.errors) {
       const errorMessage = response.data.errors[0].message;
-      console.error(`[Story API]${requestId} GraphQL Error`, {
+      console.error(`[Story CREATE API]${requestId} GraphQL Error`, {
         errors: response.data.errors,
         query: CREATE_USER_STORY,
         variables: { input },
@@ -45,7 +45,7 @@ export const createNewStory = async (
     }
     if (!response.data.data?.createNewStory) {
       console.error(
-        `[Story API][${requestId}] Malformed response`,
+        `[Story CREATE API][${requestId}] Malformed response`,
         response.data
       );
       throw new Error(`Server returned unexpected response format`);
@@ -55,12 +55,15 @@ export const createNewStory = async (
     const duration = Date.now() - startTime;
     const errorMessage =
       error instanceof Error ? error.message : "Unknown Error";
-    console.error(`[Story API][${requestId}] Failed after ${duration}ms`, {
-      input,
-      error: errorMessage,
-      errorDetails: error.errorDetails || "No additional details",
-      stack: error.stack,
-    });
+    console.error(
+      `[Story CREATED API][${requestId}] Failed after ${duration}ms`,
+      {
+        input,
+        error: errorMessage,
+        errorDetails: error.errorDetails || "No additional details",
+        stack: error.stack,
+      }
+    );
 
     const userFriendlyError = new Error(
       __DEV__ ? errorMessage : "Failed to create story. Please try again."
@@ -74,7 +77,7 @@ export const getStories = async (): Promise<GStory[]> => {
   const startTime = Date.now();
   const requestId = Math.random().toString(36).substring(2, 9);
   console.log(
-    `[Story API][${requestId}] Starting update for getting all stories`
+    `[Story GETALL API][${requestId}] Starting update for getting all stories`
   );
 
   try {
@@ -83,7 +86,7 @@ export const getStories = async (): Promise<GStory[]> => {
     });
     const duration = Date.now() - startTime;
     console.log(
-      `[Story API][${requestId}] Request completed in ${duration}ms`,
+      `[Story GETALL API][${requestId}] Request completed in ${duration}ms`,
       {
         status: response.status,
         data: response.data,
@@ -92,7 +95,7 @@ export const getStories = async (): Promise<GStory[]> => {
 
     if (response.data.errors) {
       const errorMessage = response.data.errors[0].message;
-      console.error(`[Story API]${requestId} GraphQL Error`, {
+      console.error(`[Story GETALL API]${requestId} GraphQL Error`, {
         errors: response.data.errors,
         query: GET_ALL_STORIES,
       });
@@ -100,7 +103,7 @@ export const getStories = async (): Promise<GStory[]> => {
     }
     if (!response.data.data?.getAllStories) {
       console.error(
-        `[Story API][${requestId}] Malformed response`,
+        `[Story GETALL API][${requestId}] Malformed response`,
         response.data
       );
       throw new Error(`Server returned unexpected response format`);
@@ -110,11 +113,14 @@ export const getStories = async (): Promise<GStory[]> => {
     const duration = Date.now() - startTime;
     const errorMessage =
       error instanceof Error ? error.message : "Unknown Error";
-    console.error(`[Story API][${requestId}] Failed after ${duration}ms`, {
-      error: errorMessage,
-      errorDetails: error.errorDetails || "No additional details",
-      stack: error.stack,
-    });
+    console.error(
+      `[Story GETALL API][${requestId}] Failed after ${duration}ms`,
+      {
+        error: errorMessage,
+        errorDetails: error.errorDetails || "No additional details",
+        stack: error.stack,
+      }
+    );
 
     const userFriendlyError = new Error(
       __DEV__
@@ -130,7 +136,7 @@ export const getStoriesForUser = async (email: string): Promise<GStory[]> => {
   const startTime = Date.now();
   const requestId = Math.random().toString(36).substring(2, 9);
   console.log(
-    `[Story API][${requestId}] Starting update for getting stories for ${email}`
+    `[Story GETFORUSER API][${requestId}] Starting update for getting stories for ${email}`
   );
 
   try {
@@ -142,7 +148,7 @@ export const getStoriesForUser = async (email: string): Promise<GStory[]> => {
     });
     const duration = Date.now() - startTime;
     console.log(
-      `[Story API][${requestId}] Request completed in ${duration}ms`,
+      `[Story GETFORUSER API][${requestId}] Request completed in ${duration}ms`,
       {
         status: response.status,
         data: response.data,
@@ -151,7 +157,7 @@ export const getStoriesForUser = async (email: string): Promise<GStory[]> => {
 
     if (response.data.errors) {
       const errorMessage = response.data.errors[0].message;
-      console.error(`[Story API]${requestId} GraphQL Error`, {
+      console.error(`[Story GETFORUSER API]${requestId} GraphQL Error`, {
         errors: response.data.errors,
         query: GET_STORIES_FOR_USER,
       });
@@ -159,7 +165,7 @@ export const getStoriesForUser = async (email: string): Promise<GStory[]> => {
     }
     if (!response.data.data?.getStoriesForUser) {
       console.error(
-        `[Story API][${requestId}] Malformed response`,
+        `[Story GETFORUSER API][${requestId}] Malformed response`,
         response.data
       );
       throw new Error(`Server returned unexpected response format`);
@@ -173,11 +179,14 @@ export const getStoriesForUser = async (email: string): Promise<GStory[]> => {
     const duration = Date.now() - startTime;
     const errorMessage =
       error instanceof Error ? error.message : "Unknown Error";
-    console.error(`[Story API][${requestId}] Failed after ${duration}ms`, {
-      error: errorMessage,
-      errorDetails: error.errorDetails || "No additional details",
-      stack: error.stack,
-    });
+    console.error(
+      `[Story GETFORUSER API][${requestId}] Failed after ${duration}ms`,
+      {
+        error: errorMessage,
+        errorDetails: error.errorDetails || "No additional details",
+        stack: error.stack,
+      }
+    );
 
     const userFriendlyError = new Error(
       __DEV__ ? errorMessage : "Failed to retrieve stories. Please try again."
@@ -186,3 +195,77 @@ export const getStoriesForUser = async (email: string): Promise<GStory[]> => {
     throw userFriendlyError;
   }
 };
+
+export const likeStory = async (
+  storyId: string,
+  email: string
+): Promise<GLike[]> => {
+  const startTime = Date.now();
+  const requestId = Math.random().toString(36).substring(2, 9);
+
+  console.log(
+    `[Story LIKE API][${requestId}] Replying to story with ID ${storyId}`,
+    {
+      timestamp: new Date().toISOString(),
+    }
+  );
+
+  try {
+    const response = await api.post("", {
+      query: LIKE_STORY,
+      variables: {
+        storyID: storyId,
+        email: email,
+      },
+    });
+    const duration = Date.now() - startTime;
+    console.log(
+      `[Story LIKE API][${requestId}] Request completed in ${duration}ms`,
+      {
+        status: response.status,
+        data: response.data,
+      }
+    );
+
+    if (response.data.errors) {
+      const errorMessage = response.data.errors[0].message;
+      console.error(`[Story LIKE API][${requestId}] GraphQL Error`, {
+        errors: response.data.errors,
+        query: LIKE_STORY,
+      });
+      throw new Error(errorMessage);
+    }
+    if (!response.data.data?.addLikeToStory) {
+      console.error(
+        `[Story LIKE API][${requestId}] Malformed response`,
+        response.data
+      );
+      throw new Error(`Server returned unexpected response format`);
+    }
+
+    return response.data.data.addLikeToStory;
+  } catch (error: any) {
+    const duration = Date.now() - startTime;
+    const errorMessage =
+      error instanceof Error ? error.message : "Unknown Error";
+    console.error(`[Story LIKE API][${requestId}] Failed after ${duration}ms`, {
+      error: errorMessage,
+      errorDetails: error.errorDetails || "No additional details",
+      stack: error.stack,
+    });
+
+    const userFriendlyError = new Error(
+      __DEV__
+        ? errorMessage
+        : "Failed to fetch singular post. Please try again."
+    );
+    userFriendlyError.stack = error.stack;
+    throw userFriendlyError;
+  }
+};
+
+// export const replyToStory = async (
+//   storyId: string,
+//   creatorId: string,
+//   content: string
+// ): Promise<GStory> => {};
