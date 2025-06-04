@@ -1,4 +1,4 @@
-import { likeStory, unlikeStory } from "@/services/storyService";
+import { likeStory, unlikeStory, replyToStory } from "@/services/storyService";
 import { useUser } from "@clerk/clerk-expo";
 import { Ionicons } from "@expo/vector-icons";
 import React, { useEffect, useRef, useState } from "react";
@@ -22,40 +22,39 @@ export const StoryModal = ({
   onClose,
   duration = 5000,
 }: StoryModalProps) => {
-  // 1. All hooks must come first
   const [currentIndex, setCurrentIndex] = useState(0);
   const [replyText, setReplyText] = useState("");
   const { user } = useUser();
   const [animValues, setAnimValues] = useState<Animated.Value[]>([]);
+  const [isLiked, setIsLiked] = useState(false);
 
-  // Refs
   const replyInputRef = useRef<TextInput>(null);
   const startTimeRef = useRef<number | null>(null);
   const remainingDurationRef = useRef<number>(duration);
-  const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Get current story safely
   const currentStory = useStoryById(stories[currentIndex]?.id);
 
-  // 2. Early validation
   if (!user) {
-    return null; // Or show a "sign in" message
+    return null;
   }
 
-  // Initialize animation values safely
   useEffect(() => {
     if (stories.length > 0) {
       setAnimValues(stories.map(() => new Animated.Value(0)));
     }
   }, [stories]);
 
-  // Safe user email access
   const userEmail = user.emailAddresses[0]?.emailAddress;
-  const liked = currentStory?.likes?.some(
-    (like) => like?.owner?.email === userEmail
-  );
 
-  // Animation control effects
+  useEffect(() => {
+    const liked = currentStory?.likes?.some(
+      (like) => like?.owner?.email === userEmail
+    );
+
+    setIsLiked(liked ?? false);
+  }, [currentStory, userEmail]);
+
   useEffect(() => {
     if (visible) {
       animValues.forEach((val) => val?.setValue(0));
@@ -100,24 +99,29 @@ export const StoryModal = ({
 
   const handleLike = async (storyId: string) => {
     if (!userEmail || !currentStory) return;
-
     try {
-      if (liked) {
+      if (isLiked) {
         await unlikeStory(storyId, userEmail);
       } else {
         await likeStory(storyId, userEmail);
       }
+      setIsLiked((prev) => !prev);
     } catch (error) {
       console.error("Like error:", error);
     }
   };
 
-  const handleSendReply = () => {
+  const handleSendReply = async () => {
     replyText.trim() && Keyboard.dismiss();
+    const response = await replyToStory(
+      currentStory?.id!,
+      user.emailAddresses[0].emailAddress,
+      replyText
+    );
+    console.log("Added reply response", response);
     setReplyText("");
   };
 
-  // 3. Final null check after all hooks
   if (!currentStory || !visible) return null;
 
   return (
@@ -203,7 +207,9 @@ export const StoryModal = ({
                 placeholderTextColor="rgba(255,255,255,0.5)"
                 className="flex-1 text-white text-sm"
                 onSubmitEditing={handleSendReply}
-                onFocus={stopAnimation}
+                onFocus={() => {
+                  stopAnimation();
+                }}
                 onBlur={() =>
                   startAnimation(currentIndex, remainingDurationRef.current)
                 }
@@ -224,9 +230,9 @@ export const StoryModal = ({
               onPress={() => currentStory && handleLike(currentStory.id)}
             >
               <Ionicons
-                name={liked ? "heart" : "heart-outline"}
+                name={isLiked ? "heart" : "heart-outline"}
                 size={28}
-                color={liked ? "#ff3040" : "white"}
+                color={isLiked ? "#ff3040" : "white"}
               />
             </TouchableOpacity>
           </View>

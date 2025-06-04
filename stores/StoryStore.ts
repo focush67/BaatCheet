@@ -31,11 +31,25 @@ export const useStoryStore = create<ZStoriesState>()(
                     owner: user,
                   },
                 ];
-
             return { ...userStory, likes: updatedLikes };
           });
-
           return { userStories };
+        });
+      },
+
+      unlikeStory: (storyId, user) => {
+        set((state) => {
+          const updatedStories = state.userStories.map((story) => {
+            if (story.id !== storyId) return story;
+
+            const updatedLikes = story.likes.filter(
+              (like) => like.owner.email !== user.email
+            );
+
+            return { ...story, likes: updatedLikes };
+          });
+
+          return { userStories: updatedStories };
         });
       },
 

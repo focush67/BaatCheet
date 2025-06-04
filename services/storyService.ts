@@ -2,6 +2,8 @@ import {
   CREATE_USER_STORY,
   LIKE_STORY,
   UNLIKE_STORY,
+  REPLY_TO_STORY,
+  DELETE_REPLY_FROM_STORY,
 } from "@/api/graphql/mutations/story";
 import {
   GET_ALL_STORIES,
@@ -339,8 +341,75 @@ export const unlikeStory = async (
   }
 };
 
-// export const replyToStory = async (
-//   storyId: string,
-//   creatorId: string,
-//   content: string
-// ): Promise<GStory> => {};
+export const replyToStory = async (
+  storyID: string,
+  email: string,
+  content: string
+): Promise<GComment> => {
+  const startTime = Date.now();
+  const requestId = Math.random().toString(36).substring(2, 9);
+
+  console.log(
+    `[Story REPLY API][${requestId}] Replying to story with ID ${storyID}`,
+    {
+      timestamp: new Date().toISOString(),
+    }
+  );
+
+  try {
+    const response = await api.post("", {
+      query: REPLY_TO_STORY,
+      variables: {
+        storyID: storyID,
+        email: email,
+        content: content,
+      },
+    });
+    const duration = Date.now() - startTime;
+    console.log(
+      `[Story REPLY API][${requestId}] Request completed in ${duration}ms`,
+      {
+        status: response.status,
+        data: response.data,
+      }
+    );
+
+    if (response.data.errors) {
+      const errorMessage = response.data.errors[0].message;
+      console.error(`[Story REPLY API][${requestId}] GraphQL Error`, {
+        errors: response.data.errors,
+        query: REPLY_TO_STORY,
+      });
+      throw new Error(errorMessage);
+    }
+    if (!response.data.data?.addCommentToStory) {
+      console.error(
+        `[Story REPLY API][${requestId}] Malformed response`,
+        response.data
+      );
+      throw new Error(`Server returned unexpected response format`);
+    }
+
+    return response.data.data.addCommentToStory;
+  } catch (error: any) {
+    const duration = Date.now() - startTime;
+    const errorMessage =
+      error instanceof Error ? error.message : "Unknown Error";
+    console.error(
+      `[Story REPLY API][${requestId}] Failed after ${duration}ms`,
+      {
+        error: errorMessage,
+        errorDetails: error.errorDetails || "No additional details",
+        stack: error.stack,
+      }
+    );
+
+    const userFriendlyError = new Error(
+      __DEV__
+        ? errorMessage
+        : "Failed to fetch singular post. Please try again."
+    );
+    userFriendlyError.stack = error.stack;
+    throw userFriendlyError;
+  }
+};

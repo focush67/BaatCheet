@@ -57,6 +57,7 @@ interface THighlight {
 interface ZStoriesState {
   userStories: GStory[];
   likeStory: (storyId: string, user: GUser) => void;
+  unlikeStory: (storyId: string, user: GUser) => void;
   replyToStory: (storyId: string, comment: GComment) => void;
   fetchUserStories: () => Promise<void>;
   reset: () => void;
