@@ -1,21 +1,19 @@
-import { likeStory, unlikeStory, replyToStory } from "@/services/storyService";
 import { useUser } from "@clerk/clerk-expo";
-import { Ionicons } from "@expo/vector-icons";
 import React, { useEffect, useRef, useState } from "react";
 import {
   Animated,
   Image,
-  Keyboard,
   KeyboardAvoidingView,
   Modal,
   Platform,
-  Text,
   TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
 import { useStoryById } from "@/stores/StoryStore";
 import StoryLikeButton from "./StoryLikeButton";
+import StoryReplyBar from "./StoryReplyBar";
+import StoryHeader from "./StoryHeader";
 
 export const StoryModal = ({
   visible,
@@ -24,7 +22,6 @@ export const StoryModal = ({
   duration = 5000,
 }: StoryModalProps) => {
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [replyText, setReplyText] = useState("");
   const { user } = useUser();
   const [animValues, setAnimValues] = useState<Animated.Value[]>([]);
   const [isLiked, setIsLiked] = useState(false);
@@ -39,14 +36,12 @@ export const StoryModal = ({
   if (!user) {
     return null;
   }
-
+  const userEmail = user.emailAddresses[0]?.emailAddress;
   useEffect(() => {
     if (stories.length > 0) {
       setAnimValues(stories.map(() => new Animated.Value(0)));
     }
   }, [stories]);
-
-  const userEmail = user.emailAddresses[0]?.emailAddress;
 
   useEffect(() => {
     const liked = currentStory?.likes?.some(
@@ -98,31 +93,6 @@ export const StoryModal = ({
     timerRef.current = null;
   };
 
-  const handleLike = async (storyId: string) => {
-    if (!userEmail || !currentStory) return;
-    try {
-      if (isLiked) {
-        await unlikeStory(storyId, userEmail);
-      } else {
-        await likeStory(storyId, userEmail);
-      }
-      setIsLiked((prev) => !prev);
-    } catch (error) {
-      console.error("Like error:", error);
-    }
-  };
-
-  const handleSendReply = async () => {
-    replyText.trim() && Keyboard.dismiss();
-    const response = await replyToStory(
-      currentStory?.id!,
-      user.emailAddresses[0].emailAddress,
-      replyText
-    );
-    console.log("Added reply response", response);
-    setReplyText("");
-  };
-
   if (!currentStory || !visible) return null;
 
   return (
@@ -154,25 +124,8 @@ export const StoryModal = ({
             ))}
           </View>
 
-          {/* Header */}
-          <View className="absolute top-8 px-4 w-full flex-row justify-between items-center z-50">
-            <View className="flex-row items-center">
-              {currentStory.owner?.profilePicture && (
-                <Image
-                  source={{ uri: currentStory.owner.profilePicture }}
-                  className="w-[30px] h-[30px] rounded-full mr-2"
-                />
-              )}
-              <Text className="text-white font-semibold">
-                {currentStory.owner?.username || "Unknown user"}
-              </Text>
-            </View>
-            <TouchableOpacity onPress={onClose}>
-              <Ionicons name="close" size={24} color="white" />
-            </TouchableOpacity>
-          </View>
+          <StoryHeader currentStory={currentStory} onClose={onClose} />
 
-          {/* Navigation areas */}
           <View className="absolute inset-0 flex-row z-40">
             <TouchableOpacity
               className="flex-1"
@@ -199,34 +152,15 @@ export const StoryModal = ({
 
           {/* Bottom bar */}
           <View className="absolute bottom-5 px-4 w-full flex-row items-center z-50">
-            <View className="flex-1 flex-row items-center bg-white/20 rounded-full px-4 py-2 mr-2">
-              <TextInput
-                ref={replyInputRef}
-                value={replyText}
-                onChangeText={setReplyText}
-                placeholder="Send message"
-                placeholderTextColor="rgba(255,255,255,0.5)"
-                className="flex-1 text-white text-sm"
-                onSubmitEditing={handleSendReply}
-                onFocus={() => {
-                  stopAnimation();
-                }}
-                onBlur={() =>
-                  startAnimation(currentIndex, remainingDurationRef.current)
-                }
-              />
-              <TouchableOpacity
-                onPress={handleSendReply}
-                disabled={!replyText.trim()}
-              >
-                <Ionicons
-                  name="send"
-                  size={20}
-                  color={replyText.trim() ? "#0095f6" : "rgba(255,255,255,0.5)"}
-                />
-              </TouchableOpacity>
-            </View>
-
+            <StoryReplyBar
+              remainingDurationRef={remainingDurationRef}
+              email={userEmail}
+              storyId={user.emailAddresses[0].emailAddress}
+              replyInputRef={replyInputRef}
+              startAnimation={startAnimation}
+              stopAnimation={stopAnimation}
+              currentIndex={currentIndex}
+            />
             <StoryLikeButton
               isLiked={isLiked}
               currentStory={currentStory}

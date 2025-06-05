@@ -24,6 +24,16 @@ interface StoryProps {
   onPress: () => void;
 }
 
+interface StoryReplyBarProps {
+  replyInputRef: RefObject<RNTextInput>;
+  stopAnimation: () => void;
+  startAnimation: (index: number, remainingDuration: number) => void;
+  currentIndex: number;
+  remainingDurationRef: React.MutableRefObject<number>;
+  storyId: string;
+  email: string;
+}
+
 interface HighlightImagePickerProps {
   onImageSelected: (uri: string) => void;
   selectedImage: string | null;

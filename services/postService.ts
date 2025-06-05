@@ -108,7 +108,10 @@ export const getAllPosts = async (): Promise<GPost[]> => {
       );
       throw new Error(`Server returned unexpected response format`);
     }
-    console.log(`Response for posts fetching`, response.data.data.getAllPosts);
+    console.log(
+      `Response for all posts fetching`,
+      response.data.data.getAllPosts
+    );
     return response.data.data.getAllPosts;
   } catch (error: any) {
     const duration = Date.now() - startTime;
@@ -241,7 +244,7 @@ export const getPostsForUser = async (userId: string): Promise<GPost[]> => {
     const userFriendlyError = new Error(
       __DEV__
         ? errorMessage
-        : "Failed to fetch singular post. Please try again."
+        : "Failed to fetch personalized post. Please try again."
     );
     userFriendlyError.stack = error.stack;
     throw userFriendlyError;
@@ -298,7 +301,7 @@ export const deletePost = async (postId: string): Promise<GPost> => {
     const userFriendlyError = new Error(
       __DEV__
         ? errorMessage
-        : "Failed to fetch singular post. Please try again."
+        : "Failed to delete singular post. Please try again."
     );
     userFriendlyError.stack = error.stack;
     throw userFriendlyError;
