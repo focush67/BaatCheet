@@ -33,7 +33,7 @@ interface ReelCardProps {
   isFollowing?: boolean;
 }
 
-interface PostStore {
+interface ZPostStore {
   posts: PostCard[];
   setPosts: () => void;
   toggleLike: (postId: string) => void;

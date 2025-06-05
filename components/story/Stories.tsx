@@ -6,9 +6,6 @@ import { Story } from "./Story";
 import { StoryModal } from "./StoryModal";
 
 export const Stories = () => {
-  const [stories, setStories] = useState<GStory[]>([]);
-  const [selectedStoryGroup, setSelectedStoryGroup] =
-    useState<UserStory | null>(null); // 🔁 Changed to store full group
   const [storyModalVisible, setStoryModalVisible] = useState(false);
   const [userStories, setUserStories] = useState<UserStory[]>([]);
   const [selectedUserStories, setSelectedUserStories] = useState<GStory[]>([]);
@@ -18,7 +15,6 @@ export const Stories = () => {
       .then((response) => {
         const grouped = groupStoriesByOwner(response);
         setUserStories(grouped);
-        setStories(response);
       })
       .catch((error) => console.error("Error", error));
   }, []);
@@ -30,7 +26,6 @@ export const Stories = () => {
 
   const handleCloseModal = () => {
     setStoryModalVisible(false);
-    setSelectedStoryGroup(null);
   };
 
   return (
@@ -48,7 +43,6 @@ export const Stories = () => {
           />
         ))}
       </ScrollView>
-
       <StoryModal
         visible={storyModalVisible}
         stories={selectedUserStories}

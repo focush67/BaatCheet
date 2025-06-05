@@ -248,7 +248,10 @@ export const likeStory = async (
       );
       throw new Error(`Server returned unexpected response format`);
     }
-
+    console.log(
+      "Response struture for liking",
+      response.data.data.addLikeToStory
+    );
     return response.data.data.addLikeToStory;
   } catch (error: any) {
     const duration = Date.now() - startTime;

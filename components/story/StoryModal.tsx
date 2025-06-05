@@ -15,6 +15,7 @@ import {
   View,
 } from "react-native";
 import { useStoryById } from "@/stores/StoryStore";
+import StoryLikeButton from "./StoryLikeButton";
 
 export const StoryModal = ({
   visible,
@@ -226,15 +227,11 @@ export const StoryModal = ({
               </TouchableOpacity>
             </View>
 
-            <TouchableOpacity
-              onPress={() => currentStory && handleLike(currentStory.id)}
-            >
-              <Ionicons
-                name={isLiked ? "heart" : "heart-outline"}
-                size={28}
-                color={isLiked ? "#ff3040" : "white"}
-              />
-            </TouchableOpacity>
+            <StoryLikeButton
+              isLiked={isLiked}
+              currentStory={currentStory}
+              email={userEmail}
+            />
           </View>
         </View>
       </KeyboardAvoidingView>

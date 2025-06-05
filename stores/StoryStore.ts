@@ -11,42 +11,31 @@ export const useStoryStore = create<ZStoriesState>()(
         const stories = await getStories();
         set({ userStories: stories });
       },
-      likeStory: (storyId, user) => {
-        set((state) => {
-          const userStories = state.userStories.map((userStory) => {
-            if (userStory.id !== storyId) return userStory;
-            const isAlreadyLiked = userStory.likes.some(
-              (like) => like.owner.email === user.email
-            );
 
-            const updatedLikes = isAlreadyLiked
-              ? userStory.likes.filter(
-                  (like) => like.owner.email !== user.email
-                )
-              : [
-                  ...userStory.likes,
-                  {
-                    id: Date.now().toString(),
-                    ownerId: user.id,
-                    owner: user,
-                  },
-                ];
-            return { ...userStory, likes: updatedLikes };
-          });
-          return { userStories };
-        });
-      },
-
-      unlikeStory: (storyId, user) => {
+      toggleLike: (storyId: string, userEmail: string) => {
         set((state) => {
           const updatedStories = state.userStories.map((story) => {
             if (story.id !== storyId) return story;
 
-            const updatedLikes = story.likes.filter(
-              (like) => like.owner.email !== user.email
+            const isLiked = story.likes.some(
+              (like) => like.owner.email === userEmail
             );
 
-            return { ...story, likes: updatedLikes };
+            const updatedLikes = isLiked
+              ? story.likes.filter((like) => like.owner.email !== userEmail)
+              : [
+                  ...story.likes,
+                  {
+                    id: Date.now().toString(),
+                    ownerId: userEmail,
+                    owner: { email: userEmail },
+                  } as GLike,
+                ];
+
+            return {
+              ...story,
+              likes: updatedLikes,
+            };
           });
 
           return { userStories: updatedStories };
@@ -57,13 +46,11 @@ export const useStoryStore = create<ZStoriesState>()(
         set((state) => {
           const updatedStories = state.userStories.map((story) => {
             if (story.id !== storyId) return story;
-
             return {
               ...story,
               comments: [...story.comments, comment],
             };
           });
-
           return { userStories: updatedStories };
         });
       },
