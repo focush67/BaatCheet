@@ -26,11 +26,12 @@ interface StoryProps {
 
 interface StoryReplyBarProps {
   replyInputRef: RefObject<RNTextInput>;
-  handleSendReply: () => void;
   stopAnimation: () => void;
   startAnimation: (index: number, remainingDuration: number) => void;
   currentIndex: number;
   remainingDurationRef: React.MutableRefObject<number>;
+  storyId: string;
+  email: string;
 }
 
 interface HighlightImagePickerProps {

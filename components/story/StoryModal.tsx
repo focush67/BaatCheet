@@ -1,15 +1,11 @@
-import { likeStory, unlikeStory, replyToStory } from "@/services/storyService";
 import { useUser } from "@clerk/clerk-expo";
-import { Ionicons } from "@expo/vector-icons";
 import React, { useEffect, useRef, useState } from "react";
 import {
   Animated,
   Image,
-  Keyboard,
   KeyboardAvoidingView,
   Modal,
   Platform,
-  Text,
   TextInput,
   TouchableOpacity,
   View,
@@ -26,7 +22,6 @@ export const StoryModal = ({
   duration = 5000,
 }: StoryModalProps) => {
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [replyText, setReplyText] = useState("");
   const { user } = useUser();
   const [animValues, setAnimValues] = useState<Animated.Value[]>([]);
   const [isLiked, setIsLiked] = useState(false);
@@ -41,14 +36,12 @@ export const StoryModal = ({
   if (!user) {
     return null;
   }
-
+  const userEmail = user.emailAddresses[0]?.emailAddress;
   useEffect(() => {
     if (stories.length > 0) {
       setAnimValues(stories.map(() => new Animated.Value(0)));
     }
   }, [stories]);
-
-  const userEmail = user.emailAddresses[0]?.emailAddress;
 
   useEffect(() => {
     const liked = currentStory?.likes?.some(
@@ -98,17 +91,6 @@ export const StoryModal = ({
   const stopAnimation = () => {
     timerRef.current && clearTimeout(timerRef.current);
     timerRef.current = null;
-  };
-
-  const handleSendReply = async () => {
-    replyText.trim() && Keyboard.dismiss();
-    const response = await replyToStory(
-      currentStory?.id!,
-      user.emailAddresses[0].emailAddress,
-      replyText
-    );
-    console.log("Added reply response", response);
-    setReplyText("");
   };
 
   if (!currentStory || !visible) return null;
@@ -172,7 +154,6 @@ export const StoryModal = ({
           <View className="absolute bottom-5 px-4 w-full flex-row items-center z-50">
             <StoryReplyBar
               remainingDurationRef={remainingDurationRef}
-              handleSendReply={handleSendReply}
               email={userEmail}
               storyId={user.emailAddresses[0].emailAddress}
               replyInputRef={replyInputRef}
