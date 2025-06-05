@@ -2,12 +2,12 @@ import { Ionicons } from "@expo/vector-icons";
 import React from "react";
 import { Image, Pressable, Text, TouchableOpacity, View } from "react-native";
 
-const HighlightItem: React.FC<HighlightItemProps> = ({
+const HighlightItem = ({
   id,
   onPress,
   theme,
   imageUri,
-}) => (
+}: HighlightItemProps) => (
   <Pressable onPress={onPress} disabled={!onPress}>
     <View className="items-center mr-6">
       <View className="w-16 h-16 rounded-full border border-gray-300 p-0.5">

@@ -87,3 +87,20 @@ export const DELETE_REPLY_FROM_STORY = `
         }
     }
 `;
+
+export const CREATE_NEW_HIGHLIGHT = `
+    mutation AddNewHighlight($input:CreateHighlightInput!){
+         createNewHighlight(input:$input){
+            id
+            title
+            coverPhoto
+            owners {
+                id
+                user {
+                    email
+                    username  
+                }
+            }
+        }
+    }
+`;

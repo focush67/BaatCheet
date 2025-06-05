@@ -4,6 +4,7 @@ import {
   UNLIKE_STORY,
   REPLY_TO_STORY,
   DELETE_REPLY_FROM_STORY,
+  CREATE_NEW_HIGHLIGHT,
 } from "@/api/graphql/mutations/story";
 import {
   GET_ALL_STORIES,
@@ -73,6 +74,80 @@ export const createNewStory = async (
 
     const userFriendlyError = new Error(
       __DEV__ ? errorMessage : "Failed to create story. Please try again."
+    );
+    userFriendlyError.stack = error.stack;
+    throw userFriendlyError;
+  }
+};
+
+export const createNewHighlight = async (
+  highlightName: string,
+  coverUrl: string,
+  email: string
+): Promise<THighlight> => {
+  const startTime = Date.now();
+  const requestId = Math.random().toString(36).substring(2, 9);
+
+  console.log(
+    `[Highlight CREATE API][${requestId}] Creating Highlight ${highlightName}`,
+    {
+      timestamp: new Date().toISOString(),
+    }
+  );
+
+  try {
+    const response = await api.post("", {
+      query: CREATE_NEW_HIGHLIGHT,
+      variables: {
+        input: {
+          coverPhoto: coverUrl,
+          email: email,
+          title: highlightName,
+        },
+      },
+    });
+    const duration = Date.now() - startTime;
+    console.log(
+      `[Highlight CREATE API][${requestId}] Request completed in ${duration}ms`,
+      {
+        status: response.status,
+        data: response.data,
+      }
+    );
+
+    if (response.data.errors) {
+      const errorMessage = response.data.errors[0].message;
+      console.error(`[Highlight CREATE API][${requestId}] GraphQL Error`, {
+        errors: response.data.errors,
+        query: CREATE_NEW_HIGHLIGHT,
+      });
+      throw new Error(errorMessage);
+    }
+    if (!response.data.data?.createNewHighlight) {
+      console.error(
+        `[Highlight CREATE API][${requestId}] Malformed response`,
+        response.data
+      );
+      throw new Error(`Server returned unexpected response format`);
+    }
+    return response.data.data.createNewHighlight;
+  } catch (error: any) {
+    const duration = Date.now() - startTime;
+    const errorMessage =
+      error instanceof Error ? error.message : "Unknown Error";
+    console.error(
+      `[Highlight CREATE API][${requestId}] Failed after ${duration}ms`,
+      {
+        error: errorMessage,
+        errorDetails: error.errorDetails || "No additional details",
+        stack: error.stack,
+      }
+    );
+
+    const userFriendlyError = new Error(
+      __DEV__
+        ? errorMessage
+        : "Failed to create new highlight. Please check the configs."
     );
     userFriendlyError.stack = error.stack;
     throw userFriendlyError;
@@ -176,10 +251,6 @@ export const getStoriesForUser = async (email: string): Promise<GStory[]> => {
       );
       throw new Error(`Server returned unexpected response format`);
     }
-    console.log(
-      `Response of Stories for ${email}`,
-      response.data.data.getStoriesForUser
-    );
     return response.data.data.getStoriesForUser;
   } catch (error: any) {
     const duration = Date.now() - startTime;
@@ -195,7 +266,9 @@ export const getStoriesForUser = async (email: string): Promise<GStory[]> => {
     );
 
     const userFriendlyError = new Error(
-      __DEV__ ? errorMessage : "Failed to retrieve stories. Please try again."
+      __DEV__
+        ? errorMessage
+        : "Failed to retrieve personalized stories. Please try again."
     );
     userFriendlyError.stack = error.stack;
     throw userFriendlyError;
@@ -252,8 +325,6 @@ export const likeStory = async (
       "Response struture for liking",
       response.data.data.addLikeToStory
     );
-    const likeOwner = response.data.data.addLikeToStory.owner;
-
     return response.data.data.addLikeToStory;
   } catch (error: any) {
     const duration = Date.now() - startTime;
@@ -266,9 +337,7 @@ export const likeStory = async (
     });
 
     const userFriendlyError = new Error(
-      __DEV__
-        ? errorMessage
-        : "Failed to fetch singular post. Please try again."
+      __DEV__ ? errorMessage : "Failed to like story. Please try again."
     );
     userFriendlyError.stack = error.stack;
     throw userFriendlyError;
@@ -337,9 +406,7 @@ export const unlikeStory = async (
     );
 
     const userFriendlyError = new Error(
-      __DEV__
-        ? errorMessage
-        : "Failed to fetch singular post. Please try again."
+      __DEV__ ? errorMessage : "Failed to unlike story. Please try again."
     );
     userFriendlyError.stack = error.stack;
     throw userFriendlyError;
@@ -410,9 +477,7 @@ export const replyToStory = async (
     );
 
     const userFriendlyError = new Error(
-      __DEV__
-        ? errorMessage
-        : "Failed to fetch singular post. Please try again."
+      __DEV__ ? errorMessage : "Failed to reply to story. Please try again."
     );
     userFriendlyError.stack = error.stack;
     throw userFriendlyError;
