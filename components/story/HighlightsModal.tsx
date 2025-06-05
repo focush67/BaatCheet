@@ -2,7 +2,7 @@ import React from "react";
 import { Modal, Text, TextInput, TouchableOpacity, View } from "react-native";
 import ImagePicker from "./ImagePicker";
 
-const HighlightModal: React.FC<HighlightModalProps> = ({
+const HighlightModal = ({
   visible,
   onClose,
   onSubmit,
@@ -11,7 +11,7 @@ const HighlightModal: React.FC<HighlightModalProps> = ({
   setHighlightName,
   selectedImage,
   setSelectedImage,
-}) => {
+}: HighlightModalProps) => {
   return (
     <Modal
       visible={visible}

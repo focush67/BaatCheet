@@ -3,7 +3,6 @@ import { handleStoryCreation } from "@/hooks/story/useCreateStory";
 import { createNewStory } from "@/services/storyService";
 import { useUser } from "@clerk/clerk-expo";
 import { AntDesign, Feather, Ionicons } from "@expo/vector-icons";
-import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
   Image,
@@ -14,7 +13,6 @@ import {
   View,
 } from "react-native";
 import Toast from "react-native-toast-message";
-import { StoryModal } from "../story/StoryModal";
 import { ImageUploadModal } from "../story/UploadStory";
 
 const ProfileAvatar = ({
@@ -28,14 +26,11 @@ const ProfileAvatar = ({
 }) => {
   const { colorScheme } = useTheme();
   const { user } = useUser();
-  const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [isFollowing, setIsFollowing] = useState(false);
-  const [selectedStory, setSelectedStory] = useState<GStory | null>(null);
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   const [storyMode, setStoryMode] = useState(false);
-  const [showStory, setShowStory] = useState(false);
   const owner = user?.unsafeMetadata?.username as string;
   const isOwner = username === owner;
 
@@ -175,15 +170,6 @@ const ProfileAvatar = ({
           </View>
         </View>
       </Modal>
-
-      <StoryModal
-        visible={showStory}
-        story={selectedStory}
-        onClose={() => {
-          setShowStory(false);
-          setSelectedStory(null);
-        }}
-      />
 
       <ImageUploadModal
         loading={loading}

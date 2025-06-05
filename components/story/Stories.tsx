@@ -4,8 +4,10 @@ import React, { useEffect, useState } from "react";
 import { ScrollView, View } from "react-native";
 import { Story } from "./Story";
 import { StoryModal } from "./StoryModal";
+import { useUser } from "@clerk/clerk-expo";
 
 export const Stories = () => {
+  const { user } = useUser();
   const [storyModalVisible, setStoryModalVisible] = useState(false);
   const [userStories, setUserStories] = useState<UserStory[]>([]);
   const [selectedUserStories, setSelectedUserStories] = useState<GStory[]>([]);
@@ -13,7 +15,10 @@ export const Stories = () => {
   useEffect(() => {
     getStories()
       .then((response) => {
-        const grouped = groupStoriesByOwner(response);
+        const grouped = groupStoriesByOwner(
+          response,
+          user?.emailAddresses[0].emailAddress
+        );
         setUserStories(grouped);
       })
       .catch((error) => console.error("Error", error));
