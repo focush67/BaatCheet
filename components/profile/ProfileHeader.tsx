@@ -22,15 +22,12 @@ export const ProfileHeader = ({
   const { signOut } = useAuth();
   const openMenu = () => setMenuVisible(true);
   const closeMenu = () => setMenuVisible(false);
-  const { user } = useUser();
 
   const handleSignOut = async () => {
-    closeMenu();
     usePostStore.getState().reset();
     useCommentStore.getState().reset();
     useStoryStore.getState().reset();
     await signOut();
-    router.replace("/login");
   };
 
   return (

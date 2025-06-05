@@ -252,6 +252,8 @@ export const likeStory = async (
       "Response struture for liking",
       response.data.data.addLikeToStory
     );
+    const likeOwner = response.data.data.addLikeToStory.owner;
+
     return response.data.data.addLikeToStory;
   } catch (error: any) {
     const duration = Date.now() - startTime;
