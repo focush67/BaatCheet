@@ -62,6 +62,7 @@ const ProfileSetupScreen = () => {
           profilePicture: publicUrl,
           username: username,
           ownerName: name,
+          caption: bio,
         },
       });
 
