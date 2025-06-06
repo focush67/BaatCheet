@@ -101,7 +101,9 @@ export const Story = memo(({ story, onPress }: StoryProps) => {
             colorScheme === "light" ? "text-gray-900" : "text-gray-100"
           }`}
         >
-          {story.owner.username}
+          {story.owner.username === ownerUsername
+            ? "Your Story"
+            : story.owner.username}
         </Text>
       </TouchableOpacity>
 
