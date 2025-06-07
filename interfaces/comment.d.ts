@@ -1,77 +1,42 @@
-interface ReplyProps {
-  author: string;
-  content: string;
-  timestamp: string;
-}
-
-interface CommentInputProps {
-  value: string;
-  onChangeText: (text: string) => void;
-  onSubmit: () => void;
-  placeholder: string;
-}
-
-interface CommentItemProps {
-  comment: TComment;
-  onLike: (id: string, parentId?: string) => void;
-  onViewReplies?: (comment: TComment) => void;
-  showRepliesCount?: boolean;
-  isReply?: boolean;
-  parentId?: string;
-}
-
-interface TComment {
+interface GCommentBase {
   id: string;
-  username: string;
-  postId?: string;
-  avatar: string;
-  text: string;
-  time: string;
-  liked: boolean;
-  likes: number;
-  replies: TComment[];
-  isVerified: boolean;
-  showReplies?: boolean;
-}
-
-interface CommentModalProps {
-  visible: boolean;
-  onClose: () => void;
-  comments?: TComment[];
-}
-
-interface CommentsByPost {
-  [postId: string]: TComment[];
-}
-
-interface CommentStore {
-  commentsByPost: CommentsByPost;
-  addComment: (postId: string, comment: TComment) => void;
-  addReply: (postId: string, parentCommentId: string, reply: TComment) => void;
-  toggleCommentLike: (
-    postId: string,
-    commentId: string,
-    parentId?: string
-  ) => void;
-  toggleShowReplies: (postId: string, commentId: string) => void;
-  initializeComments: (postId: string, comments: TComment[]) => void;
-  reset: () => void;
-}
-
-// GraphQL types for backend type checks
-
-interface GComment {
-  id: string;
-  postId?: string;
-  storyId?: string;
   content: string;
-  ownerId: string;
   isReply: boolean;
   replyToId?: string;
+  createdAt: string;
+}
+
+interface GComment extends GCommentBase {
+  postId?: string;
+  storyId?: string;
   post?: GPost;
   story?: GStory;
-  owner?: GUser;
+  owner: GUser;
   replyTo?: GComment;
   likes: GLike[];
   replies: GComment[];
+}
+
+interface UIComment extends GComment {
+  liked?: boolean;
+  showReplies?: boolean;
+}
+
+interface CommentsByPost {
+  [postId: string]: UIComment[];
+}
+
+interface ZCommentStore {
+  commentsByPost: CommentsByPost;
+  addComment: (postId: string, comment: UIComment) => void;
+  addReply: (postId: string, parentCommentId: string, reply: UIComment) => void;
+  toggleCommentLike: (
+    postId: string,
+    commentId: string,
+    parentId?: string,
+    userEmail: string
+  ) => void;
+  toggleShowReplies: (postId: string, commentId: string) => void;
+  fetchComments: (postId: string) => Promise<void>;
+  reset: () => void;
 }

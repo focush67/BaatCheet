@@ -2,7 +2,7 @@ import { useTheme } from "@/context/ThemeContext";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import React from "react";
 import { Image, Text, TouchableOpacity, View } from "react-native";
-
+import { formatDistanceToNow } from "date-fns";
 const SingleThread: React.FC<any> = ({
   data,
   isReply = false,
@@ -10,18 +10,22 @@ const SingleThread: React.FC<any> = ({
   toggleLike,
   toggleReplies,
   startReply,
-  postId,
 }) => {
   const { colorScheme } = useTheme();
   const isDark = colorScheme === "dark";
   const textPrimaryColor = isDark ? "#fff" : "#262626";
   const textSecondaryColor = isDark ? "#888" : "#999";
   const likeIconColor = data.liked ? "#ed4956" : isDark ? "#ccc" : "#262626";
-
+  const timeAgo = formatDistanceToNow(new Date(Number(data.createdAt)), {
+    addSuffix: true,
+  }).replace(/^about /, "");
   return (
     <View className={`flex-row py-2 ${isReply ? "pl-11" : "pl-4"} pr-4`}>
       <View className="mr-3">
-        <Image source={{ uri: data.avatar }} className="w-8 h-8 rounded-full" />
+        <Image
+          source={{ uri: data.owner.profilePicture }}
+          className="w-8 h-8 rounded-full"
+        />
       </View>
 
       <View className="flex-1">
@@ -32,7 +36,7 @@ const SingleThread: React.FC<any> = ({
                 style={{ color: textPrimaryColor }}
                 className="font-semibold text-[12px] mr-1.5"
               >
-                {data.username}
+                {data.owner.username}
               </Text>
               {data.isVerified && (
                 <MaterialIcons name="verified" size={12} color="#3897f0" />
@@ -42,7 +46,7 @@ const SingleThread: React.FC<any> = ({
               style={{ color: textPrimaryColor }}
               className="text-[12px] mt-0.5 leading-5"
             >
-              {data.text}
+              {data.content}
             </Text>
           </View>
 
@@ -57,12 +61,12 @@ const SingleThread: React.FC<any> = ({
                 color={likeIconColor}
               />
             </TouchableOpacity>
-            {data.likes > 0 && (
+            {data.likes.length > 0 && (
               <Text
                 style={{ color: textSecondaryColor }}
                 className="text-[12px] mt-0.5"
               >
-                {data.likes}
+                {data.likes.length}
               </Text>
             )}
           </View>
@@ -73,7 +77,7 @@ const SingleThread: React.FC<any> = ({
             style={{ color: textSecondaryColor }}
             className="text-[10px] mr-4"
           >
-            {data.time}
+            {timeAgo}
           </Text>
           <TouchableOpacity
             onPress={() => {

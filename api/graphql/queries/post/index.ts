@@ -4,24 +4,35 @@ export const GET_ALL_POSTS = `
         id
         caption
         coverPhoto
+        owner {
+            email
+            username
+            profilePicture
+        }
+        createdAt
         likes {
             owner {
                 id
                 email
                 username
+                profilePicture
             }
         }
         comments {
             content
             owner {
+                id
                 username
                 email
+                profilePicture
             }
         }
         tags {
             referenceUser {
+                id
                 email
                 username
+                profilePicture
             }
         }
     }
@@ -83,6 +94,53 @@ export const GET_POSTS_FOR_USER = `
                 email
                 username
             }
+        }
+    }
+`;
+
+export const GET_COMMENTS_ON_POST = `
+    query GetCommentsOnPost($postID:ID!){
+        getCommentsOnPost(postID:$postID){
+            id
+            content
+            createdAt
+            owner {
+                email
+                username
+                profilePicture
+            }
+            replyTo {
+                content
+                owner {
+                    email
+                    username
+                    profilePicture
+                }
+            }
+            post {
+                caption
+                owner {
+                    username
+                    email
+                    profilePicture
+                }
+            }
+            likes {
+                owner {
+                    username
+                    email
+                    profilePicture
+                }
+            }
+            replies {
+                content
+                owner {
+                    email
+                    username
+                    profilePicture
+                }
+            }
+
         }
     }
 `;

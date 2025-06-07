@@ -155,7 +155,7 @@ export const StoryModal = ({
             <StoryReplyBar
               remainingDurationRef={remainingDurationRef}
               email={userEmail}
-              storyId={user.emailAddresses[0].emailAddress}
+              storyId={currentStory.id}
               replyInputRef={replyInputRef}
               startAnimation={startAnimation}
               stopAnimation={stopAnimation}
