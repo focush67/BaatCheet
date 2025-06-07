@@ -1,6 +1,6 @@
 import { uploadFile } from "@/services/uploadService";
 import { Alert } from "react-native";
-import { generateUniqueFileName } from "./fileNaming";
+import { generateUniqueFileName } from "./misc";
 
 export const uploadFileWrapper = async ({
   selectedImage,

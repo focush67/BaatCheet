@@ -41,3 +41,44 @@ export const UNLIKE_POST = `
     }
   }
 `;
+
+export const COMMENT_ON_POST = `
+  mutation CommentOnPost($postID:ID!,$email:String!,$content:String){
+    addCommentToPost(postID: $postId, email: $email, content: $content) {
+    id
+    content
+    owner {
+      email
+      username
+    }
+    replyTo {
+      content
+      owner {
+        email
+        username
+      }
+    }
+    post {
+      caption
+      owner {
+        username
+        email
+      }
+    }
+    isReply
+    likes {
+      owner {
+        username
+        email
+      }
+    }
+    replies {
+      content
+      owner {
+        email
+        username
+      }
+    }
+  }
+  }
+`;

@@ -1,11 +1,20 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
-export const useCommentStore = create<CommentStore>()(
+export const useCommentStore = create<ZCommentStore>()(
   persist(
     (set, get) => ({
       commentsByPost: {},
+
+      initializeComments: (postId, comments) => {
+        set((state) => ({
+          commentsByPost: {
+            ...state.commentsByPost,
+            [postId]: comments,
+          },
+        }));
+      },
 
       addComment: (postId, comment) => {
         const prev = get().commentsByPost[postId] || [];
@@ -18,21 +27,16 @@ export const useCommentStore = create<CommentStore>()(
       },
 
       addReply: (postId, parentCommentId, reply) => {
-        const updateReplies = (comments: TComment[]): TComment[] =>
-          comments.map((comment) => {
-            if (comment.id === parentCommentId) {
-              return {
-                ...comment,
-                replies: [...comment.replies, reply],
-              };
-            }
+        const updated = (get().commentsByPost[postId] || []).map((comment) => {
+          if (comment.id === parentCommentId) {
             return {
               ...comment,
-              replies: updateReplies(comment.replies),
+              replies: [...(comment.replies || []), reply],
             };
-          });
+          }
+          return comment;
+        });
 
-        const updated = updateReplies(get().commentsByPost[postId] || []);
         set({
           commentsByPost: {
             ...get().commentsByPost,
@@ -41,89 +45,78 @@ export const useCommentStore = create<CommentStore>()(
         });
       },
 
-      toggleCommentLike: (postId, commentId, parentId) => {
-        const toggle = (comments: TComment[]): TComment[] =>
-          comments.map((comment) => {
-            if (comment.id === commentId) {
-              const isNowLiked = !comment.liked;
-              return {
-                ...comment,
-                liked: isNowLiked,
-                likes: isNowLiked
-                  ? comment.likes + 1
-                  : Math.max(comment.likes - 1, 0),
-              };
-            }
+      toggleCommentLike: (postId, commentId, parentId, userEmail) => {
+        const updated = (get().commentsByPost[postId] || []).map((comment) => {
+          if (comment.id === commentId && !parentId) {
+            const isLiked = comment.likes.some(
+              (l) => l.owner.email === userEmail
+            );
             return {
               ...comment,
-              replies: toggle(comment.replies),
+              liked: !isLiked,
+              likes: isLiked
+                ? comment.likes.filter((l) => l.owner.email !== userEmail)
+                : [...comment.likes, { owner: { email: userEmail } }],
             };
-          });
+          }
+
+          if (parentId && comment.id === parentId) {
+            return {
+              ...comment,
+              replies: comment.replies.map((reply) => {
+                if (reply.id === commentId) {
+                  const isLiked = reply.likes.some(
+                    (l) => l.owner.email === userEmail
+                  );
+                  return {
+                    ...reply,
+                    liked: !isLiked,
+                    likes: isLiked
+                      ? reply.likes.filter((l) => l.owner.email !== userEmail)
+                      : [...reply.likes, { owner: { email: userEmail } }],
+                  };
+                }
+                return reply;
+              }),
+            };
+          }
+
+          return comment;
+        });
 
         set({
           commentsByPost: {
             ...get().commentsByPost,
-            [postId]: toggle(get().commentsByPost[postId] || []),
+            [postId]: updated,
           },
         });
       },
 
       toggleShowReplies: (postId, commentId) => {
-        const update = (comments: TComment[]): TComment[] =>
-          comments.map((comment) => {
-            if (comment.id === commentId) {
-              return {
-                ...comment,
-                showReplies: !comment.showReplies,
-              };
-            }
-            return {
-              ...comment,
-              replies: update(comment.replies),
-            };
-          });
+        const updated = (get().commentsByPost[postId] || []).map((comment) =>
+          comment.id === commentId
+            ? { ...comment, showReplies: !comment.showReplies }
+            : comment
+        );
 
         set({
           commentsByPost: {
             ...get().commentsByPost,
-            [postId]: update(get().commentsByPost[postId] || []),
+            [postId]: updated,
           },
         });
       },
 
-      initializeComments(postId, comments) {
-        const hasComments = !!get().commentsByPost[postId];
-        if (!hasComments) {
-          const addPostId = (commentList: TComment[]): TComment[] =>
-            commentList.map((c) => ({
-              ...c,
-              postId,
-              replies: addPostId(c.replies || []),
-            }));
-
-          const formattedComments = addPostId(comments);
-
-          set((state) => ({
-            commentsByPost: {
-              ...state.commentsByPost,
-              [postId]: formattedComments,
-            },
-          }));
-        }
-      },
-
       reset: () => {
-        useCommentStore.persist.clearStorage();
         set({ commentsByPost: {} });
       },
     }),
-
     {
-      name: "comments-store",
+      name: "comment-storage",
       storage: {
         getItem: async (name) => {
-          const item = await AsyncStorage.getItem(name);
-          return item ? JSON.parse(item) : null;
+          const value = await AsyncStorage.getItem(name);
+          return value ? JSON.parse(value) : null;
         },
         setItem: async (name, value) => {
           await AsyncStorage.setItem(name, JSON.stringify(value));

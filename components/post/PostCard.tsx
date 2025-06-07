@@ -120,7 +120,7 @@ const PostCard = ({ post }: { post: PostCard }) => {
 
       <View className="px-4 pt-1 pb-3">
         <Text
-          className={`text-xs uppercase ${
+          className={`text-[10px] uppercase ${
             colorScheme === "light" ? "text-gray-400" : "text-gray-500"
           }`}
         >

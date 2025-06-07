@@ -4,6 +4,24 @@ interface ReplyProps {
   timestamp: string;
 }
 
+interface TComment {
+  id: string;
+  postId?: string;
+  storyId?: string;
+  content: string;
+  isReply: boolean;
+  replyToId?: string;
+  post?: GPost;
+  story?: GStory;
+  owner?: GUser;
+  replyTo?: TComment;
+  liked?: boolean;
+  showReplies?: boolean;
+  likes: GLike[];
+  replies: TComment[];
+  createdAt?: string;
+}
+
 interface CommentInputProps {
   value: string;
   onChangeText: (text: string) => void;
@@ -20,20 +38,6 @@ interface CommentItemProps {
   parentId?: string;
 }
 
-interface TComment {
-  id: string;
-  username: string;
-  postId?: string;
-  avatar: string;
-  text: string;
-  time: string;
-  liked: boolean;
-  likes: number;
-  replies: TComment[];
-  isVerified: boolean;
-  showReplies?: boolean;
-}
-
 interface CommentModalProps {
   visible: boolean;
   onClose: () => void;
@@ -44,34 +48,17 @@ interface CommentsByPost {
   [postId: string]: TComment[];
 }
 
-interface CommentStore {
+interface ZCommentStore {
   commentsByPost: CommentsByPost;
   addComment: (postId: string, comment: TComment) => void;
   addReply: (postId: string, parentCommentId: string, reply: TComment) => void;
   toggleCommentLike: (
     postId: string,
     commentId: string,
-    parentId?: string
+    parentId?: string,
+    userEmail: string
   ) => void;
   toggleShowReplies: (postId: string, commentId: string) => void;
   initializeComments: (postId: string, comments: TComment[]) => void;
   reset: () => void;
-}
-
-// GraphQL types for backend type checks
-
-interface GComment {
-  id: string;
-  postId?: string;
-  storyId?: string;
-  content: string;
-  ownerId: string;
-  isReply: boolean;
-  replyToId?: string;
-  post?: GPost;
-  story?: GStory;
-  owner?: GUser;
-  replyTo?: GComment;
-  likes: GLike[];
-  replies: GComment[];
 }

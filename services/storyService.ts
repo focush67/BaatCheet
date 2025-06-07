@@ -1,3 +1,4 @@
+// src/api/graphql/services/story.ts
 import {
   CREATE_USER_STORY,
   LIKE_STORY,
@@ -10,476 +11,128 @@ import {
   GET_ALL_STORIES,
   GET_STORIES_FOR_USER,
 } from "@/api/graphql/queries/story";
-import api from "@/utils/axios";
+import { graphqlRequest } from "@/utils/request";
+
+const SERVICE_NAME = "Story";
 
 export const createNewStory = async (
   input: GCreateStoryInput
-): Promise<GStory> => {
-  const startTime = Date.now();
-  const requestId = Math.random().toString(36).substring(2, 9);
-  console.log(
-    `[Story CREATE API][${requestId}] Starting update for ${input.coverPhoto}`,
-    {
-      input,
-      timestamp: new Date().toISOString(),
-    }
-  );
-
-  try {
-    const response = await api.post("", {
+): Promise<GStory> =>
+  graphqlRequest({
+    operation: {
       query: CREATE_USER_STORY,
-      variables: {
-        input: input,
-      },
-    });
-    const duration = Date.now() - startTime;
-    console.log(
-      `[Story CREATE API][${requestId}] Request completed in ${duration}ms`,
-      {
-        status: response.status,
-        data: response.data,
-      }
-    );
-
-    if (response.data.errors) {
-      const errorMessage = response.data.errors[0].message;
-      console.error(`[Story CREATE API]${requestId} GraphQL Error`, {
-        errors: response.data.errors,
-        query: CREATE_USER_STORY,
-        variables: { input },
-      });
-      throw new Error(errorMessage);
-    }
-    if (!response.data.data?.createNewStory) {
-      console.error(
-        `[Story CREATE API][${requestId}] Malformed response`,
-        response.data
-      );
-      throw new Error(`Server returned unexpected response format`);
-    }
-    return response.data.data.createNewStory;
-  } catch (error: any) {
-    const duration = Date.now() - startTime;
-    const errorMessage =
-      error instanceof Error ? error.message : "Unknown Error";
-    console.error(
-      `[Story CREATED API][${requestId}] Failed after ${duration}ms`,
-      {
-        input,
-        error: errorMessage,
-        errorDetails: error.errorDetails || "No additional details",
-        stack: error.stack,
-      }
-    );
-
-    const userFriendlyError = new Error(
-      __DEV__ ? errorMessage : "Failed to create story. Please try again."
-    );
-    userFriendlyError.stack = error.stack;
-    throw userFriendlyError;
-  }
-};
+      variables: { input },
+    },
+    responseKey: "createNewStory",
+    friendlyErrorMessage: "Failed to create story. Please try again.",
+    logLabel: `Create story with cover ${input.coverPhoto}`,
+    serviceName: SERVICE_NAME,
+  });
 
 export const createNewHighlight = async (
   highlightName: string,
   coverUrl: string,
   email: string
-): Promise<THighlight> => {
-  const startTime = Date.now();
-  const requestId = Math.random().toString(36).substring(2, 9);
-
-  console.log(
-    `[Highlight CREATE API][${requestId}] Creating Highlight ${highlightName}`,
-    {
-      timestamp: new Date().toISOString(),
-    }
-  );
-
-  try {
-    const response = await api.post("", {
+): Promise<THighlight> =>
+  graphqlRequest({
+    operation: {
       query: CREATE_NEW_HIGHLIGHT,
       variables: {
         input: {
           coverPhoto: coverUrl,
-          email: email,
+          email,
           title: highlightName,
         },
       },
-    });
-    const duration = Date.now() - startTime;
-    console.log(
-      `[Highlight CREATE API][${requestId}] Request completed in ${duration}ms`,
-      {
-        status: response.status,
-        data: response.data,
-      }
-    );
+    },
+    responseKey: "createNewHighlight",
+    friendlyErrorMessage:
+      "Failed to create new highlight. Please check the configs.",
+    logLabel: `Create highlight ${highlightName}`,
+    serviceName: SERVICE_NAME,
+  });
 
-    if (response.data.errors) {
-      const errorMessage = response.data.errors[0].message;
-      console.error(`[Highlight CREATE API][${requestId}] GraphQL Error`, {
-        errors: response.data.errors,
-        query: CREATE_NEW_HIGHLIGHT,
-      });
-      throw new Error(errorMessage);
-    }
-    if (!response.data.data?.createNewHighlight) {
-      console.error(
-        `[Highlight CREATE API][${requestId}] Malformed response`,
-        response.data
-      );
-      throw new Error(`Server returned unexpected response format`);
-    }
-    return response.data.data.createNewHighlight;
-  } catch (error: any) {
-    const duration = Date.now() - startTime;
-    const errorMessage =
-      error instanceof Error ? error.message : "Unknown Error";
-    console.error(
-      `[Highlight CREATE API][${requestId}] Failed after ${duration}ms`,
-      {
-        error: errorMessage,
-        errorDetails: error.errorDetails || "No additional details",
-        stack: error.stack,
-      }
-    );
-
-    const userFriendlyError = new Error(
-      __DEV__
-        ? errorMessage
-        : "Failed to create new highlight. Please check the configs."
-    );
-    userFriendlyError.stack = error.stack;
-    throw userFriendlyError;
-  }
-};
-
-export const getStories = async (): Promise<GStory[]> => {
-  const startTime = Date.now();
-  const requestId = Math.random().toString(36).substring(2, 9);
-  console.log(
-    `[Story GETALL API][${requestId}] Starting update for getting all stories`
-  );
-
-  try {
-    const response = await api.post("", {
+export const getStories = async (): Promise<GStory[]> =>
+  graphqlRequest({
+    operation: {
       query: GET_ALL_STORIES,
-    });
-    const duration = Date.now() - startTime;
-    console.log(
-      `[Story GETALL API][${requestId}] Request completed in ${duration}ms`,
-      {
-        status: response.status,
-        data: response.data,
-      }
-    );
+    },
+    responseKey: "getAllStories",
+    friendlyErrorMessage: "Failed to retrieve all stories. Please try again.",
+    logLabel: "Get all stories",
+    serviceName: SERVICE_NAME,
+  });
 
-    if (response.data.errors) {
-      const errorMessage = response.data.errors[0].message;
-      console.error(`[Story GETALL API]${requestId} GraphQL Error`, {
-        errors: response.data.errors,
-        query: GET_ALL_STORIES,
-      });
-      throw new Error(errorMessage);
-    }
-    if (!response.data.data?.getAllStories) {
-      console.error(
-        `[Story GETALL API][${requestId}] Malformed response`,
-        response.data
-      );
-      throw new Error(`Server returned unexpected response format`);
-    }
-    return response.data.data.getAllStories;
-  } catch (error: any) {
-    const duration = Date.now() - startTime;
-    const errorMessage =
-      error instanceof Error ? error.message : "Unknown Error";
-    console.error(
-      `[Story GETALL API][${requestId}] Failed after ${duration}ms`,
-      {
-        error: errorMessage,
-        errorDetails: error.errorDetails || "No additional details",
-        stack: error.stack,
-      }
-    );
-
-    const userFriendlyError = new Error(
-      __DEV__
-        ? errorMessage
-        : "Failed to retrieve all stories. Please try again."
-    );
-    userFriendlyError.stack = error.stack;
-    throw userFriendlyError;
-  }
-};
-
-export const getStoriesForUser = async (email: string): Promise<GStory[]> => {
-  const startTime = Date.now();
-  const requestId = Math.random().toString(36).substring(2, 9);
-  console.log(
-    `[Story GETFORUSER API][${requestId}] Starting update for getting stories for ${email}`
-  );
-
-  try {
-    const response = await api.post("", {
+export const getStoriesForUser = async (email: string): Promise<GStory[]> =>
+  graphqlRequest({
+    operation: {
       query: GET_STORIES_FOR_USER,
-      variables: {
-        email,
-      },
-    });
-    const duration = Date.now() - startTime;
-    console.log(
-      `[Story GETFORUSER API][${requestId}] Request completed in ${duration}ms`,
-      {
-        status: response.status,
-        data: response.data,
-      }
-    );
-
-    if (response.data.errors) {
-      const errorMessage = response.data.errors[0].message;
-      console.error(`[Story GETFORUSER API]${requestId} GraphQL Error`, {
-        errors: response.data.errors,
-        query: GET_STORIES_FOR_USER,
-      });
-      throw new Error(errorMessage);
-    }
-    if (!response.data.data?.getStoriesForUser) {
-      console.error(
-        `[Story GETFORUSER API][${requestId}] Malformed response`,
-        response.data
-      );
-      throw new Error(`Server returned unexpected response format`);
-    }
-    return response.data.data.getStoriesForUser;
-  } catch (error: any) {
-    const duration = Date.now() - startTime;
-    const errorMessage =
-      error instanceof Error ? error.message : "Unknown Error";
-    console.error(
-      `[Story GETFORUSER API][${requestId}] Failed after ${duration}ms`,
-      {
-        error: errorMessage,
-        errorDetails: error.errorDetails || "No additional details",
-        stack: error.stack,
-      }
-    );
-
-    const userFriendlyError = new Error(
-      __DEV__
-        ? errorMessage
-        : "Failed to retrieve personalized stories. Please try again."
-    );
-    userFriendlyError.stack = error.stack;
-    throw userFriendlyError;
-  }
-};
+      variables: { email },
+    },
+    responseKey: "getStoriesForUser",
+    friendlyErrorMessage:
+      "Failed to retrieve personalized stories. Please try again.",
+    logLabel: `Get stories for user ${email}`,
+    serviceName: SERVICE_NAME,
+  });
 
 export const likeStory = async (
   storyId: string,
   email: string
-): Promise<GLike[]> => {
-  const startTime = Date.now();
-  const requestId = Math.random().toString(36).substring(2, 9);
-
-  console.log(
-    `[Story LIKE API][${requestId}] Liking story with ID ${storyId}`,
-    {
-      timestamp: new Date().toISOString(),
-    }
-  );
-
-  try {
-    const response = await api.post("", {
+): Promise<GLike[]> =>
+  graphqlRequest({
+    operation: {
       query: LIKE_STORY,
-      variables: {
-        storyID: storyId,
-        email: email,
-      },
-    });
-    const duration = Date.now() - startTime;
-    console.log(
-      `[Story LIKE API][${requestId}] Request completed in ${duration}ms`,
-      {
-        status: response.status,
-        data: response.data,
-      }
-    );
-
-    if (response.data.errors) {
-      const errorMessage = response.data.errors[0].message;
-      console.error(`[Story LIKE API][${requestId}] GraphQL Error`, {
-        errors: response.data.errors,
-        query: LIKE_STORY,
-      });
-      throw new Error(errorMessage);
-    }
-    if (!response.data.data?.addLikeToStory) {
-      console.error(
-        `[Story LIKE API][${requestId}] Malformed response`,
-        response.data
-      );
-      throw new Error(`Server returned unexpected response format`);
-    }
-    console.log(
-      "Response struture for liking",
-      response.data.data.addLikeToStory
-    );
-    return response.data.data.addLikeToStory;
-  } catch (error: any) {
-    const duration = Date.now() - startTime;
-    const errorMessage =
-      error instanceof Error ? error.message : "Unknown Error";
-    console.error(`[Story LIKE API][${requestId}] Failed after ${duration}ms`, {
-      error: errorMessage,
-      errorDetails: error.errorDetails || "No additional details",
-      stack: error.stack,
-    });
-
-    const userFriendlyError = new Error(
-      __DEV__ ? errorMessage : "Failed to like story. Please try again."
-    );
-    userFriendlyError.stack = error.stack;
-    throw userFriendlyError;
-  }
-};
+      variables: { storyID: storyId, email },
+    },
+    responseKey: "addLikeToStory",
+    friendlyErrorMessage: "Failed to like story. Please try again.",
+    logLabel: `Like story ${storyId}`,
+    serviceName: SERVICE_NAME,
+  });
 
 export const unlikeStory = async (
   storyId: string,
   email: string
-): Promise<GLike[]> => {
-  const startTime = Date.now();
-  const requestId = Math.random().toString(36).substring(2, 9);
-
-  console.log(
-    `[Story UNLIKE API][${requestId}] Unliking story with ID ${storyId}`,
-    {
-      timestamp: new Date().toISOString(),
-    }
-  );
-
-  try {
-    const response = await api.post("", {
+): Promise<GLike[]> =>
+  graphqlRequest({
+    operation: {
       query: UNLIKE_STORY,
-      variables: {
-        storyID: storyId,
-        email: email,
-      },
-    });
-    const duration = Date.now() - startTime;
-    console.log(
-      `[Story UNLIKE API][${requestId}] Request completed in ${duration}ms`,
-      {
-        status: response.status,
-        data: response.data,
-      }
-    );
-
-    if (response.data.errors) {
-      const errorMessage = response.data.errors[0].message;
-      console.error(`[Story UNLIKE API][${requestId}] GraphQL Error`, {
-        errors: response.data.errors,
-        query: UNLIKE_STORY,
-      });
-      throw new Error(errorMessage);
-    }
-    if (!response.data.data?.removeLikeFromStory) {
-      console.error(
-        `[Story UNLIKE API][${requestId}] Malformed response`,
-        response.data
-      );
-      throw new Error(`Server returned unexpected response format`);
-    }
-
-    return response.data.data.removeLikeFromStory;
-  } catch (error: any) {
-    const duration = Date.now() - startTime;
-    const errorMessage =
-      error instanceof Error ? error.message : "Unknown Error";
-    console.error(
-      `[Story UNLIKE API][${requestId}] Failed after ${duration}ms`,
-      {
-        error: errorMessage,
-        errorDetails: error.errorDetails || "No additional details",
-        stack: error.stack,
-      }
-    );
-
-    const userFriendlyError = new Error(
-      __DEV__ ? errorMessage : "Failed to unlike story. Please try again."
-    );
-    userFriendlyError.stack = error.stack;
-    throw userFriendlyError;
-  }
-};
+      variables: { storyID: storyId, email },
+    },
+    responseKey: "removeLikeFromStory",
+    friendlyErrorMessage: "Failed to unlike story. Please try again.",
+    logLabel: `Unlike story ${storyId}`,
+    serviceName: SERVICE_NAME,
+  });
 
 export const replyToStory = async (
   storyID: string,
   email: string,
   content: string
-): Promise<GComment> => {
-  const startTime = Date.now();
-  const requestId = Math.random().toString(36).substring(2, 9);
-
-  console.log(
-    `[Story REPLY API][${requestId}] Replying to story with ID ${storyID}`,
-    {
-      timestamp: new Date().toISOString(),
-    }
-  );
-
-  try {
-    const response = await api.post("", {
+): Promise<TComment> =>
+  graphqlRequest({
+    operation: {
       query: REPLY_TO_STORY,
-      variables: {
-        storyID: storyID,
-        email: email,
-        content: content,
-      },
-    });
-    const duration = Date.now() - startTime;
-    console.log(
-      `[Story REPLY API][${requestId}] Request completed in ${duration}ms`,
-      {
-        status: response.status,
-        data: response.data,
-      }
-    );
+      variables: { storyID, email, content },
+    },
+    responseKey: "addCommentToStory",
+    friendlyErrorMessage: "Failed to reply to story. Please try again.",
+    logLabel: `Reply to story ${storyID}`,
+    serviceName: SERVICE_NAME,
+  });
 
-    if (response.data.errors) {
-      const errorMessage = response.data.errors[0].message;
-      console.error(`[Story REPLY API][${requestId}] GraphQL Error`, {
-        errors: response.data.errors,
-        query: REPLY_TO_STORY,
-      });
-      throw new Error(errorMessage);
-    }
-    if (!response.data.data?.addCommentToStory) {
-      console.error(
-        `[Story REPLY API][${requestId}] Malformed response`,
-        response.data
-      );
-      throw new Error(`Server returned unexpected response format`);
-    }
-
-    return response.data.data.addCommentToStory;
-  } catch (error: any) {
-    const duration = Date.now() - startTime;
-    const errorMessage =
-      error instanceof Error ? error.message : "Unknown Error";
-    console.error(
-      `[Story REPLY API][${requestId}] Failed after ${duration}ms`,
-      {
-        error: errorMessage,
-        errorDetails: error.errorDetails || "No additional details",
-        stack: error.stack,
-      }
-    );
-
-    const userFriendlyError = new Error(
-      __DEV__ ? errorMessage : "Failed to reply to story. Please try again."
-    );
-    userFriendlyError.stack = error.stack;
-    throw userFriendlyError;
-  }
-};
+export const deleteReplyFromStory = async (
+  storyID: string,
+  replyID: string
+): Promise<TComment> =>
+  graphqlRequest({
+    operation: {
+      query: DELETE_REPLY_FROM_STORY,
+      variables: { storyID, replyID },
+    },
+    responseKey: "deleteCommentFromStory",
+    friendlyErrorMessage: "Failed to delete reply. Please try again.",
+    logLabel: `Delete reply ${replyID} from story ${storyID}`,
+    serviceName: SERVICE_NAME,
+  });
