@@ -1,4 +1,3 @@
-// src/api/graphql/services/story.ts
 import {
   CREATE_USER_STORY,
   LIKE_STORY,
@@ -110,7 +109,7 @@ export const replyToStory = async (
   storyID: string,
   email: string,
   content: string
-): Promise<TComment> =>
+): Promise<GComment> =>
   graphqlRequest({
     operation: {
       query: REPLY_TO_STORY,
@@ -125,7 +124,7 @@ export const replyToStory = async (
 export const deleteReplyFromStory = async (
   storyID: string,
   replyID: string
-): Promise<TComment> =>
+): Promise<GComment> =>
   graphqlRequest({
     operation: {
       query: DELETE_REPLY_FROM_STORY,

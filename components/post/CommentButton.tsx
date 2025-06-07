@@ -1,5 +1,6 @@
 import { useTheme } from "@/context/ThemeContext";
 import { useCommentStore } from "@/stores/CommentStore";
+import { useUser } from "@clerk/clerk-expo";
 import { FontAwesome } from "@expo/vector-icons";
 import React, { useEffect } from "react";
 import { Text, TouchableOpacity } from "react-native";
@@ -11,13 +12,16 @@ const CommentButton = ({
   setShowComments: (_: boolean) => void;
 }) => {
   const { colorScheme } = useTheme();
+  const { user } = useUser();
   const formatNumber = (num: number): string => {
     if (num >= 1_000_000) return (num / 1_000_000).toFixed(1) + "m";
     if (num >= 1_000) return (num / 1_000).toFixed(1) + "k";
     return num.toString();
   };
   useEffect(() => {
-    useCommentStore.getState().fetchComments(postId);
+    useCommentStore
+      .getState()
+      .fetchComments(postId, user?.emailAddresses[0].emailAddress!);
   }, []);
 
   const comments = useCommentStore((state) => state.commentsByPost[postId]);

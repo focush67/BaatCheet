@@ -42,20 +42,46 @@ export const UNLIKE_POST = `
   }
 `;
 
+export const LIKE_COMMENT = `
+  mutation LikeComment($commentID:ID!,$email:String!){
+    addLikeToComment(commentID:$commentID,email:$email){
+      id
+      owner {
+        username
+        email
+        profilePicture
+      }
+      
+      comment {
+        id
+        content
+        owner {
+          username
+          email
+          profilePicture
+        }
+      }
+    }
+  }
+`;
+
 export const COMMENT_ON_POST = `
-  mutation CommentOnPost($postID:ID!,$email:String!,$content:String){
-    addCommentToPost(postID: $postId, email: $email, content: $content) {
+  mutation CommentOnPost($postID:ID!,$email:String!,$content:String!){
+    addCommentToPost(postID: $postID, email: $email, content: $content) {
     id
     content
+    createdAt
     owner {
       email
       username
+      profilePicture
     }
     replyTo {
       content
       owner {
         email
         username
+        profilePicture
       }
     }
     post {
@@ -63,6 +89,7 @@ export const COMMENT_ON_POST = `
       owner {
         username
         email
+        profilePicture
       }
     }
     isReply
@@ -70,6 +97,7 @@ export const COMMENT_ON_POST = `
       owner {
         username
         email
+        profilePicture
       }
     }
     replies {
@@ -77,6 +105,7 @@ export const COMMENT_ON_POST = `
       owner {
         email
         username
+        profilePicture
       }
     }
   }

@@ -8,18 +8,31 @@ export const useCommentStore = create<ZCommentStore>()(
     (set, get) => ({
       commentsByPost: {},
 
-      fetchComments: async (postId) => {
+      fetchComments: async (postId, currentUserEmail) => {
         const postComments = await fetchCommentsOnPost(postId);
-
+        const processedComments = postComments.map((comment) => ({
+          ...comment,
+          liked: comment.likes.some(
+            (l) => l?.owner?.email === currentUserEmail
+          ),
+          replies:
+            comment.replies?.map((reply) => ({
+              ...reply,
+              liked: reply.likes.some(
+                (l) => l?.owner?.email === currentUserEmail
+              ),
+            })) || [],
+        }));
         set((state) => ({
           commentsByPost: {
             ...state.commentsByPost,
-            [postId]: postComments,
+            [postId]: processedComments,
           },
         }));
       },
 
       addComment: (postId, comment) => {
+        console.log("Comment inside addComment", comment);
         const prev = get().commentsByPost[postId] || [];
         set({
           commentsByPost: {
@@ -48,51 +61,128 @@ export const useCommentStore = create<ZCommentStore>()(
         });
       },
 
-      toggleCommentLike: (postId, commentId, parentId, userEmail) => {
-        const updated = (get().commentsByPost[postId] || []).map((comment) => {
+      toggleCommentLike: (input) => {
+        console.log(
+          `🟡 Starting toggleLike for comment ${input.commentId} on post ${input.postId}`
+        );
+
+        const { postId, commentId, parentId, userEmail, userId, likeId } =
+          input;
+
+        const before = get().commentsByPost[postId] || [];
+        const beforeComment = before.find((c) => c.id === commentId);
+        console.log(
+          "🔵 Before state:",
+          JSON.parse(JSON.stringify(beforeComment))
+        );
+
+        const updated = before.map((comment) => {
           if (comment.id === commentId && !parentId) {
-            const isLiked = comment.likes.some(
-              (l) => l.owner.email === userEmail
+            console.log(`🟠 Found main comment to like/unlike: ${commentId}`);
+
+            const userLikeIndex =
+              comment.likes?.findIndex((l) => l?.owner?.email === userEmail) ??
+              -1;
+
+            const isLiked = userLikeIndex !== -1;
+            console.log(
+              `🟠 Current like status: ${isLiked ? "LIKED" : "NOT LIKED"}`
             );
+
+            let newLikes = [...(comment.likes || [])];
+            let newLikedStatus = comment.liked;
+
+            if (isLiked) {
+              newLikes.splice(userLikeIndex, 1);
+              newLikedStatus = false;
+            } else {
+              newLikes.push({
+                id: likeId,
+                ownerId: userId,
+                owner: { email: userEmail, id: userId },
+              });
+              newLikedStatus = true;
+            }
+
+            console.log(`🟠 New likes count: ${newLikes.length}`);
+
             return {
               ...comment,
-              liked: !isLiked,
-              likes: isLiked
-                ? comment.likes.filter((l) => l.owner.email !== userEmail)
-                : [...comment.likes, { owner: { email: userEmail } }],
+              liked: newLikedStatus,
+              likes: newLikes,
             };
           }
 
           if (parentId && comment.id === parentId) {
+            console.log(
+              `🟠 Found parent comment ${parentId} containing reply ${commentId}`
+            );
             return {
               ...comment,
-              replies: comment.replies.map((reply) => {
-                if (reply.id === commentId) {
-                  const isLiked = reply.likes.some(
-                    (l) => l.owner.email === userEmail
-                  );
-                  return {
-                    ...reply,
-                    liked: !isLiked,
-                    likes: isLiked
-                      ? reply.likes.filter((l) => l.owner.email !== userEmail)
-                      : [...reply.likes, { owner: { email: userEmail } }],
-                  };
-                }
-                return reply;
-              }),
+              replies:
+                comment.replies?.map((reply) => {
+                  if (reply.id === commentId) {
+                    console.log(`🟠 Found reply to like/unlike: ${commentId}`);
+
+                    const userLikeIndex =
+                      reply.likes?.findIndex(
+                        (l) => l?.owner?.email === userEmail
+                      ) ?? -1;
+
+                    const isLiked = userLikeIndex !== -1;
+                    console.log(
+                      `🟠 Current like status: ${
+                        isLiked ? "LIKED" : "NOT LIKED"
+                      }`
+                    );
+
+                    let newReplyLikes = [...(reply.likes || [])];
+                    let newLikedStatus = reply.likes.some(
+                      (l) => l.owner.email === userEmail
+                    );
+
+                    if (isLiked) {
+                      newReplyLikes.splice(userLikeIndex, 1);
+                      newLikedStatus = false;
+                    } else {
+                      newReplyLikes.push({
+                        id: likeId,
+                        ownerId: userId,
+                        owner: { email: userEmail, id: userId },
+                      });
+                      newLikedStatus = true;
+                    }
+
+                    console.log(
+                      `🟠 New reply likes count: ${newReplyLikes.length}`
+                    );
+
+                    return {
+                      ...reply,
+                      liked: newLikedStatus,
+                      likes: newReplyLikes,
+                    };
+                  }
+                  return reply;
+                }) || [],
             };
           }
 
           return comment;
         });
 
-        set({
+        set((state) => ({
           commentsByPost: {
-            ...get().commentsByPost,
+            ...state.commentsByPost,
             [postId]: updated,
           },
-        });
+        }));
+
+        const after = get().commentsByPost[postId].find(
+          (c) => c.id === commentId
+        );
+        console.log("🟢 After state:", JSON.parse(JSON.stringify(after)));
+        console.log(`🟡 Finished toggleLike for comment ${commentId}`);
       },
 
       toggleShowReplies: (postId, commentId) => {

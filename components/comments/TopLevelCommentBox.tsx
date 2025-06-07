@@ -1,10 +1,33 @@
 import { useTheme } from "@/context/ThemeContext";
+import { addNewComment } from "@/services/postService";
+import { useCommentStore } from "@/stores/CommentStore";
+import { useUser } from "@clerk/clerk-expo";
 import { Ionicons } from "@expo/vector-icons";
 import React from "react";
 import { TextInput, TouchableOpacity, View } from "react-native";
 
-const TopLevelCommentBox: React.FC<any> = ({ value, onChange, onSubmit }) => {
+const TopLevelCommentBox: React.FC<any> = ({
+  postId,
+  value,
+  onChange,
+  onSubmit,
+}) => {
   const { colorScheme } = useTheme();
+  const { user } = useUser();
+  if (!user) {
+    return null;
+  }
+  const updateComments = useCommentStore((state) => state.addComment);
+  const handleCommenting = async () => {
+    const response = await addNewComment(
+      postId,
+      user.emailAddresses[0].emailAddress,
+      value
+    );
+    console.log("Comment Added", response);
+    updateComments(postId, response);
+    onSubmit?.();
+  };
   return (
     <View className="px-4 py-3">
       <View className="flex-row items-center">
@@ -23,7 +46,7 @@ const TopLevelCommentBox: React.FC<any> = ({ value, onChange, onSubmit }) => {
         />
         <TouchableOpacity
           onPress={() => {
-            if (value.trim()) onSubmit(value);
+            if (value.trim()) handleCommenting();
           }}
           disabled={!value.trim()}
           className="ml-3"
