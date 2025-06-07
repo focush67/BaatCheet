@@ -1,17 +1,20 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { fetchCommentsOnPost } from "@/services/postService";
 
 export const useCommentStore = create<ZCommentStore>()(
   persist(
     (set, get) => ({
       commentsByPost: {},
 
-      initializeComments: (postId, comments) => {
+      fetchComments: async (postId) => {
+        const postComments = await fetchCommentsOnPost(postId);
+
         set((state) => ({
           commentsByPost: {
             ...state.commentsByPost,
-            [postId]: comments,
+            [postId]: postComments,
           },
         }));
       },

@@ -97,3 +97,50 @@ export const GET_POSTS_FOR_USER = `
         }
     }
 `;
+
+export const GET_COMMENTS_ON_POST = `
+    query GetCommentsOnPost($postID:ID!){
+        getCommentsOnPost(postID:$postID){
+            id
+            content
+            createdAt
+            owner {
+                email
+                username
+                profilePicture
+            }
+            replyTo {
+                content
+                owner {
+                    email
+                    username
+                    profilePicture
+                }
+            }
+            post {
+                caption
+                owner {
+                    username
+                    email
+                    profilePicture
+                }
+            }
+            likes {
+                owner {
+                    username
+                    email
+                    profilePicture
+                }
+            }
+            replies {
+                content
+                owner {
+                    email
+                    username
+                    profilePicture
+                }
+            }
+
+        }
+    }
+`;

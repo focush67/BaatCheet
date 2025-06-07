@@ -1,24 +1,11 @@
-import { useComments } from "@/hooks/comments/useComments";
-import { useReply } from "@/hooks/comments/useReply";
 import { useCommentStore } from "@/stores/CommentStore";
 import React from "react";
-import { ScrollView, View } from "react-native";
+import { ScrollView, Text, View } from "react-native";
 import CommentThread from "./CommentThread";
-import TopLevelCommentBox from "./TopLevelCommentBox";
 
 const CommentsSection = ({ postId }: { postId: string }) => {
-  const {
-    newComment,
-    setNewComment,
-    toggleReplies,
-    toggleLike,
-    addComment,
-    addReply,
-  } = useComments(postId);
-
-  const { replyingTo, replyText, setReplyText, startReply, cancelReply } =
-    useReply();
   const commentStore = useCommentStore((state) => state.commentsByPost[postId]);
+
   return (
     <View className="flex-1">
       <ScrollView
@@ -26,32 +13,19 @@ const CommentsSection = ({ postId }: { postId: string }) => {
         contentContainerStyle={{ paddingBottom: 16 }}
         showsVerticalScrollIndicator={false}
       >
-        {commentStore &&
-          commentStore.length > 0 &&
+        {commentStore && commentStore.length > 0 ? (
           commentStore.map((comment) => (
-            <CommentThread
-              key={comment.id}
-              comment={comment}
-              toggleReplies={toggleReplies}
-              toggleLike={toggleLike}
-              startReply={startReply}
-              addReply={addReply}
-              replyText={replyText}
-              setReplyText={setReplyText}
-              replyingTo={replyingTo}
-              cancelReply={cancelReply}
-              postId={postId}
-            />
-          ))}
+            <CommentThread key={comment.id} comment={comment} postId={postId} />
+          ))
+        ) : (
+          <View className="flex-1 justify-center items-center mt-8 px-4">
+            <Text className="text-center text-sm text-gray-500">
+              No comments yet. Be the first to share your thoughts and start the
+              conversation!
+            </Text>
+          </View>
+        )}
       </ScrollView>
-
-      {!replyingTo && (
-        <TopLevelCommentBox
-          value={newComment}
-          onChange={setNewComment}
-          onSubmit={addComment}
-        />
-      )}
     </View>
   );
 };

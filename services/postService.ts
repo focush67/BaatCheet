@@ -6,6 +6,7 @@ import {
 } from "@/api/graphql/mutations/post";
 import {
   GET_ALL_POSTS,
+  GET_COMMENTS_ON_POST,
   GET_POST_BY_ID,
   GET_POSTS_FOR_USER,
 } from "@/api/graphql/queries/post";
@@ -97,5 +98,19 @@ export const deletePost = async (postId: string): Promise<GPost> =>
     responseKey: "deletePost",
     friendlyErrorMessage: "Failed to delete post. Please try again.",
     logLabel: `Delete post with ID ${postId}`,
+    serviceName: SERVICE_NAME,
+  });
+
+export const fetchCommentsOnPost = async (
+  postID: string
+): Promise<GComment[]> =>
+  graphqlRequest({
+    operation: {
+      query: GET_COMMENTS_ON_POST,
+      variables: { postID },
+    },
+    responseKey: "getCommentsOnPost",
+    friendlyErrorMessage: "Failed to fetch comments. Please try again",
+    logLabel: `Fetch comments for ${postID}`,
     serviceName: SERVICE_NAME,
   });
