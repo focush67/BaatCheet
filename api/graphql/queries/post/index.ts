@@ -4,24 +4,35 @@ export const GET_ALL_POSTS = `
         id
         caption
         coverPhoto
+        owner {
+            email
+            username
+            profilePicture
+        }
+        createdAt
         likes {
             owner {
                 id
                 email
                 username
+                profilePicture
             }
         }
         comments {
             content
             owner {
+                id
                 username
                 email
+                profilePicture
             }
         }
         tags {
             referenceUser {
+                id
                 email
                 username
+                profilePicture
             }
         }
     }

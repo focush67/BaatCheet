@@ -73,7 +73,7 @@ export const createNewPost = async (
   }
 };
 
-export const getAllPosts = async (): Promise<GPost[]> => {
+export const getAllPosts = async () => {
   const startTime = Date.now();
   const requestId = Math.random().toString(36).substring(2, 9);
 
@@ -108,10 +108,6 @@ export const getAllPosts = async (): Promise<GPost[]> => {
       );
       throw new Error(`Server returned unexpected response format`);
     }
-    console.log(
-      `Response for all posts fetching`,
-      response.data.data.getAllPosts
-    );
     return response.data.data.getAllPosts;
   } catch (error: any) {
     const duration = Date.now() - startTime;

@@ -1,4 +1,6 @@
 import { samplePosts } from "@/constants/data";
+import { getAllPosts } from "@/services/postService";
+import { mapPostToPostCard } from "@/utils/fileNaming";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
@@ -7,12 +9,16 @@ export const usePostStore = create<ZPostStore>()(
   persist(
     (set, get) => ({
       posts: samplePosts,
-
+      mappedPosts: [],
       setPosts: () => set({ posts: samplePosts }),
-
-      toggleLike: (id) =>
+      setMappedPosts: async (email: string) => {
+        const allPosts: GPost[] = await getAllPosts();
+        const mapped = allPosts.map((post) => mapPostToPostCard(post, email));
+        set({ mappedPosts: mapped });
+      },
+      toggleLike: (id) => {
         set((state) => ({
-          posts: state.posts.map((p) => {
+          mappedPosts: state.mappedPosts.map((p) => {
             if (p.id !== id) return p;
             const isNowLiked = !p.isLiked;
             const likes = isNowLiked ? p.likes + 1 : p.likes - 1;
@@ -22,11 +28,12 @@ export const usePostStore = create<ZPostStore>()(
               likes: likes < 0 ? 0 : likes,
             };
           }),
-        })),
+        }));
+      },
 
       toggleBookmark: (id) =>
         set((state) => ({
-          posts: state.posts.map((post) =>
+          mappedPosts: state.mappedPosts.map((post) =>
             post.id === id
               ? { ...post, isBookmarked: !post.isBookmarked }
               : post
@@ -36,6 +43,7 @@ export const usePostStore = create<ZPostStore>()(
       reset: () => {
         usePostStore.persist.clearStorage();
         usePostStore.setState({ posts: [] });
+        usePostStore.setState({ mappedPosts: [] });
       },
     }),
 

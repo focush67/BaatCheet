@@ -7,7 +7,7 @@ import { Text, TouchableOpacity, View } from "react-native";
 const LikeButton = ({ postId }: { postId: string }) => {
   const { colorScheme } = useTheme();
   const post = usePostStore((state) =>
-    state.posts.find((p) => p.id === postId)
+    state.mappedPosts.find((p) => p.id === postId)
   );
   const toggleLike = usePostStore((state) => state.toggleLike);
   if (!post) {

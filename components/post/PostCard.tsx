@@ -10,14 +10,14 @@ import LikeButton from "./LikeButton";
 import SaveButton from "./SaveButton";
 import ShareButton from "./ShareButton";
 
-const PostCard = ({ post }: PostCardProps) => {
+const PostCard = ({ post }: { post: PostCard }) => {
   const { colorScheme } = useTheme();
   const router = useRouter();
   const [showComments, setShowComments] = useState(false);
   const toggleBookmark = usePostStore((state) => state.toggleBookmark);
 
   const storePost = usePostStore((state) =>
-    state.posts.find((p) => p.id === post.id)
+    state.mappedPosts.find((p) => p.id === post.id)
   );
   const isBookmarked = storePost?.isBookmarked ?? post.isBookmarked;
 
@@ -41,12 +41,12 @@ const PostCard = ({ post }: PostCardProps) => {
           >
             <Image
               source={{ uri: post.avatar }}
-              className="w-12 h-12 rounded-full mr-3"
+              className="w-8 h-8 rounded-full mr-3"
             />
           </TouchableOpacity>
 
           <Text
-            className={`font-semibold text-md ${
+            className={`font-semibold text-sm ${
               colorScheme === "light" ? "text-black" : "text-white"
             }`}
           >
@@ -79,8 +79,8 @@ const PostCard = ({ post }: PostCardProps) => {
         </View>
       </View>
 
-      <View className="flex-row justify-between items-center px-4 py-3">
-        <View className="flex-row items-center space-x-4">
+      <View className="flex-row justify-between items-center px-4 py-1.5">
+        <View className="flex-row items-center">
           <LikeButton postId={post.id} />
           <CommentButton postId={post.id} setShowComments={setShowComments} />
           <ShareButton post={post} />
@@ -93,9 +93,9 @@ const PostCard = ({ post }: PostCardProps) => {
       </View>
 
       {post.caption && (
-        <View className="px-4 pt-1">
+        <View className="px-4">
           <Text
-            className={`text-md ${
+            className={`text-sm ${
               colorScheme === "light" ? "text-black" : "text-white"
             }`}
           >

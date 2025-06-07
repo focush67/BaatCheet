@@ -35,7 +35,9 @@ interface ReelCardProps {
 
 interface ZPostStore {
   posts: PostCard[];
+  mappedPosts: PostCard[];
   setPosts: () => void;
+  setMappedPosts: (email: string) => Promise<void>;
   toggleLike: (postId: string) => void;
   toggleBookmark: (postId: string) => void;
   reset: () => void;
@@ -48,7 +50,7 @@ interface GPost {
   coverPhoto: string;
   caption?: string;
   createdAt?: string;
-  ownerId: string;
+  owner: GUser;
   likes: GLike[];
   comments: GComment[];
   tags: GTag[];
