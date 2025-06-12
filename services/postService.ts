@@ -3,6 +3,8 @@ import {
   DELETE_USER_POST,
   LIKE_POST,
   UNLIKE_POST,
+  COMMENT_ON_POST,
+  LIKE_COMMENT,
 } from "@/api/graphql/mutations/post";
 import {
   GET_ALL_POSTS,
@@ -41,6 +43,24 @@ export const unlikePost = async (
     serviceName: SERVICE_NAME,
   });
 
+export const likeComment = async (
+  commentID: string,
+  email: string
+): Promise<GLike> =>
+  graphqlRequest({
+    operation: {
+      query: LIKE_COMMENT,
+      variables: {
+        commentID,
+        email,
+      },
+    },
+    responseKey: "addLikeToComment",
+    friendlyErrorMessage: "Failed to like comment. Please try again",
+    logLabel: `Like for Comment ${commentID} by user ${email}`,
+    serviceName: SERVICE_NAME,
+  });
+
 export const createNewPost = async (input: GCreatePostInput): Promise<GPost> =>
   graphqlRequest({
     operation: {
@@ -50,6 +70,22 @@ export const createNewPost = async (input: GCreatePostInput): Promise<GPost> =>
     responseKey: "createPost",
     friendlyErrorMessage: "Failed to create new post. Please try again.",
     logLabel: `Create post with cover ${input.coverPhoto}`,
+    serviceName: SERVICE_NAME,
+  });
+
+export const addNewComment = async (
+  postID: string,
+  email: string,
+  content: string
+): Promise<GComment> =>
+  graphqlRequest({
+    operation: {
+      query: COMMENT_ON_POST,
+      variables: { postID, email, content },
+    },
+    responseKey: "addCommentToPost",
+    friendlyErrorMessage: "Failed to add new comment. Please try again",
+    logLabel: `Add Comment to post ${postID} with content ${content}`,
     serviceName: SERVICE_NAME,
   });
 

@@ -7,7 +7,6 @@ import { Modal, Text, TouchableOpacity, View } from "react-native";
 const CommentsModal = ({ visible, onClose, postId }: any) => {
   const { colorScheme } = useTheme();
   const isDark = colorScheme === "dark";
-
   return (
     <Modal animationType="slide" transparent={true} visible={visible}>
       <View className="flex-1 justify-end bg-black/50">
