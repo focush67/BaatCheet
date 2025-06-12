@@ -4,11 +4,12 @@ import ReplyComposer from "./ReplyComposer";
 import SingleThread from "./SingleThread";
 
 const CommentThread = ({ comment, postId }: any) => {
+  console.log("Comment", comment);
   return (
     <View className="pb-4">
       <SingleThread data={comment} isReply={false} postId={postId} />
 
-      {comment.showReplies && (
+      {comment?.showReplies && (
         <View className="ml-12 space-y-3 mt-3">
           {comment.showReplies &&
             comment.replies.map((reply: any) => (
