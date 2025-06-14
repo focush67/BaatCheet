@@ -1,4 +1,3 @@
-// src/api/graphql/handler.ts
 import api from "@/utils/axios";
 
 type GraphQLOperation = {
@@ -38,22 +37,22 @@ export async function graphqlRequest<TVariables, TResponse>(
     variables,
   } = config;
 
-  console.log(`[${serviceName} API][${requestId}] Starting ${logLabel}`, {
-    ...(variables && { variables }),
-    timestamp: new Date().toISOString(),
-  });
+  // console.log(`[${serviceName} API][${requestId}] Starting ${logLabel}`, {
+  //   ...(variables && { variables }),
+  //   timestamp: new Date().toISOString(),
+  // });
 
   try {
     const response = await api.post("", operation);
 
     const duration = Date.now() - startTime;
-    console.log(
-      `[${serviceName} API][${requestId}] Request completed in ${duration}ms`,
-      {
-        status: response.status,
-        data: response.data,
-      }
-    );
+    // console.log(
+    //   `[${serviceName} API][${requestId}] Request completed in ${duration}ms`,
+    //   {
+    //     status: response.status,
+    //     data: response.data,
+    //   }
+    // );
 
     if (response.data.errors) {
       const errorMessage = response.data.errors[0].message;
@@ -72,6 +71,13 @@ export async function graphqlRequest<TVariables, TResponse>(
       );
       throw new Error(`Server returned unexpected response format`);
     }
+
+    // Inside the try block, after getting the response:
+    console.log(
+      "Raw GraphQL response:",
+      JSON.stringify(response.data, null, 2)
+    );
+
     return config.transformResponse
       ? config.transformResponse(response.data.data[responseKey])
       : response.data.data[responseKey];

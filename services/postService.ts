@@ -139,8 +139,8 @@ export const deletePost = async (postId: string): Promise<GPost> =>
 
 export const fetchCommentsOnPost = async (
   postID: string
-): Promise<GComment[]> =>
-  graphqlRequest({
+): Promise<GComment[]> => {
+  const resp = graphqlRequest({
     operation: {
       query: GET_COMMENTS_ON_POST,
       variables: { postID },
@@ -150,3 +150,7 @@ export const fetchCommentsOnPost = async (
     logLabel: `Fetch comments for ${postID}`,
     serviceName: SERVICE_NAME,
   });
+
+  console.log("Response on frontend", resp);
+  return resp;
+};

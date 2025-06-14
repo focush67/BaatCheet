@@ -20,7 +20,7 @@ interface GComment extends GCommentBase {
   storyId?: string;
   post?: GPost;
   story?: GStory;
-  owner: GUser;
+  owner: any;
   replyTo?: GComment;
   likes: GLike[];
   replies: GComment[];
