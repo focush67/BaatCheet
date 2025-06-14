@@ -4,7 +4,6 @@ import ReplyComposer from "./ReplyComposer";
 import SingleThread from "./SingleThread";
 
 const CommentThread = ({ comment, postId }: any) => {
-  console.log("Comment", comment);
   return (
     <View className="pb-4">
       <SingleThread data={comment} isReply={false} postId={postId} />

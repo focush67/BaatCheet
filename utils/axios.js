@@ -14,11 +14,11 @@ const api = axios.create({
 api.interceptors.request.use(
   async (config) => {
     const token = "DEVAUTHTOKEN";
-    console.log(`[API] Request to ${config.url}`, {
-      method: config.method,
-      data: config.data,
-      headers: config.headers,
-    });
+    // console.log(`[API] Request to ${config.url}`, {
+    //   method: config.method,
+    //   data: config.data,
+    //   headers: config.headers,
+    // });
 
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
@@ -38,10 +38,10 @@ api.interceptors.request.use(
 
 api.interceptors.response.use(
   (response) => {
-    console.log(`[API] Response from ${response.config.url}`, {
-      status: response.status,
-      data: response.data,
-    });
+    // console.log(`[API] Response from ${response.config.url}`, {
+    //   status: response.status,
+    //   data: response.data,
+    // });
     return response;
   },
   (error) => {

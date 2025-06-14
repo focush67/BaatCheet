@@ -1,6 +1,6 @@
 import { useTheme } from "@/context/ThemeContext";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
-import React from "react";
+import React, { useState } from "react";
 import { Image, Text, TouchableOpacity, View } from "react-native";
 import { formatDistanceToNow } from "date-fns";
 import { useUser } from "@clerk/clerk-expo";
@@ -16,6 +16,11 @@ const SingleThread: React.FC<any> = ({
   postId,
 }) => {
   const { colorScheme } = useTheme();
+  const { user } = useUser();
+  if (!user) {
+    return null;
+  }
+
   const isDark = colorScheme === "dark";
   const textPrimaryColor = isDark ? "#fff" : "#262626";
   const textSecondaryColor = isDark ? "#888" : "#999";
@@ -24,10 +29,9 @@ const SingleThread: React.FC<any> = ({
     addSuffix: true,
   }).replace(/^about /, "");
 
-  const { user } = useUser();
-  if (!user) {
-    return null;
-  }
+  const isLiked = data.likes.some(
+    (l: any) => l?.owner?.email === user.emailAddresses[0].emailAddress
+  );
 
   const toggleCommentLike = useCommentStore((state) => state.toggleCommentLike);
 
@@ -89,7 +93,7 @@ const SingleThread: React.FC<any> = ({
               hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
             >
               <Ionicons
-                name={data.liked ? "heart" : "heart-outline"}
+                name={isLiked ? "heart" : "heart-outline"}
                 size={16}
                 color={likeIconColor}
               />

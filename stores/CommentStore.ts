@@ -10,6 +10,9 @@ export const useCommentStore = create<ZCommentStore>()(
 
       fetchComments: async (postId, currentUserEmail) => {
         const postComments = await fetchCommentsOnPost(postId);
+        postComments.map((comment) => {
+          console.log(`Likes for ${comment.content}`, comment.likes);
+        });
         const processedComments = postComments.map((comment) => ({
           ...comment,
           liked: comment.likes.some(
@@ -23,6 +26,7 @@ export const useCommentStore = create<ZCommentStore>()(
               ),
             })) || [],
         }));
+
         set((state) => ({
           commentsByPost: {
             ...state.commentsByPost,
@@ -99,7 +103,22 @@ export const useCommentStore = create<ZCommentStore>()(
               newLikes.push({
                 id: likeId,
                 ownerId: userId,
-                owner: { email: userEmail, id: userId },
+                owner: {
+                  email: userEmail,
+                  id: userId,
+                  profilePicture: "",
+                  bio: "",
+                  createdAt: "",
+                  followers: [],
+                  following: [],
+                  likes: [],
+                  comments: [],
+                  collections: [],
+                  highlights: [],
+                  stories: [],
+                  posts: [],
+                  taggedPosts: [],
+                },
               });
               newLikedStatus = true;
             }
@@ -148,7 +167,22 @@ export const useCommentStore = create<ZCommentStore>()(
                       newReplyLikes.push({
                         id: likeId,
                         ownerId: userId,
-                        owner: { email: userEmail, id: userId },
+                        owner: {
+                          email: userEmail,
+                          id: userId,
+                          profilePicture: "",
+                          bio: "",
+                          createdAt: "",
+                          followers: [],
+                          following: [],
+                          likes: [],
+                          comments: [],
+                          collections: [],
+                          highlights: [],
+                          stories: [],
+                          posts: [],
+                          taggedPosts: [],
+                        },
                       });
                       newLikedStatus = true;
                     }
