@@ -34,9 +34,8 @@ const SingleThread: React.FC<any> = ({
   );
 
   const toggleCommentLike = useCommentStore((state) => state.toggleCommentLike);
-
+  console.log("Is For Reply", isReply);
   const handleCommentLike = async () => {
-    console.log("Data", data);
     try {
       const response = await likeComment(
         data.id,
@@ -46,7 +45,7 @@ const SingleThread: React.FC<any> = ({
       const input = {
         postId: postId,
         commentId: data.id,
-        parentId: undefined,
+        parentId: parentId,
         userId: response.ownerId,
         userEmail: user.emailAddresses[0].emailAddress,
         likeId: response.id,

@@ -66,9 +66,11 @@ export const useCommentStore = create<ZCommentStore>()(
         const { postId, commentId, parentId, userEmail, userId, likeId } =
           input;
 
+        console.log("Input", input);
         const before = get().commentsByPost[postId] || [];
         const updated = before.map((comment) => {
           if (comment.id === commentId && !parentId) {
+            console.log("Updating Normal Comment");
             const userLikeIndex =
               comment.likes?.findIndex((l) => l?.owner?.email === userEmail) ??
               -1;
@@ -112,6 +114,7 @@ export const useCommentStore = create<ZCommentStore>()(
           }
 
           if (parentId && comment.id === parentId) {
+            console.log("Liking Reply");
             return {
               ...comment,
               replies:
