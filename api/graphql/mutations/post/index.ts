@@ -111,3 +111,34 @@ export const COMMENT_ON_POST = `
   }
   }
 `;
+
+export const ADD_REPLY_TO_COMMENT = `
+  mutation AddReplyToComment($commentID:ID!,$email:String!,$content:String!){
+    addCommentToComment(commentID:$commentID,email:$email,content:$content){
+      id
+      content
+      createdAt
+      owner {
+        username
+        email
+        profilePicture
+      }
+      likes {
+        owner {
+          username
+          email
+          profilePicture
+        }
+      }
+      replies {
+        content
+        createdAt
+        owner {
+          email
+          username
+          profilePicture
+        }
+      }
+    }
+  }
+`;

@@ -10,9 +10,6 @@ export const useCommentStore = create<ZCommentStore>()(
 
       fetchComments: async (postId, currentUserEmail) => {
         const postComments = await fetchCommentsOnPost(postId);
-        postComments.map((comment) => {
-          console.log(`Likes for ${comment.content}`, comment.likes);
-        });
         const processedComments = postComments.map((comment) => ({
           ...comment,
           liked: comment.likes.some(
@@ -66,33 +63,17 @@ export const useCommentStore = create<ZCommentStore>()(
       },
 
       toggleCommentLike: (input) => {
-        console.log(
-          `🟡 Starting toggleLike for comment ${input.commentId} on post ${input.postId}`
-        );
-
         const { postId, commentId, parentId, userEmail, userId, likeId } =
           input;
 
         const before = get().commentsByPost[postId] || [];
-        const beforeComment = before.find((c) => c.id === commentId);
-        console.log(
-          "🔵 Before state:",
-          JSON.parse(JSON.stringify(beforeComment))
-        );
-
         const updated = before.map((comment) => {
           if (comment.id === commentId && !parentId) {
-            console.log(`🟠 Found main comment to like/unlike: ${commentId}`);
-
             const userLikeIndex =
               comment.likes?.findIndex((l) => l?.owner?.email === userEmail) ??
               -1;
 
             const isLiked = userLikeIndex !== -1;
-            console.log(
-              `🟠 Current like status: ${isLiked ? "LIKED" : "NOT LIKED"}`
-            );
-
             let newLikes = [...(comment.likes || [])];
             let newLikedStatus = comment.liked;
 
@@ -123,8 +104,6 @@ export const useCommentStore = create<ZCommentStore>()(
               newLikedStatus = true;
             }
 
-            console.log(`🟠 New likes count: ${newLikes.length}`);
-
             return {
               ...comment,
               liked: newLikedStatus,
@@ -133,27 +112,17 @@ export const useCommentStore = create<ZCommentStore>()(
           }
 
           if (parentId && comment.id === parentId) {
-            console.log(
-              `🟠 Found parent comment ${parentId} containing reply ${commentId}`
-            );
             return {
               ...comment,
               replies:
                 comment.replies?.map((reply) => {
                   if (reply.id === commentId) {
-                    console.log(`🟠 Found reply to like/unlike: ${commentId}`);
-
                     const userLikeIndex =
                       reply.likes?.findIndex(
                         (l) => l?.owner?.email === userEmail
                       ) ?? -1;
 
                     const isLiked = userLikeIndex !== -1;
-                    console.log(
-                      `🟠 Current like status: ${
-                        isLiked ? "LIKED" : "NOT LIKED"
-                      }`
-                    );
 
                     let newReplyLikes = [...(reply.likes || [])];
                     let newLikedStatus = reply.likes.some(
@@ -187,10 +156,6 @@ export const useCommentStore = create<ZCommentStore>()(
                       newLikedStatus = true;
                     }
 
-                    console.log(
-                      `🟠 New reply likes count: ${newReplyLikes.length}`
-                    );
-
                     return {
                       ...reply,
                       liked: newLikedStatus,
@@ -211,12 +176,6 @@ export const useCommentStore = create<ZCommentStore>()(
             [postId]: updated,
           },
         }));
-
-        const after = get().commentsByPost[postId].find(
-          (c) => c.id === commentId
-        );
-        console.log("🟢 After state:", JSON.parse(JSON.stringify(after)));
-        console.log(`🟡 Finished toggleLike for comment ${commentId}`);
       },
 
       toggleShowReplies: (postId, commentId) => {

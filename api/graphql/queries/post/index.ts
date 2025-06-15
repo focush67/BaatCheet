@@ -19,6 +19,7 @@ export const GET_ALL_POSTS = `
             }
         }
         comments {
+            id
             content
             owner {
                 id
@@ -110,6 +111,7 @@ export const GET_COMMENTS_ON_POST = `
                 profilePicture
             }
             replyTo {
+                id
                 content
                 owner {
                     email
@@ -118,6 +120,7 @@ export const GET_COMMENTS_ON_POST = `
                 }
             }
             post {
+                id
                 caption
                 owner {
                     username
@@ -133,11 +136,20 @@ export const GET_COMMENTS_ON_POST = `
                 }
             }
             replies {
+                id
                 content
+                createdAt
                 owner {
                     email
                     username
                     profilePicture
+                }
+                likes {
+                    owner {
+                        username
+                        email
+                        profilePicture
+                    }
                 }
             }
 

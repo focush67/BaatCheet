@@ -1,6 +1,6 @@
 import { useTheme } from "@/context/ThemeContext";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
-import React, { useState } from "react";
+import React from "react";
 import { Image, Text, TouchableOpacity, View } from "react-native";
 import { formatDistanceToNow } from "date-fns";
 import { useUser } from "@clerk/clerk-expo";
@@ -33,9 +33,13 @@ const SingleThread: React.FC<any> = ({
     (l: any) => l?.owner?.email === user.emailAddresses[0].emailAddress
   );
 
+  const stateComments = useCommentStore(
+    (state) => state.commentsByPost[postId]
+  );
   const toggleCommentLike = useCommentStore((state) => state.toggleCommentLike);
 
   const handleCommentLike = async () => {
+    console.log("Data", data);
     try {
       const response = await likeComment(
         data.id,
@@ -118,7 +122,7 @@ const SingleThread: React.FC<any> = ({
           </Text>
           <TouchableOpacity
             onPress={() => {
-              toggleReplies?.(data.id);
+              console.log("Starting Reply for ", data.content);
               startReply(data);
             }}
             hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}

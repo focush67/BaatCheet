@@ -5,6 +5,7 @@ import {
   UNLIKE_POST,
   COMMENT_ON_POST,
   LIKE_COMMENT,
+  ADD_REPLY_TO_COMMENT,
 } from "@/api/graphql/mutations/post";
 import {
   GET_ALL_POSTS,
@@ -89,6 +90,22 @@ export const addNewComment = async (
     serviceName: SERVICE_NAME,
   });
 
+export const addReplyToComment = async (
+  commentID: string,
+  email: string,
+  content: string
+): Promise<GComment> =>
+  graphqlRequest({
+    operation: {
+      query: ADD_REPLY_TO_COMMENT,
+      variables: { commentID, email, content },
+    },
+    responseKey: "addCommentToComment",
+    friendlyErrorMessage: "Failed to add reply to comment. Please try again",
+    logLabel: "Add Reply to Comment",
+    serviceName: SERVICE_NAME,
+  });
+
 export const getAllPosts = async (): Promise<GPost[]> =>
   graphqlRequest({
     operation: {
@@ -139,8 +156,8 @@ export const deletePost = async (postId: string): Promise<GPost> =>
 
 export const fetchCommentsOnPost = async (
   postID: string
-): Promise<GComment[]> => {
-  const resp = graphqlRequest({
+): Promise<GComment[]> =>
+  graphqlRequest({
     operation: {
       query: GET_COMMENTS_ON_POST,
       variables: { postID },
@@ -150,7 +167,3 @@ export const fetchCommentsOnPost = async (
     logLabel: `Fetch comments for ${postID}`,
     serviceName: SERVICE_NAME,
   });
-
-  console.log("Response on frontend", resp);
-  return resp;
-};
