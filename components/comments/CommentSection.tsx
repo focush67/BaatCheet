@@ -13,7 +13,7 @@ import TopLevelCommentBox from "./TopLevelCommentBox";
 const CommentsSection = ({ postId }: { postId: string }) => {
   const commentStore = useCommentStore((state) => state.commentsByPost[postId]);
   const [replyText, setReplyText] = useState("");
-
+  const [showTopLevelCommentBox, setShowTopLevelCommentBox] = useState(true);
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : undefined}
@@ -30,6 +30,7 @@ const CommentsSection = ({ postId }: { postId: string }) => {
             commentStore.map((comment) => (
               <CommentThread
                 key={comment.id}
+                setShowInput={setShowTopLevelCommentBox}
                 comment={comment}
                 postId={postId}
               />
@@ -45,12 +46,14 @@ const CommentsSection = ({ postId }: { postId: string }) => {
         </ScrollView>
 
         <View className="border-t border-gray-700">
-          <TopLevelCommentBox
-            value={replyText}
-            onChange={setReplyText}
-            postId={postId}
-            onSubmit={() => setReplyText("")}
-          />
+          {showTopLevelCommentBox && (
+            <TopLevelCommentBox
+              value={replyText}
+              onChange={setReplyText}
+              postId={postId}
+              onSubmit={() => setReplyText("")}
+            />
+          )}
         </View>
       </View>
     </KeyboardAvoidingView>

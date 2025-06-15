@@ -33,9 +33,6 @@ const SingleThread: React.FC<any> = ({
     (l: any) => l?.owner?.email === user.emailAddresses[0].emailAddress
   );
 
-  const stateComments = useCommentStore(
-    (state) => state.commentsByPost[postId]
-  );
   const toggleCommentLike = useCommentStore((state) => state.toggleCommentLike);
 
   const handleCommentLike = async () => {

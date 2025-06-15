@@ -33,7 +33,7 @@ const ReplyComposer = ({
   };
 
   return (
-    <View className="ml-11 mt-2 pr-4">
+    <View className="ml-11 mt-2 pr-4 mb-4">
       {/* Top Info Row */}
       <View className="flex-row items-center justify-between mb-1">
         <Text

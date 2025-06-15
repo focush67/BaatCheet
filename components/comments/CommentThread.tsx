@@ -6,7 +6,7 @@ import { useCommentStore } from "@/stores/CommentStore";
 import { addReplyToComment } from "@/services/postService";
 import { useUser } from "@clerk/clerk-expo";
 
-const CommentThread = ({ comment, postId }: any) => {
+const CommentThread = ({ comment, postId, setShowInput }: any) => {
   const { user } = useUser();
   if (!user) {
     return null;
@@ -20,6 +20,7 @@ const CommentThread = ({ comment, postId }: any) => {
   const toggleReplies = useCommentStore((state) => state.toggleShowReplies);
 
   const handleStartReply = (commentData: any) => {
+    setShowInput(false);
     setReplyingTo({
       commentId: commentData.id,
       username: commentData.owner.username,
@@ -27,6 +28,7 @@ const CommentThread = ({ comment, postId }: any) => {
   };
 
   const handleCancelReply = () => {
+    setShowInput(true);
     setReplyingTo(null);
   };
 
@@ -46,6 +48,7 @@ const CommentThread = ({ comment, postId }: any) => {
 
     updateRepliesForStore(postId, replyingTo?.commentId!, response);
     setReplyingTo(null);
+    setShowInput(true);
   };
 
   return (
@@ -58,7 +61,6 @@ const CommentThread = ({ comment, postId }: any) => {
         toggleReplies={handleToggleReplies}
       />
 
-      {/* Reply Composer */}
       {replyingTo?.commentId === comment.id && (
         <ReplyComposer
           username={replyingTo?.username}
