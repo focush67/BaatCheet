@@ -38,6 +38,7 @@ interface CommentsByPost {
 interface ZCommentStore {
   commentsByPost: CommentsByPost;
   addComment: (postId: string, comment: GComment) => void;
+  removeComment: (postId: string, commentId: string, userEmail: string) => void;
   addReply: (postId: string, parentCommentId: string, reply: GComment) => void;
   toggleCommentLike: ({ input }: LikeDispatch) => void;
   toggleShowReplies: (postId: string, commentId: string) => void;

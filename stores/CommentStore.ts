@@ -43,6 +43,39 @@ export const useCommentStore = create<ZCommentStore>()(
         });
       },
 
+      removeComment(postId, commentId, userEmail) {
+        const prevComments = get().commentsByPost[postId] || [];
+        const updatedComments = prevComments
+          .map((comment) => {
+            if (comment.replies?.some((r) => r.id === commentId)) {
+              return {
+                ...comment,
+                replies: comment.replies.filter(
+                  (reply) =>
+                    reply.id !== commentId || reply.owner.email !== userEmail
+                ),
+              };
+            }
+
+            if (comment.id === commentId) {
+              if (comment.owner.email === userEmail) {
+                return null;
+              } else {
+                return comment;
+              }
+            }
+            return comment;
+          })
+          .filter(Boolean);
+
+        set((state) => ({
+          commentsByPost: {
+            ...state.commentsByPost,
+            [postId]: updatedComments as UIComment[],
+          },
+        }));
+      },
+
       addReply: (postId, parentCommentId, reply) => {
         const updated = (get().commentsByPost[postId] || []).map((comment) => {
           if (comment.id === parentCommentId) {

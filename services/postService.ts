@@ -6,6 +6,7 @@ import {
   COMMENT_ON_POST,
   LIKE_COMMENT,
   ADD_REPLY_TO_COMMENT,
+  DELETE_COMMENT,
 } from "@/api/graphql/mutations/post";
 import {
   GET_ALL_POSTS,
@@ -151,6 +152,26 @@ export const deletePost = async (postId: string): Promise<GPost> =>
     responseKey: "deletePost",
     friendlyErrorMessage: "Failed to delete post. Please try again.",
     logLabel: `Delete post with ID ${postId}`,
+    serviceName: SERVICE_NAME,
+  });
+
+export const deleteComment = async (
+  postID: string,
+  commentID: string,
+  email: string
+): Promise<GComment> =>
+  graphqlRequest({
+    operation: {
+      query: DELETE_COMMENT,
+      variables: {
+        commentID,
+        email,
+        postID,
+      },
+    },
+    responseKey: "removeCommentFromPost",
+    friendlyErrorMessage: "Failed to delete comment. Please try again",
+    logLabel: `Delete Comment ${commentID}`,
     serviceName: SERVICE_NAME,
   });
 

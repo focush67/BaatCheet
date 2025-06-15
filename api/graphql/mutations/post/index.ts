@@ -112,6 +112,22 @@ export const COMMENT_ON_POST = `
   }
 `;
 
+export const DELETE_COMMENT = `
+  mutation DeleteComment($commentID:ID!,$email:String!,$postID:ID!){
+    removeCommentFromPost(commentID:$commentID,email:$email,postID:$postID){
+      id
+      content
+      owner{
+        name
+        username
+      }
+      post{
+        caption
+      }
+    }
+  }
+`;
+
 export const ADD_REPLY_TO_COMMENT = `
   mutation AddReplyToComment($commentID:ID!,$email:String!,$content:String!){
     addCommentToComment(commentID:$commentID,email:$email,content:$content){
