@@ -107,10 +107,13 @@ export const addReplyToComment = async (
     serviceName: SERVICE_NAME,
   });
 
-export const getAllPosts = async (): Promise<GPost[]> =>
+export const getAllPosts = async (email: string): Promise<GPost[]> =>
   graphqlRequest({
     operation: {
       query: GET_ALL_POSTS,
+      variables: {
+        email,
+      },
     },
     responseKey: "getAllPosts",
     friendlyErrorMessage: "Failed to fetch posts. Please try again.",

@@ -1,7 +1,6 @@
 import { ProfileActions } from "@/components/profile/Actions";
 import Bio from "@/components/profile/Bio";
 import { ContentTabs } from "@/components/profile/ContentTabs";
-import Highlights from "@/components/profile/Highlights";
 import { PostPreview } from "@/components/profile/PostPreview";
 import PostsGrid from "@/components/profile/PostsGrid";
 import ProfileAvatar from "@/components/profile/ProfileAvatar";
@@ -106,8 +105,6 @@ const ProfileScreen = () => {
             isFollowing={isFollowing}
             toggleFollow={() => setIsFollowing(!isFollowing)}
           />
-
-          <Highlights self={isPersonalProfile} />
         </View>
 
         <ContentTabs activeTab={activeTab} setActiveTab={setActiveTab} />

@@ -117,8 +117,8 @@ const PostCard = ({ post }: { post: PostCard }) => {
               colorScheme === "light" ? "text-gray-500" : "text-gray-400"
             }`}
           >
-            View all {comments.length} comment
-            {comments.length !== 1 ? "s" : ""}
+            View all {comments?.length} comment
+            {comments?.length !== 1 ? "s" : ""}
           </Text>
         </TouchableOpacity>
       )}

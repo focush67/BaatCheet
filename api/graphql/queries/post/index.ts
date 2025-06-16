@@ -1,6 +1,6 @@
 export const GET_ALL_POSTS = `
- query fetchAllPosts{
-    getAllPosts{
+ query fetchAllPosts($email:String!){
+    getAllPosts(email:$email){
         id
         caption
         coverPhoto
