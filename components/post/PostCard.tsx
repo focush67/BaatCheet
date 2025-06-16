@@ -1,5 +1,6 @@
 import { useTheme } from "@/context/ThemeContext";
 import { usePostStore } from "@/stores/PostStore";
+import { useCommentStore } from "@/stores/CommentStore";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
@@ -20,6 +21,7 @@ const PostCard = ({ post }: { post: PostCard }) => {
     state.mappedPosts.find((p) => p.id === post.id)
   );
   const isBookmarked = storePost?.isBookmarked ?? post.isBookmarked;
+  const comments = useCommentStore((state) => state.commentsByPost[post.id]);
 
   return (
     <View
@@ -106,14 +108,17 @@ const PostCard = ({ post }: { post: PostCard }) => {
       )}
 
       {post.comments > 0 && (
-        <TouchableOpacity className="px-4 pt-1">
+        <TouchableOpacity
+          className="px-4 pt-1"
+          onPress={() => setShowComments(true)}
+        >
           <Text
             className={`text-sm ${
               colorScheme === "light" ? "text-gray-500" : "text-gray-400"
             }`}
           >
-            View all {storePost?.comments} comment
-            {storePost?.comments !== 1 ? "s" : ""}
+            View all {comments.length} comment
+            {comments.length !== 1 ? "s" : ""}
           </Text>
         </TouchableOpacity>
       )}

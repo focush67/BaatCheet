@@ -68,9 +68,6 @@ const SingleThread: React.FC<any> = ({
   };
 
   const handleDelete = async () => {
-    console.log("Comment ID", data.id);
-    console.log("Email Address", user.emailAddresses[0].emailAddress);
-    console.log("Post Id", postId);
     const response = await deleteComment(
       postId,
       data.id,
