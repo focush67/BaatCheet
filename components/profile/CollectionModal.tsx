@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -6,10 +6,15 @@ import {
   TouchableOpacity,
   Image,
   Modal,
+  ActivityIndicator,
 } from "react-native";
 import { useTheme } from "@/context/ThemeContext";
 import * as ImagePicker from "expo-image-picker";
 import { Feather } from "@expo/vector-icons";
+import { useUser } from "@clerk/clerk-expo";
+import { uploadFileWrapper } from "@/utils/upload";
+import { createNewCollection } from "@/services/postService";
+import Toast from "react-native-toast-message";
 
 export const NewCollectionModal = ({
   visible,
@@ -21,6 +26,19 @@ export const NewCollectionModal = ({
   const { colorScheme } = useTheme();
   const [name, setName] = useState("");
   const [imageUri, setImageUri] = useState("");
+  const [loading, setLoading] = useState(false);
+  const { user } = useUser();
+
+  if (!user) return null;
+
+  useEffect(() => {
+    if (!visible) {
+      setName("");
+      setImageUri("");
+    }
+  }, [visible]);
+
+  const [email] = useState(user.emailAddresses[0].emailAddress);
 
   const pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
@@ -35,8 +53,51 @@ export const NewCollectionModal = ({
     }
   };
 
-  const handleNewCollectionSubmit = () => {
-    console.log("Submitted new collection:", { name, imageUri });
+  const handleNewCollectionSubmit = async () => {
+    try {
+      setLoading(true);
+      const uploadResult = await uploadFileWrapper({
+        selectedImage: imageUri,
+        user: email,
+        setLoading,
+        folder: "collections",
+        identifier: "collection",
+        purpose: "saves",
+      });
+      if (!uploadResult) {
+        console.warn(`Upload may have failed. Please check logs`);
+        Toast.show({
+          type: "error",
+          text1: "Image upload failed",
+          text2: "Please try again.",
+        });
+
+        return;
+      }
+      const response = await createNewCollection(
+        email,
+        uploadResult.publicUrl,
+        name
+      );
+      Toast.show({
+        type: "success",
+        text1: "Collection created!",
+        text2: "Your new collection was added successfully.",
+      });
+
+      onClose();
+    } catch (error) {
+      console.error("Some error occurred while creating new collection");
+      Toast.show({
+        type: "error",
+        text1: "Error",
+        text2: "Could not create collection. Please try again.",
+      });
+    } finally {
+      setLoading(false);
+      setName("");
+      setImageUri("");
+    }
   };
 
   if (!visible) return null;
@@ -74,7 +135,7 @@ export const NewCollectionModal = ({
 
           <TouchableOpacity
             onPress={pickImage}
-            className={`mb-4 h-36 items-center justify-center rounded-lg border ${
+            className={`mb-4 h-40 items-center justify-center overflow-hidden rounded-lg border ${
               colorScheme === "light"
                 ? "border-gray-300"
                 : "border-gray-700 bg-gray-800"
@@ -83,7 +144,8 @@ export const NewCollectionModal = ({
             {imageUri ? (
               <Image
                 source={{ uri: imageUri }}
-                className="h-full w-full rounded-md"
+                style={{ height: "100%", width: "100%" }}
+                className="rounded-md"
                 resizeMode="cover"
               />
             ) : (
@@ -104,35 +166,48 @@ export const NewCollectionModal = ({
             )}
           </TouchableOpacity>
 
-          <View className="mt-2 flex-row justify-end gap-x-3">
-            <TouchableOpacity
-              onPress={onClose}
-              className={`rounded-lg px-4 py-2 ${
-                colorScheme === "light" ? "bg-gray-200" : "bg-gray-700"
-              }`}
-            >
-              <Text
-                className={`${
-                  colorScheme === "light" ? "text-black" : "text-white"
-                }`}
-              >
-                Cancel
-              </Text>
-            </TouchableOpacity>
+          <View className="mt-2 min-h-[40px] flex-row justify-end gap-x-3">
+            {loading ? (
+              <ActivityIndicator
+                size="small"
+                color={colorScheme === "light" ? "#000" : "#fff"}
+              />
+            ) : (
+              <>
+                <TouchableOpacity
+                  onPress={() => {
+                    setName("");
+                    setImageUri("");
+                    onClose();
+                  }}
+                  className={`rounded-lg px-4 py-3 ${
+                    colorScheme === "light" ? "bg-gray-200" : "bg-gray-700"
+                  }`}
+                >
+                  <Text
+                    className={`${
+                      colorScheme === "light" ? "text-black" : "text-white"
+                    }`}
+                  >
+                    Cancel
+                  </Text>
+                </TouchableOpacity>
 
-            <TouchableOpacity
-              onPress={handleNewCollectionSubmit}
-              disabled={!name}
-              className={`rounded-lg px-4 py-2 ${
-                !name
-                  ? "bg-gray-400"
-                  : colorScheme === "light"
-                  ? "bg-blue-500"
-                  : "bg-blue-600"
-              }`}
-            >
-              <Text className="text-white font-medium">Create</Text>
-            </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={handleNewCollectionSubmit}
+                  disabled={!name}
+                  className={`rounded-lg px-4 py-3 ${
+                    !name
+                      ? "bg-gray-400"
+                      : colorScheme === "light"
+                      ? "bg-blue-500"
+                      : "bg-blue-600"
+                  }`}
+                >
+                  <Text className="text-white font-medium">Create</Text>
+                </TouchableOpacity>
+              </>
+            )}
           </View>
         </View>
       </View>

@@ -164,3 +164,17 @@ export const SAVE_TO_COLLECTION = `
 
   }
 `;
+
+export const CREATE_NEW_COLLECTION = `
+  mutation CreateCollection($email:String!,$name:String!,$coverPhoto:String!){
+    createNewCollection(email:$email,name:$name,coverPhoto:$coverPhoto){
+      id
+      title
+      owner {
+        name
+        email
+        username
+      }
+    }
+  }
+`;

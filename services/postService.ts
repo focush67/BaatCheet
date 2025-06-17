@@ -7,6 +7,7 @@ import {
   LIKE_COMMENT,
   ADD_REPLY_TO_COMMENT,
   DELETE_COMMENT,
+  CREATE_NEW_COLLECTION,
 } from "@/api/graphql/mutations/post";
 import {
   GET_ALL_POSTS,
@@ -72,6 +73,22 @@ export const createNewPost = async (input: GCreatePostInput): Promise<GPost> =>
     responseKey: "createPost",
     friendlyErrorMessage: "Failed to create new post. Please try again.",
     logLabel: `Create post with cover ${input.coverPhoto}`,
+    serviceName: SERVICE_NAME,
+  });
+
+export const createNewCollection = async (
+  email: string,
+  coverPhoto: string,
+  name: string
+) =>
+  graphqlRequest({
+    operation: {
+      query: CREATE_NEW_COLLECTION,
+      variables: { email, name, coverPhoto },
+    },
+    responseKey: "createNewCollection",
+    friendlyErrorMessage: "Failed to create new collection. Please try again",
+    logLabel: `Create new collection with ${coverPhoto}`,
     serviceName: SERVICE_NAME,
   });
 
