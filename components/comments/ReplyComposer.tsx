@@ -34,7 +34,6 @@ const ReplyComposer = ({
 
   return (
     <View className="ml-11 mt-2 pr-4 mb-4">
-      {/* Top Info Row */}
       <View className="flex-row items-center justify-between mb-1">
         <Text
           className={`text-xs ${isDark ? "text-gray-400" : "text-gray-500"}`}
@@ -53,7 +52,6 @@ const ReplyComposer = ({
         </TouchableOpacity>
       </View>
 
-      {/* Input and Send */}
       <View
         className={`flex-row items-end bg-transparent rounded-xl border ${
           isDark ? "border-gray-700" : "border-gray-300"

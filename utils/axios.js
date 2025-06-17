@@ -2,7 +2,7 @@ import axios from "axios";
 import Constants from "expo-constants";
 const api = axios.create({
   baseURL: __DEV__
-    ? "http://192.168.168.54:4000/graphql"
+    ? "http://192.168.172.54:4000/graphql"
     : process.env.EXPO_PUBLIC_PRODUCTION_SERVER ||
       Constants?.expoConfig?.extra?.PRODUCTION_SERVER,
   timeout: 10000,

@@ -47,9 +47,7 @@ export function generateUniqueFileName(...parts: string[]): string {
 
 export function mapPostToPostCard(post: GPost, userEmail: string): PostCard {
   const isLiked = post?.likes?.some((like) => like.owner.email === userEmail);
-  const isBookmarked = post?.savedInCollections?.some((s) =>
-    s.owners.some((ow) => ow.email === userEmail)
-  );
+  const isBookmarked = false;
 
   let timeAgo = "";
   if (post.createdAt) {
@@ -66,12 +64,11 @@ export function mapPostToPostCard(post: GPost, userEmail: string): PostCard {
     caption: post.caption ?? "",
     likes: post.likes?.length ?? 0,
     comments: post.comments?.length ?? 0,
-    saves: post.savedInCollections?.length ?? 0,
+    saves: 0,
     timeAgo,
     isLiked,
     isBookmarked,
   };
 
-  console.log("Mapping post:", post, "=>", map);
   return map;
 }

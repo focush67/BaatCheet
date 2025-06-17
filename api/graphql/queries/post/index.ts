@@ -1,6 +1,6 @@
 export const GET_ALL_POSTS = `
- query fetchAllPosts{
-    getAllPosts{
+ query fetchAllPosts($email:String!){
+    getAllPosts(email:$email){
         id
         caption
         coverPhoto
@@ -153,6 +153,21 @@ export const GET_COMMENTS_ON_POST = `
                 }
             }
 
+        }
+    }
+`;
+
+export const GET_COLLECTIONS_FOR_USER = `
+    query GetCollections($email:String!){
+        getCollectionsForUser(email:$email){
+            id
+            title
+            coverPhoto
+            posts {
+                post {
+                    id
+                }
+            }
         }
     }
 `;

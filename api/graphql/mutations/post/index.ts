@@ -158,3 +158,38 @@ export const ADD_REPLY_TO_COMMENT = `
     }
   }
 `;
+
+export const SAVE_TO_COLLECTION = `
+  mutation SaveToCollection($postId:ID!,$collectionId:ID!){
+      savePostToCollection(postId:$postId,collectionId:$collectionId){
+        id
+        title
+        coverPhoto
+        owner {
+          username
+          email
+          profilePicture
+        }
+        
+        posts {
+          post {
+            id
+          }
+        }
+      }
+  }
+`;
+
+export const CREATE_NEW_COLLECTION = `
+  mutation CreateCollection($email:String!,$name:String!,$coverPhoto:String!){
+    createNewCollection(email:$email,name:$name,coverPhoto:$coverPhoto){
+      id
+      title
+      owner {
+        name
+        email
+        username
+      }
+    }
+  }
+`;

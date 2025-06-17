@@ -9,6 +9,7 @@ import { StatusBar } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { PaperProvider } from "react-native-paper";
 import Toast from "react-native-toast-message";
+import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
 import "./globals.css";
 
 const CLERK_KEY =

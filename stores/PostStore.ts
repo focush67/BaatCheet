@@ -1,4 +1,3 @@
-import { samplePosts } from "@/constants/data";
 import { getAllPosts } from "@/services/postService";
 import { mapPostToPostCard } from "@/utils/misc";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -8,14 +7,14 @@ import { persist } from "zustand/middleware";
 export const usePostStore = create<ZPostStore>()(
   persist(
     (set, get) => ({
-      posts: samplePosts,
       mappedPosts: [],
-      setPosts: () => set({ posts: samplePosts }),
+
       setMappedPosts: async (email: string) => {
-        const allPosts: GPost[] = await getAllPosts();
+        const allPosts: GPost[] = await getAllPosts(email);
         const mapped = allPosts.map((post) => mapPostToPostCard(post, email));
         set({ mappedPosts: mapped });
       },
+
       toggleLike: (id) => {
         set((state) => ({
           mappedPosts: state.mappedPosts.map((p) => {
@@ -42,7 +41,6 @@ export const usePostStore = create<ZPostStore>()(
 
       reset: () => {
         usePostStore.persist.clearStorage();
-        usePostStore.setState({ posts: [] });
         usePostStore.setState({ mappedPosts: [] });
       },
     }),

@@ -4,7 +4,6 @@ import {
   UNLIKE_STORY,
   REPLY_TO_STORY,
   DELETE_REPLY_FROM_STORY,
-  CREATE_NEW_HIGHLIGHT,
 } from "@/api/graphql/mutations/story";
 import {
   GET_ALL_STORIES,
@@ -25,29 +24,6 @@ export const createNewStory = async (
     responseKey: "createNewStory",
     friendlyErrorMessage: "Failed to create story. Please try again.",
     logLabel: `Create story with cover ${input.coverPhoto}`,
-    serviceName: SERVICE_NAME,
-  });
-
-export const createNewHighlight = async (
-  highlightName: string,
-  coverUrl: string,
-  email: string
-): Promise<THighlight> =>
-  graphqlRequest({
-    operation: {
-      query: CREATE_NEW_HIGHLIGHT,
-      variables: {
-        input: {
-          coverPhoto: coverUrl,
-          email,
-          title: highlightName,
-        },
-      },
-    },
-    responseKey: "createNewHighlight",
-    friendlyErrorMessage:
-      "Failed to create new highlight. Please check the configs.",
-    logLabel: `Create highlight ${highlightName}`,
     serviceName: SERVICE_NAME,
   });
 
