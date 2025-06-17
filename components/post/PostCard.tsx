@@ -89,6 +89,7 @@ const PostCard = ({ post }: { post: PostCard }) => {
         </View>
 
         <SaveButton
+          postId={post.id}
           isBookmarked={isBookmarked}
           setIsBookmarked={() => toggleBookmark(post.id)}
         />

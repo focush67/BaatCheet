@@ -8,9 +8,11 @@ import {
   ADD_REPLY_TO_COMMENT,
   DELETE_COMMENT,
   CREATE_NEW_COLLECTION,
+  SAVE_TO_COLLECTION,
 } from "@/api/graphql/mutations/post";
 import {
   GET_ALL_POSTS,
+  GET_COLLECTIONS_FOR_USER,
   GET_COMMENTS_ON_POST,
   GET_POST_BY_ID,
   GET_POSTS_FOR_USER,
@@ -89,6 +91,40 @@ export const createNewCollection = async (
     responseKey: "createNewCollection",
     friendlyErrorMessage: "Failed to create new collection. Please try again",
     logLabel: `Create new collection with ${coverPhoto}`,
+    serviceName: SERVICE_NAME,
+  });
+
+export const getCollectionsForUser = async (
+  email: string
+): Promise<ZCollection[]> =>
+  graphqlRequest({
+    operation: {
+      query: GET_COLLECTIONS_FOR_USER,
+      variables: {
+        email,
+      },
+    },
+    responseKey: "getCollectionsForUser",
+    friendlyErrorMessage: "Failed to fetch collections. Please try again",
+    logLabel: `Fetching collections`,
+    serviceName: SERVICE_NAME,
+  });
+
+export const savePostToCollection = async (
+  collectionId: string,
+  postId: string
+) =>
+  graphqlRequest({
+    operation: {
+      query: SAVE_TO_COLLECTION,
+      variables: {
+        collectionId,
+        postId,
+      },
+    },
+    responseKey: "savePostToCollection",
+    friendlyErrorMessage: `Failed to add post to collection. Please try again`,
+    logLabel: "Creating new post inside collection",
     serviceName: SERVICE_NAME,
   });
 

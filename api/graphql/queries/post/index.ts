@@ -156,3 +156,18 @@ export const GET_COMMENTS_ON_POST = `
         }
     }
 `;
+
+export const GET_COLLECTIONS_FOR_USER = `
+    query GetCollections($email:String!){
+        getCollectionsForUser(email:$email){
+            id
+            title
+            coverPhoto
+            posts {
+                post {
+                    id
+                }
+            }
+        }
+    }
+`;

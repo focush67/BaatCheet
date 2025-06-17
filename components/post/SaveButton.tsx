@@ -5,9 +5,11 @@ import { TouchableOpacity } from "react-native";
 import SaveToCollectionModal from "./CollectionModal";
 
 const SaveButton = ({
+  postId,
   isBookmarked,
   setIsBookmarked,
 }: {
+  postId: string;
   isBookmarked: boolean;
   setIsBookmarked: (_: boolean) => void;
 }) => {
@@ -38,6 +40,7 @@ const SaveButton = ({
       </TouchableOpacity>
 
       <SaveToCollectionModal
+        postId={postId}
         visible={modalVisible}
         onClose={() => setModalVisible(false)}
         onCollectionSelected={() => setIsBookmarked(true)}

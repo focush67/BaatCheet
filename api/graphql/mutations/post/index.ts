@@ -160,8 +160,23 @@ export const ADD_REPLY_TO_COMMENT = `
 `;
 
 export const SAVE_TO_COLLECTION = `
-  mutation SaveToCollection($postID:ID!,$collectionID:ID!){
-
+  mutation SaveToCollection($postId:ID!,$collectionId:ID!){
+      savePostToCollection(postId:$postId,collectionId:$collectionId){
+        id
+        title
+        coverPhoto
+        owner {
+          username
+          email
+          profilePicture
+        }
+        
+        posts {
+          post {
+            id
+          }
+        }
+      }
   }
 `;
 

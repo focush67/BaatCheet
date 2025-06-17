@@ -8,11 +8,13 @@ export const usePostStore = create<ZPostStore>()(
   persist(
     (set, get) => ({
       mappedPosts: [],
+
       setMappedPosts: async (email: string) => {
         const allPosts: GPost[] = await getAllPosts(email);
         const mapped = allPosts.map((post) => mapPostToPostCard(post, email));
         set({ mappedPosts: mapped });
       },
+
       toggleLike: (id) => {
         set((state) => ({
           mappedPosts: state.mappedPosts.map((p) => {

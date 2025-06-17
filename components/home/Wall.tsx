@@ -3,19 +3,16 @@ import React, { useEffect } from "react";
 import { FlatList } from "react-native";
 import PostCard from "../post/PostCard";
 import { useStoryStore } from "@/stores/StoryStore";
+import { useSavedStore } from "@/stores/SavedStore";
 import { useUser } from "@clerk/clerk-expo";
 
 export default function Wall() {
   const { user } = useUser();
-  const posts = usePostStore((state) => state.posts);
   const stories = useStoryStore((state) => state.userStories);
   const mappedPosts = usePostStore((state) => state.mappedPosts);
+  const collections = useSavedStore((state) => state.collections);
 
   useEffect(() => {
-    if (!posts || posts.length === 0) {
-      usePostStore.getState().setPosts();
-    }
-
     if (!mappedPosts || mappedPosts.length === 0) {
       usePostStore
         .getState()
@@ -25,7 +22,13 @@ export default function Wall() {
     if (!stories || stories.length === 0) {
       useStoryStore.getState().fetchUserStories();
     }
-  }, [posts, stories, mappedPosts]);
+
+    if (!collections || collections.length === 0) {
+      useSavedStore
+        .getState()
+        .setCollections(user?.emailAddresses[0].emailAddress!);
+    }
+  }, [collections, stories, mappedPosts]);
 
   return (
     <FlatList
