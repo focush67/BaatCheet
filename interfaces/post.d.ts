@@ -40,17 +40,24 @@ interface ZPostStore {
   reset: () => void;
 }
 
+interface ZCollectionPost {
+  post: {
+    id: string;
+  };
+}
 interface ZCollection {
   id: string;
   title: string;
   isPrivate: boolean;
   coverPhoto: string;
-  posts: string[];
+  posts: ZCollectionPost[];
 }
 
 interface ZSavedStore {
   collections: ZCollection[];
   setCollections: (email: string) => Promise<void>;
+  addNewCollection: (collection: ZCollection) => void;
+  getCollectionForPost: (postId: string) => string | null;
   reset: () => void;
 }
 

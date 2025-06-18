@@ -17,11 +17,7 @@ const SaveButton = ({
   const [modalVisible, setModalVisible] = useState(false);
 
   const handlePress = () => {
-    if (isBookmarked) {
-      setIsBookmarked(false);
-    } else {
-      setModalVisible(true);
-    }
+    setModalVisible(true);
   };
 
   return (
@@ -41,9 +37,11 @@ const SaveButton = ({
 
       <SaveToCollectionModal
         postId={postId}
+        isInitiallySaved={isBookmarked}
         visible={modalVisible}
         onClose={() => setModalVisible(false)}
         onCollectionSelected={() => setIsBookmarked(true)}
+        onCollectionRemoved={() => setIsBookmarked(false)}
       />
     </>
   );

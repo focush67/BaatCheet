@@ -1,13 +1,14 @@
-import { useTheme } from "@/context/ThemeContext";
 import { useCommentStore } from "@/stores/CommentStore";
 import { usePostStore } from "@/stores/PostStore";
+import { useSavedStore } from "@/stores/SavedStore";
 import { useStoryStore } from "@/stores/StoryStore";
 import { useAuth } from "@clerk/clerk-expo";
 import { Feather, Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import React, { useState } from "react";
-import { Text, TouchableOpacity, View } from "react-native";
+import { useState } from "react";
+import { View, TouchableOpacity, Text } from "react-native";
 import { Menu } from "react-native-paper";
+import { useTheme } from "@/context/ThemeContext";
 import { NewCollectionModal } from "./CollectionModal";
 
 export const ProfileHeader = ({
@@ -25,11 +26,42 @@ export const ProfileHeader = ({
   const { signOut } = useAuth();
 
   const handleSignOut = async () => {
+    setMainMenuVisible(false); // Close menu first
     usePostStore.getState().reset();
     useCommentStore.getState().reset();
     useStoryStore.getState().reset();
+    useSavedStore.getState().reset();
     await signOut();
   };
+
+  const handleAddPost = () => {
+    setPlusMenuVisible(false);
+    router.push("/add");
+  };
+
+  const handleNewCollection = () => {
+    setPlusMenuVisible(false);
+    setShowNewCollectionModal(true);
+  };
+
+  // Memoize menu items to prevent hook order changes
+  const plusMenuItems = [
+    {
+      title: "New Post",
+      onPress: handleAddPost,
+    },
+    {
+      title: "New Collection",
+      onPress: handleNewCollection,
+    },
+  ];
+
+  const mainMenuItems = [
+    {
+      title: "Sign Out",
+      onPress: handleSignOut,
+    },
+  ];
 
   return (
     <>
@@ -46,7 +78,7 @@ export const ProfileHeader = ({
           {username}
         </Text>
 
-        {self === true ? (
+        {self ? (
           <View className="flex-row items-center">
             <Menu
               visible={plusMenuVisible}
@@ -67,26 +99,16 @@ export const ProfileHeader = ({
                 backgroundColor: colorScheme === "light" ? "#fff" : "#222",
               }}
             >
-              <Menu.Item
-                onPress={() => {
-                  setPlusMenuVisible(false);
-                  router.push("/add");
-                }}
-                title="New Post"
-                titleStyle={{
-                  color: colorScheme === "light" ? "#000" : "#fff",
-                }}
-              />
-              <Menu.Item
-                onPress={() => {
-                  setPlusMenuVisible(false);
-                  setShowNewCollectionModal(true);
-                }}
-                title="New Collection"
-                titleStyle={{
-                  color: colorScheme === "light" ? "#000" : "#fff",
-                }}
-              />
+              {plusMenuItems.map((item, index) => (
+                <Menu.Item
+                  key={index}
+                  onPress={item.onPress}
+                  title={item.title}
+                  titleStyle={{
+                    color: colorScheme === "light" ? "#000" : "#fff",
+                  }}
+                />
+              ))}
             </Menu>
 
             <Menu
@@ -105,13 +127,16 @@ export const ProfileHeader = ({
                 backgroundColor: colorScheme === "light" ? "#fff" : "#222",
               }}
             >
-              <Menu.Item
-                onPress={handleSignOut}
-                title="Sign Out"
-                titleStyle={{
-                  color: colorScheme === "light" ? "#000" : "#fff",
-                }}
-              />
+              {mainMenuItems.map((item, index) => (
+                <Menu.Item
+                  key={index}
+                  onPress={item.onPress}
+                  title={item.title}
+                  titleStyle={{
+                    color: colorScheme === "light" ? "#000" : "#fff",
+                  }}
+                />
+              ))}
             </Menu>
           </View>
         ) : (

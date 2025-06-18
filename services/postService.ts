@@ -9,6 +9,7 @@ import {
   DELETE_COMMENT,
   CREATE_NEW_COLLECTION,
   SAVE_TO_COLLECTION,
+  REMOVE_FROM_COLLECTION,
 } from "@/api/graphql/mutations/post";
 import {
   GET_ALL_POSTS,
@@ -82,7 +83,7 @@ export const createNewCollection = async (
   email: string,
   coverPhoto: string,
   name: string
-) =>
+): Promise<ZCollection> =>
   graphqlRequest({
     operation: {
       query: CREATE_NEW_COLLECTION,
@@ -125,6 +126,24 @@ export const savePostToCollection = async (
     responseKey: "savePostToCollection",
     friendlyErrorMessage: `Failed to add post to collection. Please try again`,
     logLabel: "Creating new post inside collection",
+    serviceName: SERVICE_NAME,
+  });
+
+export const removePostFromCollection = async (
+  collectionId: string,
+  postId: string
+) =>
+  graphqlRequest({
+    operation: {
+      query: REMOVE_FROM_COLLECTION,
+      variables: {
+        collectionId,
+        postId,
+      },
+    },
+    responseKey: "removePostFromCollection",
+    friendlyErrorMessage: `Failed to remove post from collection. Please try again`,
+    logLabel: "Removing post from collection",
     serviceName: SERVICE_NAME,
   });
 

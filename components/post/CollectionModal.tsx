@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { View, Text, TouchableOpacity, FlatList, Image } from "react-native";
 import Modal from "react-native-modal";
 import { Ionicons } from "@expo/vector-icons";
@@ -7,39 +7,128 @@ import { Feather } from "@expo/vector-icons";
 import { NewCollectionModal } from "../profile/CollectionModal";
 import { useSavedStore } from "@/stores/SavedStore";
 import { savePostToCollection } from "@/services/postService";
+import { usePostStore } from "@/stores/PostStore";
+import { removePostFromCollection } from "@/services/postService";
 
 const SaveToCollectionModal = ({
   postId,
+  isInitiallySaved,
   visible,
   onClose,
   onCollectionSelected,
+  onCollectionRemoved,
 }: {
   postId: string;
+  isInitiallySaved: boolean;
   visible: boolean;
   onClose: () => void;
   onCollectionSelected: (collectionId: string) => void;
+  onCollectionRemoved: () => void;
 }) => {
   const { colorScheme } = useTheme();
   const collections = useSavedStore((state) => state.collections);
+  const getCollectionForPost = useSavedStore(
+    (state) => state.getCollectionForPost
+  );
+
+  const toggleBookmark = usePostStore((state) => state.toggleBookmark);
+
   const [newModal, setNewModal] = useState(false);
+  const [selectedCollection, setSelectedCollection] = useState<string | null>(
+    null
+  );
+  const [hasUserSelected, setHasUserSelected] = useState(false);
+  const [currentCollectionId, setCurrentCollectionId] = useState<string | null>(
+    null
+  );
   const isDarkMode = colorScheme === "dark";
 
+  useEffect(() => {
+    if (visible) {
+      const collectionId = getCollectionForPost(postId);
+      setCurrentCollectionId(collectionId);
+      setSelectedCollection(null);
+      setHasUserSelected(false);
+    }
+  }, [visible, postId]);
+
   const saveToCollection = async (itemId: string) => {
-    const response = await savePostToCollection(itemId, postId);
-    console.log("Saved to Collection response", response);
+    console.group(`[saveToCollection] Debugging for post ${postId}`);
+    console.log("Initial state:", {
+      isInitiallySaved,
+      currentCollectionId,
+      selectedCollection,
+      hasUserSelected,
+    });
+    try {
+      if (currentCollectionId && currentCollectionId !== itemId) {
+        await removePostFromCollection(currentCollectionId, postId);
+      }
+      const response = await savePostToCollection(itemId, postId);
+      console.log("Saved to Collection response", response);
+      console.log("Calling toggleBookmark with postId:", postId);
+      console.log(
+        "State before toggle:",
+        usePostStore.getState().mappedPosts.find((p) => p.id === postId)
+      );
+      toggleBookmark(postId);
+      console.log(
+        "State after toggle:",
+        usePostStore.getState().mappedPosts.find((p) => p.id === postId)
+      );
+      toggleBookmark(postId);
+      onCollectionSelected(itemId);
+      setSelectedCollection(itemId);
+      setHasUserSelected(true);
+      setCurrentCollectionId(itemId);
+    } catch (error) {
+      console.error(`Error saving post to collection`, error);
+    }
+  };
+
+  const removeFromCurrentCollection = async () => {
+    try {
+      if (currentCollectionId) {
+        const response = await removePostFromCollection(
+          currentCollectionId,
+          postId
+        );
+        console.log(`Removing ${postId} from ${currentCollectionId}`, response);
+        toggleBookmark(postId);
+        onCollectionRemoved();
+        setCurrentCollectionId(null);
+      }
+    } catch (error) {
+      console.error("Error removing from collection", error);
+    }
+  };
+
+  const handleClose = () => {
+    if (isInitiallySaved && !hasUserSelected) {
+      removeFromCurrentCollection();
+    }
+    onClose();
+  };
+
+  const handleCollectionSelect = (itemId: string) => {
+    if (itemId === currentCollectionId) {
+      handleClose();
+      return;
+    }
+    saveToCollection(itemId);
   };
 
   return (
     <>
       <Modal
         isVisible={visible}
-        onBackdropPress={onClose}
-        onBackButtonPress={onClose}
+        onBackdropPress={handleClose}
+        onBackButtonPress={handleClose}
         useNativeDriver
         animationIn="slideInUp"
         animationOut="slideOutDown"
         swipeDirection={"down"}
-        onSwipeComplete={onClose}
+        onSwipeComplete={handleClose}
         backdropOpacity={0.4}
         style={{ justifyContent: "flex-end", margin: 0 }}
       >
@@ -58,7 +147,7 @@ const SaveToCollectionModal = ({
                 isDarkMode ? "text-white" : "text-black"
               }`}
             >
-              Save
+              {isInitiallySaved ? "Change Collection" : "Save to Collection"}
             </Text>
           </View>
 
@@ -84,11 +173,7 @@ const SaveToCollectionModal = ({
             className={`flex-row items-center py-3 border-b ${
               isDarkMode ? "border-gray-700" : "border-gray-200"
             }`}
-            onPress={() => {
-              onCollectionSelected("default");
-              saveToCollection("default");
-              onClose();
-            }}
+            onPress={() => handleCollectionSelect("default")}
           >
             <View
               className={`w-11 h-11 rounded-md items-center justify-center mr-3 ${
@@ -104,6 +189,15 @@ const SaveToCollectionModal = ({
             <Text className={`${isDarkMode ? "text-white" : "text-black"}`}>
               All Posts
             </Text>
+            {(selectedCollection === "default" ||
+              (!hasUserSelected && currentCollectionId === "default")) && (
+              <Ionicons
+                name="checkmark"
+                size={20}
+                color={isDarkMode ? "#60a5fa" : "#3b82f6"}
+                style={{ marginLeft: "auto" }}
+              />
+            )}
           </TouchableOpacity>
 
           <FlatList
@@ -114,10 +208,7 @@ const SaveToCollectionModal = ({
             renderItem={({ item }) => (
               <TouchableOpacity
                 className="flex-row items-center py-3"
-                onPress={() => {
-                  onCollectionSelected(item.id);
-                  onClose();
-                }}
+                onPress={() => handleCollectionSelect(item.id)}
               >
                 <Image
                   source={{ uri: item.coverPhoto }}
@@ -137,18 +228,25 @@ const SaveToCollectionModal = ({
                     {12} posts
                   </Text>
                 </View>
-                <TouchableOpacity
-                  className="w-8 h-8 rounded-full border border-gray-400 items-center justify-center opacity-60"
-                  onPress={() => {
-                    saveToCollection(item.id);
-                  }}
-                >
-                  <Feather
-                    name="plus"
-                    size={16}
-                    color={isDarkMode ? "#ffffff" : "#000000"}
+                {selectedCollection === item.id ||
+                (!hasUserSelected && currentCollectionId === item.id) ? (
+                  <Ionicons
+                    name="checkmark"
+                    size={20}
+                    color={isDarkMode ? "#60a5fa" : "#3b82f6"}
                   />
-                </TouchableOpacity>
+                ) : (
+                  <TouchableOpacity
+                    className="w-8 h-8 rounded-full border border-gray-400 items-center justify-center opacity-60"
+                    onPress={() => handleCollectionSelect(item.id)}
+                  >
+                    <Feather
+                      name="plus"
+                      size={16}
+                      color={isDarkMode ? "#ffffff" : "#000000"}
+                    />
+                  </TouchableOpacity>
+                )}
               </TouchableOpacity>
             )}
           />

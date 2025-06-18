@@ -180,6 +180,15 @@ export const SAVE_TO_COLLECTION = `
   }
 `;
 
+export const REMOVE_FROM_COLLECTION = `
+  mutaton RemoveFromCollection($postId:ID!,$collectionId:ID!){
+    removePostFromCollection(postId:$postId,collectionId:$collectionId){
+      id
+      collectionId
+    }
+  }
+`;
+
 export const CREATE_NEW_COLLECTION = `
   mutation CreateCollection($email:String!,$name:String!,$coverPhoto:String!){
     createNewCollection(email:$email,name:$name,coverPhoto:$coverPhoto){
