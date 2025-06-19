@@ -31,50 +31,16 @@ export const usePostStore = create<ZPostStore>()(
       },
 
       toggleBookmark: (id) => {
-        console.group(`[toggleBookmark] Debugging for post ${id}`);
-
-        // Log current state before any changes
-        console.log(
-          "Current state.mappedPosts:",
-          JSON.stringify(get().mappedPosts, null, 2)
-        );
-
-        const previousState = get().mappedPosts.find((post) => post.id === id);
-        console.log("Previous State for post:", {
-          id: id,
-          isBookmarked: previousState?.isBookmarked,
-          postExists: !!previousState,
-        });
-
-        // Perform the state update
         set((state) => {
-          console.log("State update function executing for post:", id);
           const updatedPosts = state.mappedPosts.map((post) =>
             post.id === id
               ? { ...post, isBookmarked: !post.isBookmarked }
               : post
           );
-
-          console.log(
-            "Posts after update:",
-            JSON.stringify(updatedPosts, null, 2)
-          );
+          const newStats = get().mappedPosts.filter((p) => p.id === id);
+          console.log("New Status After Update", newStats[0].isBookmarked);
           return { mappedPosts: updatedPosts };
         });
-
-        // Verify the state after update
-        const newState = get().mappedPosts.find((post) => post.id === id);
-        console.log("New State for post:", {
-          id: id,
-          isBookmarked: newState?.isBookmarked,
-        });
-
-        // Verify the entire state structure
-        console.log(
-          "Complete state after update:",
-          JSON.stringify(get(), null, 2)
-        );
-        console.groupEnd();
       },
 
       reset: () => {

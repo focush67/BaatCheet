@@ -68,6 +68,7 @@ interface GPost {
   coverPhoto: string;
   caption?: string;
   createdAt?: string;
+  isBookmarked?: boolean;
   owner: GUser;
   likes: GLike[];
   comments: GComment[];

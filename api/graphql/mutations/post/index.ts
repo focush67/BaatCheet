@@ -181,10 +181,20 @@ export const SAVE_TO_COLLECTION = `
 `;
 
 export const REMOVE_FROM_COLLECTION = `
-  mutaton RemoveFromCollection($postId:ID!,$collectionId:ID!){
+  mutation RemoveFromCollection($postId:ID!,$collectionId:ID!){
     removePostFromCollection(postId:$postId,collectionId:$collectionId){
       id
-      collectionId
+      title
+      owner {
+        name
+        username
+      }
+      
+      posts {
+        post {
+          id
+        }
+      }
     }
   }
 `;

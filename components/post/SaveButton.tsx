@@ -2,7 +2,7 @@ import { useTheme } from "@/context/ThemeContext";
 import { Ionicons } from "@expo/vector-icons";
 import React, { useState } from "react";
 import { TouchableOpacity } from "react-native";
-import SaveToCollectionModal from "./CollectionModal";
+import SaveToCollectionModal from "./saved/CollectionModal";
 
 const SaveButton = ({
   postId,
