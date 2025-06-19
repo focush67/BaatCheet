@@ -41,7 +41,6 @@ const SaveToCollectionModal: React.FC<SaveToCollectionModalProps> = ({
     null
   );
   const isDarkMode = colorScheme === "dark";
-
   useEffect(() => {
     if (visible) {
       setCurrentCollectionId(getCollectionForPost(postId));
@@ -55,6 +54,10 @@ const SaveToCollectionModal: React.FC<SaveToCollectionModalProps> = ({
         return;
       }
 
+      if (!isInitiallySaved) {
+        toggleBookmark(postId);
+      }
+
       if (currentCollectionId) {
         console.log(
           `Previously existed in ${currentCollectionId}, removing it first`
@@ -62,7 +65,7 @@ const SaveToCollectionModal: React.FC<SaveToCollectionModalProps> = ({
         console.log(
           `Simulating DB removal from ${currentCollectionId} for ${postId}`
         );
-        // await removePostFromCollection(currentCollectionId, postId);
+        await removePostFromCollection(currentCollectionId, postId);
         onCollectionRemoved();
       }
 
@@ -70,7 +73,7 @@ const SaveToCollectionModal: React.FC<SaveToCollectionModalProps> = ({
       console.log(
         `Simulating DB addition to ${currentCollectionId} for ${postId}`
       );
-      // await savePostToCollection(collectionId, postId);
+      await savePostToCollection(collectionId, postId);
       setCurrentCollectionId(collectionId);
       onCollectionSelected(collectionId);
 
@@ -94,7 +97,7 @@ const SaveToCollectionModal: React.FC<SaveToCollectionModalProps> = ({
       console.log(
         `Simulating DB removal from ${currentCollectionId} for ${postId}`
       );
-      // await removePostFromCollection(currentCollectionId, postId);
+      await removePostFromCollection(currentCollectionId, postId);
       toggleBookmark(postId);
       onCollectionRemoved();
       setCurrentCollectionId(null);

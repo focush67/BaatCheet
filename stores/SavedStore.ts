@@ -28,6 +28,10 @@ export const useSavedStore = create<ZSavedStore>()(
         const collection = collections.find((c) =>
           c.posts.some((postObj) => postObj.post.id === postId)
         );
+        console.log(
+          `[STATE] Collection inside selector for Post ${postId}`,
+          collection
+        );
         return collection ? collection.id : null;
       },
 
