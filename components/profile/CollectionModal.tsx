@@ -14,6 +14,7 @@ import { Feather } from "@expo/vector-icons";
 import { useUser } from "@clerk/clerk-expo";
 import { uploadFileWrapper } from "@/utils/upload";
 import { createNewCollection } from "@/services/postService";
+import { useSavedStore } from "@/stores/SavedStore";
 import Toast from "react-native-toast-message";
 
 export const NewCollectionModal = ({
@@ -27,6 +28,7 @@ export const NewCollectionModal = ({
   const [name, setName] = useState("");
   const [imageUri, setImageUri] = useState("");
   const [loading, setLoading] = useState(false);
+  const addNewCollection = useSavedStore((state) => state.addNewCollection);
   const { user } = useUser();
 
   if (!user) return null;
@@ -79,6 +81,9 @@ export const NewCollectionModal = ({
         uploadResult.publicUrl,
         name
       );
+
+      addNewCollection(response);
+
       Toast.show({
         type: "success",
         text1: "Collection created!",

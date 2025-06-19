@@ -12,10 +12,41 @@ export const useSavedStore = create<ZSavedStore>()(
         const collectionsFetched: ZCollection[] = await getCollectionsForUser(
           email
         );
-        console.log("Fetched in Saved", collectionsFetched);
+        collectionsFetched.map((collection) => {
+          if (collection.posts && collection.posts.length > 0) {
+            console.log(
+              `Post Saved in Collection ${collection.title}`,
+              collection.posts
+            );
+          }
+        });
         set({ collections: collectionsFetched });
       },
 
+      getCollectionForPost: (postId: string) => {
+        const collections = get().collections;
+        const collection = collections.find((c) =>
+          c.posts.some((postObj) => postObj.post.id === postId)
+        );
+        console.log(
+          `[STATE] Collection inside selector for Post ${postId}`,
+          collection
+        );
+        return collection ? collection.id : null;
+      },
+
+      addNewCollection(collection) {
+        const existingCollections = get().collections;
+        const existence = existingCollections.some(
+          (cl) => cl.id === collection.id
+        );
+        if (existence) {
+          return;
+        }
+        set({
+          collections: [...get().collections, collection],
+        });
+      },
       reset: () => {
         useSavedStore.persist.clearStorage();
         useSavedStore.setState({ collections: [] });

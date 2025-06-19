@@ -47,8 +47,6 @@ export function generateUniqueFileName(...parts: string[]): string {
 
 export function mapPostToPostCard(post: GPost, userEmail: string): PostCard {
   const isLiked = post?.likes?.some((like) => like.owner.email === userEmail);
-  const isBookmarked = false;
-
   let timeAgo = "";
   if (post.createdAt) {
     timeAgo = formatDistanceToNow(new Date(Number(post.createdAt)), {
@@ -67,7 +65,7 @@ export function mapPostToPostCard(post: GPost, userEmail: string): PostCard {
     saves: 0,
     timeAgo,
     isLiked,
-    isBookmarked,
+    isBookmarked: post.isBookmarked || false,
   };
 
   return map;

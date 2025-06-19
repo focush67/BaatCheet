@@ -4,6 +4,7 @@ export const GET_ALL_POSTS = `
         id
         caption
         coverPhoto
+        isBookmarked
         owner {
             email
             username

@@ -30,14 +30,18 @@ export const usePostStore = create<ZPostStore>()(
         }));
       },
 
-      toggleBookmark: (id) =>
-        set((state) => ({
-          mappedPosts: state.mappedPosts.map((post) =>
+      toggleBookmark: (id) => {
+        set((state) => {
+          const updatedPosts = state.mappedPosts.map((post) =>
             post.id === id
               ? { ...post, isBookmarked: !post.isBookmarked }
               : post
-          ),
-        })),
+          );
+          const newStats = get().mappedPosts.filter((p) => p.id === id);
+          console.log("New Status After Update", newStats[0].isBookmarked);
+          return { mappedPosts: updatedPosts };
+        });
+      },
 
       reset: () => {
         usePostStore.persist.clearStorage();
