@@ -31,6 +31,10 @@ const SaveToCollectionModal: React.FC<SaveToCollectionModalProps> = ({
 }) => {
   const { colorScheme } = useTheme();
   const collections = useSavedStore((state) => state.collections);
+  const updateCollectionInStore = useSavedStore(
+    (state) => state.updateCollection
+  );
+
   const getCollectionForPost = useSavedStore(
     (state) => state.getCollectionForPost
   );
@@ -59,50 +63,20 @@ const SaveToCollectionModal: React.FC<SaveToCollectionModalProps> = ({
       }
 
       if (currentCollectionId) {
-        console.log(
-          `Previously existed in ${currentCollectionId}, removing it first`
-        );
-        console.log(
-          `Simulating DB removal from ${currentCollectionId} for ${postId}`
-        );
         await removePostFromCollection(currentCollectionId, postId);
         onCollectionRemoved();
       }
 
-      console.log(`Saving to new collection ${collectionId}`);
-      console.log(
-        `Simulating DB addition to ${currentCollectionId} for ${postId}`
-      );
       await savePostToCollection(collectionId, postId);
+      updateCollectionInStore(collectionId, postId, currentCollectionId);
       setCurrentCollectionId(collectionId);
       onCollectionSelected(collectionId);
 
       if (!currentCollectionId) {
-        console.log(`Updating state for first time collection addition`);
         toggleBookmark(postId);
       }
     } catch (error) {
       console.error("Error saving to collection", error);
-    }
-  };
-
-  const handleRemoveFromCollection = async () => {
-    if (!currentCollectionId) {
-      console.log(`Didnt exist in any collection, removal unfulfilled`);
-      return;
-    }
-
-    try {
-      console.log(`Removing from ${currentCollectionId}`);
-      console.log(
-        `Simulating DB removal from ${currentCollectionId} for ${postId}`
-      );
-      await removePostFromCollection(currentCollectionId, postId);
-      toggleBookmark(postId);
-      onCollectionRemoved();
-      setCurrentCollectionId(null);
-    } catch (error) {
-      console.error("Error removing from collection", error);
     }
   };
 
