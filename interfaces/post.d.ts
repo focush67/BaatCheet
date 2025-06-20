@@ -57,6 +57,11 @@ interface ZSavedStore {
   collections: ZCollection[];
   setCollections: (email: string) => Promise<void>;
   addNewCollection: (collection: ZCollection) => void;
+  updateCollection: (
+    newCollectionId: string | null,
+    postId: string,
+    oldCollectionId: string | null
+  ) => void;
   getCollectionForPost: (postId: string) => string | null;
   reset: () => void;
 }

@@ -23,6 +23,43 @@ export const useSavedStore = create<ZSavedStore>()(
         set({ collections: collectionsFetched });
       },
 
+      updateCollection: (newCollectionId, postId, oldCollectionId) => {
+        if (
+          !newCollectionId ||
+          !oldCollectionId ||
+          newCollectionId === oldCollectionId
+        ) {
+          return {
+            collections: get().collections,
+          };
+        }
+        set((state) => {
+          const collectionsAfterRemoval = oldCollectionId
+            ? state.collections.map((collection) =>
+                collection.id === oldCollectionId
+                  ? {
+                      ...collection,
+                      posts: collection.posts.filter(
+                        (p) => p.post.id !== postId
+                      ),
+                    }
+                  : collection
+              )
+            : state.collections;
+
+          const updatedCollections = collectionsAfterRemoval.map((collection) =>
+            collection.id === newCollectionId
+              ? {
+                  ...collection,
+                  posts: [...collection.posts, { post: { id: postId } }],
+                }
+              : collection
+          );
+
+          return { collections: updatedCollections };
+        });
+      },
+
       getCollectionForPost: (postId: string) => {
         const collections = get().collections;
         const collection = collections.find((c) =>
