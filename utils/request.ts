@@ -80,7 +80,7 @@ export async function graphqlRequest<TVariables, TResponse>(
     const errorMessage =
       error instanceof Error ? error.message : "Unknown Error";
     console.error(
-      `[${serviceName} API][${requestId}] Failed after ${duration}ms`,
+      `[${serviceName} API][${responseKey}] Failed after ${duration}ms`,
       {
         ...(variables && { variables }),
         error: errorMessage,
