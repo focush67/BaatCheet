@@ -22,13 +22,30 @@ interface ContentProps {
 
 interface PostPreviewProps {
   visible: boolean;
-  post: UserPost | null;
+  post: GridPost | null;
   onClose: () => void;
 }
 
 interface PostGridProps {
   posts: UserPost[];
   onLongPressPost: (post: UserPost | null) => void;
+  onPostPressOut: () => void;
+}
+
+interface GridPost {
+  id: string;
+  coverPhoto: string;
+  caption: string;
+  owner: {
+    username: string;
+    email: string;
+    profilePicture: string;
+  };
+}
+
+interface GridProps {
+  posts: GridPost[];
+  onLongPressPost: (post: GridPost | null) => void;
   onPostPressOut: () => void;
 }
 

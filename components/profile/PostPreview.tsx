@@ -16,13 +16,13 @@ export const PostPreview: React.FC<PostPreviewProps> = ({
       >
         <View className="w-11/12 bg-white rounded-xl overflow-hidden">
           <Image
-            source={{ uri: post.imageUrl }}
+            source={{ uri: post.coverPhoto }}
             className="w-full h-80"
             resizeMode="cover"
           />
           <View className="p-4">
             <Text className="font-bold text-base mb-1">
-              @{post.username || "user"}
+              @{post.owner.username || "user"}
             </Text>
             <Text className="text-sm text-gray-700">
               {post.caption || "No caption"}

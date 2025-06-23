@@ -9,23 +9,37 @@ import { Statistics } from "@/components/profile/Statistics";
 import { useTheme } from "@/context/ThemeContext";
 import { useUser } from "@clerk/clerk-expo";
 import { useLocalSearchParams } from "expo-router";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { ScrollView, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { getPostsSaved } from "@/services/postService";
+import { samplePosts } from "@/constants/data";
 
 const ProfileScreen = () => {
+  const { user } = useUser();
   const { colorScheme } = useTheme();
   const { username } = useLocalSearchParams<{ username?: string }>();
-  const { user } = useUser();
 
+  const [savedPosts, setSavedPosts] = useState<GridPost[]>([]);
   const [activeTab, setActiveTab] = useState<ActiveTab>("posts");
   const [isFollowing, setIsFollowing] = useState(false);
-  const [previewPost, setPreviewPost] = useState<UserPost | null>(null);
+  const [previewPost, setPreviewPost] = useState<GridPost | null>(null);
   const [previewVisible, setPreviewVisible] = useState(false);
 
   const isPersonalProfile = !username;
   const ownerUsername = user?.unsafeMetadata?.username as string;
 
+  useEffect(() => {
+    const fetchSaved = async () => {
+      const posts = await getPostsSaved(user?.emailAddresses[0].emailAddress!);
+      console.log("Saved Posts", posts);
+      setSavedPosts(posts);
+    };
+
+    fetchSaved();
+  }, []);
+
+  // console.log("Saved Posts:", savedPosts);
   const profileData = {
     username: isPersonalProfile ? ownerUsername : (username as string),
     name: user?.unsafeMetadata?.ownerName as string,
@@ -42,7 +56,7 @@ const ProfileScreen = () => {
     caption: `Sample caption ${i}`,
   })) as UserPost[];
 
-  const handleLongPress = (post: UserPost | null) => {
+  const handleLongPress = (post: GridPost | null) => {
     setPreviewPost(post);
     setPreviewVisible(true);
   };
@@ -57,16 +71,18 @@ const ProfileScreen = () => {
       case "posts":
         return (
           <PostsGrid
-            posts={posts}
+            posts={savedPosts}
             onLongPressPost={handleLongPress}
             onPostPressOut={handlePressOut}
           />
         );
       case "saved":
         return isPersonalProfile ? (
-          <Text className="text-center py-10 text-gray-500">
-            Saved posts coming soon
-          </Text>
+          <PostsGrid
+            posts={savedPosts}
+            onLongPressPost={handleLongPress}
+            onPostPressOut={handlePressOut}
+          />
         ) : null;
       case "tagged":
         return (

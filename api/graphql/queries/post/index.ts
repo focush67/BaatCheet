@@ -172,3 +172,17 @@ export const GET_COLLECTIONS_FOR_USER = `
         }
     }
 `;
+
+export const GET_POSTS_IN_COLLECTIONS = `
+    query GetPostsSaved($email:String!){
+        getPostsSavedByUser(email:$email){
+            id
+            caption
+            coverPhoto
+            owner{
+                username
+                profilePicture
+            }
+        }
+    }
+`;
