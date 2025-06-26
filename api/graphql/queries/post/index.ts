@@ -174,8 +174,8 @@ export const GET_COLLECTIONS_FOR_USER = `
 `;
 
 export const GET_POSTS_IN_COLLECTIONS = `
-    query GetPostsSaved($email:String!){
-        getPostsSavedByUser(email:$email){
+    query GetPostsSaved($email:String,username:String){
+        getPostsSavedByUser(email:$email,username:$username){
             id
             caption
             coverPhoto

@@ -13,7 +13,6 @@ import React, { useEffect, useState } from "react";
 import { ScrollView, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { getPostsSaved } from "@/services/postService";
-import { samplePosts } from "@/constants/data";
 
 const ProfileScreen = () => {
   const { user } = useUser();
@@ -32,14 +31,12 @@ const ProfileScreen = () => {
   useEffect(() => {
     const fetchSaved = async () => {
       const posts = await getPostsSaved(user?.emailAddresses[0].emailAddress!);
-      console.log("Saved Posts", posts);
       setSavedPosts(posts);
     };
 
     fetchSaved();
   }, []);
 
-  // console.log("Saved Posts:", savedPosts);
   const profileData = {
     username: isPersonalProfile ? ownerUsername : (username as string),
     name: user?.unsafeMetadata?.ownerName as string,
@@ -48,13 +45,6 @@ const ProfileScreen = () => {
       ? (user?.unsafeMetadata?.profilePicture as string)
       : "https://picsum.photos/400/400?random=4",
   };
-
-  const posts = Array.from({ length: 15 }, (_, i) => ({
-    id: i.toString(),
-    imageUrl: `https://picsum.photos/300/300?random=${i}`,
-    username: profileData.username,
-    caption: `Sample caption ${i}`,
-  })) as UserPost[];
 
   const handleLongPress = (post: GridPost | null) => {
     setPreviewPost(post);
