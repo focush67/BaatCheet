@@ -10,10 +10,12 @@ import CommentButton from "./CommentButton";
 import LikeButton from "./LikeButton";
 import SaveButton from "./SaveButton";
 import ShareButton from "./ShareButton";
+import { useUser } from "@clerk/clerk-expo";
 
 const PostCard = ({ post }: { post: PostCard }) => {
   const { colorScheme } = useTheme();
   const router = useRouter();
+  const { user } = useUser();
   const [showComments, setShowComments] = useState(false);
   const toggleBookmark = usePostStore((state) => state.toggleBookmark);
 
@@ -23,6 +25,25 @@ const PostCard = ({ post }: { post: PostCard }) => {
   const isBookmarked = storePost?.isBookmarked ?? post.isBookmarked;
   const comments = useCommentStore((state) => state.commentsByPost[post.id]);
 
+  const handleProfilePress = () => {
+    const isMyProfile = post.owner?.username === user?.unsafeMetadata?.username;
+    if (isMyProfile) {
+      return null;
+    }
+
+    const params = {
+      username: post.owner.username,
+      avatar: post.owner.profilePicture,
+      ownerName: post.owner.name,
+      caption: post.owner.bio,
+      isExternalProfile: "true",
+    };
+
+    router.push({
+      pathname: "/profile",
+      params: params,
+    });
+  };
   return (
     <View
       className={`border-b ${
@@ -33,16 +54,9 @@ const PostCard = ({ post }: { post: PostCard }) => {
     >
       <View className="flex-row items-center justify-between px-4 py-3">
         <View className="flex-row items-center">
-          <TouchableOpacity
-            onPress={() =>
-              router.push({
-                pathname: "/profile",
-                params: { username: post.username },
-              })
-            }
-          >
+          <TouchableOpacity onPress={handleProfilePress}>
             <Image
-              source={{ uri: post.avatar }}
+              source={{ uri: post.owner?.profilePicture }}
               className="w-8 h-8 rounded-full mr-3"
             />
           </TouchableOpacity>

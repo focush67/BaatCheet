@@ -38,9 +38,13 @@ interface GridPost {
   caption: string;
   owner: {
     username: string;
+    name: string;
+    bio: string;
     email: string;
     profilePicture: string;
   };
+  likes: GLike[];
+  comments: GComment[];
 }
 
 interface GridProps {

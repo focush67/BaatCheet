@@ -8,6 +8,8 @@ export const GET_ALL_POSTS = `
         owner {
             email
             username
+            name
+            bio
             profilePicture
         }
         createdAt
@@ -15,6 +17,7 @@ export const GET_ALL_POSTS = `
             owner {
                 id
                 email
+                name
                 username
                 profilePicture
             }
@@ -25,6 +28,7 @@ export const GET_ALL_POSTS = `
             owner {
                 id
                 username
+                name
                 email
                 profilePicture
             }
@@ -33,6 +37,7 @@ export const GET_ALL_POSTS = `
             referenceUser {
                 id
                 email
+                name
                 username
                 profilePicture
             }
@@ -72,8 +77,8 @@ export const GET_POST_BY_ID = `
 `;
 
 export const GET_POSTS_FOR_USER = `
-    query GetPersonalPosts($email:String!){
-        getPostsForUser(email:$email){
+    query GetPersonalPosts($email:String,$username:String){
+        getPostsForUser(email:$email,username:$username){
         id
         caption
         coverPhoto
@@ -83,6 +88,13 @@ export const GET_POSTS_FOR_USER = `
                 email
                 username
             }
+        }
+        owner {
+            username
+            email
+            name,
+            profilePicture
+            bio
         }
         comments {
             content
@@ -183,6 +195,16 @@ export const GET_POSTS_IN_COLLECTIONS = `
             owner{
                 username
                 profilePicture
+            }
+            likes{
+                owner {
+                username
+                }
+            }
+            comments {
+            owner {
+            username
+                }
             }
         }
     }

@@ -59,6 +59,7 @@ export function mapPostToPostCard(post: GPost, userEmail: string): PostCard {
     username: post.owner?.username ?? "unknown",
     avatar: post.owner?.profilePicture ?? "",
     image: post.coverPhoto,
+    owner: post.owner,
     caption: post.caption ?? "",
     likes: post.likes?.length ?? 0,
     comments: post.comments?.length ?? 0,
