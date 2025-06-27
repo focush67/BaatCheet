@@ -221,16 +221,16 @@ export const getPostById = async (postId: string): Promise<GPost> =>
     serviceName: SERVICE_NAME,
   });
 
-export const getPostsForUser = async (userId: string): Promise<GPost[]> =>
+export const getPostsForUser = async (email: string): Promise<GPost[]> =>
   graphqlRequest({
     operation: {
       query: GET_POSTS_FOR_USER,
-      variables: { userId },
+      variables: { email },
     },
     responseKey: "getPostsForUser",
     friendlyErrorMessage:
       "Failed to fetch personalized posts. Please try again.",
-    logLabel: `Fetch posts for userID ${userId}`,
+    logLabel: `Fetch posts for user ${email}`,
     serviceName: SERVICE_NAME,
   });
 

@@ -12,13 +12,13 @@ import { useLocalSearchParams } from "expo-router";
 import React, { useEffect, useState } from "react";
 import { ScrollView, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { getPostsSaved } from "@/services/postService";
+import { getPostsForUser, getPostsSaved } from "@/services/postService";
 
 const ProfileScreen = () => {
   const { user } = useUser();
   const { colorScheme } = useTheme();
   const { username } = useLocalSearchParams<{ username?: string }>();
-
+  const [posts, setPosts] = useState<GridPost[]>([]);
   const [savedPosts, setSavedPosts] = useState<GridPost[]>([]);
   const [activeTab, setActiveTab] = useState<ActiveTab>("posts");
   const [isFollowing, setIsFollowing] = useState(false);
@@ -27,14 +27,21 @@ const ProfileScreen = () => {
 
   const isPersonalProfile = !username;
   const ownerUsername = user?.unsafeMetadata?.username as string;
-
+  const ownerEmail = user?.emailAddresses[0].emailAddress as string;
   useEffect(() => {
     const fetchSaved = async () => {
       const posts = await getPostsSaved(user?.emailAddresses[0].emailAddress!);
+      console.log("Saved posts:", posts);
       setSavedPosts(posts);
     };
 
+    const fetchPersonalPosts = async () => {
+      const createdPosts = await getPostsForUser(ownerEmail);
+      setPosts(createdPosts as GridPost[]);
+    };
+
     fetchSaved();
+    fetchPersonalPosts();
   }, []);
 
   const profileData = {
@@ -61,7 +68,7 @@ const ProfileScreen = () => {
       case "posts":
         return (
           <PostsGrid
-            posts={savedPosts}
+            posts={posts}
             onLongPressPost={handleLongPress}
             onPostPressOut={handlePressOut}
           />

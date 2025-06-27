@@ -12,6 +12,10 @@ export const useSavedStore = create<ZSavedStore>()(
         const collectionsFetched: ZCollection[] = await getCollectionsForUser(
           email
         );
+        if (collectionsFetched.length === 0) {
+          set({ collections: [] });
+          return;
+        }
         collectionsFetched.map((collection) => {
           if (collection.posts && collection.posts.length > 0) {
             console.log(

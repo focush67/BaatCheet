@@ -72,8 +72,8 @@ export const GET_POST_BY_ID = `
 `;
 
 export const GET_POSTS_FOR_USER = `
-    query getPersonalPosts($userID:String!){
-        getPostsForUser(userID:$userID){
+    query GetPersonalPosts($email:String!){
+        getPostsForUser(email:$email){
         id
         caption
         coverPhoto
@@ -98,6 +98,7 @@ export const GET_POSTS_FOR_USER = `
             }
         }
     }
+}
 `;
 
 export const GET_COMMENTS_ON_POST = `
@@ -174,7 +175,7 @@ export const GET_COLLECTIONS_FOR_USER = `
 `;
 
 export const GET_POSTS_IN_COLLECTIONS = `
-    query GetPostsSaved($email:String,username:String){
+    query GetPostsSaved($email:String,$username:String){
         getPostsSavedByUser(email:$email,username:$username){
             id
             caption
