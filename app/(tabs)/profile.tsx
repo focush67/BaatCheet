@@ -66,11 +66,8 @@ const ProfileScreen = () => {
 
   useEffect(() => {
     const fetchSaved = async () => {
-      let posts: GridPost[] = [];
+      let posts = [];
       if (isPersonalProfile) {
-        console.log(
-          `Fetching saved posts for personal profile: ${currentUsername}`
-        );
         posts = await getPostsSaved(currentUserEmail, undefined);
       } else {
         posts = await getPostsSaved(undefined, currentUsername);
@@ -79,13 +76,12 @@ const ProfileScreen = () => {
     };
 
     const fetchPersonalPosts = async () => {
-      let createdPosts: GridPost[] = [];
+      let createdPosts = [];
       if (isPersonalProfile) {
         createdPosts = await getPostsForUser(currentUserEmail, undefined);
       } else {
         createdPosts = await getPostsForUser(undefined, currentUsername);
       }
-
       setPosts(createdPosts as GridPost[]);
     };
 
@@ -94,6 +90,7 @@ const ProfileScreen = () => {
   }, [currentUserEmail, currentUsername, isPersonalProfile]);
 
   const handleLongPress = (post: GridPost | null) => {
+    console.log("Setting preview post:", post);
     setPreviewPost(post);
     setPreviewVisible(true);
   };

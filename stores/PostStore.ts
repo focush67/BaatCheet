@@ -10,7 +10,7 @@ export const usePostStore = create<ZPostStore>()(
       mappedPosts: [],
 
       setMappedPosts: async (email: string) => {
-        const allPosts: GPost[] = await getAllPosts(email);
+        const allPosts = await getAllPosts(email);
         const mapped = allPosts.map((post) => mapPostToPostCard(post, email));
         set({ mappedPosts: mapped });
       },

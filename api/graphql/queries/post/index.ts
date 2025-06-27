@@ -89,6 +89,13 @@ export const GET_POSTS_FOR_USER = `
                 username
             }
         }
+        owner {
+            username
+            email
+            name,
+            profilePicture
+            bio
+        }
         comments {
             content
             owner {
@@ -188,6 +195,16 @@ export const GET_POSTS_IN_COLLECTIONS = `
             owner{
                 username
                 profilePicture
+            }
+            likes{
+                owner {
+                username
+                }
+            }
+            comments {
+            owner {
+            username
+                }
             }
         }
     }
