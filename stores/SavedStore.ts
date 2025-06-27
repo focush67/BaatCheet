@@ -12,6 +12,10 @@ export const useSavedStore = create<ZSavedStore>()(
         const collectionsFetched: ZCollection[] = await getCollectionsForUser(
           email
         );
+        if (collectionsFetched.length === 0) {
+          set({ collections: [] });
+          return;
+        }
         collectionsFetched.map((collection) => {
           if (collection.posts && collection.posts.length > 0) {
             console.log(
@@ -23,16 +27,11 @@ export const useSavedStore = create<ZSavedStore>()(
         set({ collections: collectionsFetched });
       },
 
-      updateCollection: (newCollectionId, postId, oldCollectionId) => {
-        if (
-          !newCollectionId ||
-          !oldCollectionId ||
-          newCollectionId === oldCollectionId
-        ) {
-          return {
-            collections: get().collections,
-          };
-        }
+      updateCollection: (
+        newCollectionId: string | null,
+        postId: string,
+        oldCollectionId: string | null
+      ) => {
         set((state) => {
           const collectionsAfterRemoval = oldCollectionId
             ? state.collections.map((collection) =>
@@ -47,14 +46,16 @@ export const useSavedStore = create<ZSavedStore>()(
               )
             : state.collections;
 
-          const updatedCollections = collectionsAfterRemoval.map((collection) =>
-            collection.id === newCollectionId
-              ? {
-                  ...collection,
-                  posts: [...collection.posts, { post: { id: postId } }],
-                }
-              : collection
-          );
+          const updatedCollections = newCollectionId
+            ? collectionsAfterRemoval.map((collection) =>
+                collection.id === newCollectionId
+                  ? {
+                      ...collection,
+                      posts: [...collection.posts, { post: { id: postId } }],
+                    }
+                  : collection
+              )
+            : collectionsAfterRemoval;
 
           return { collections: updatedCollections };
         });

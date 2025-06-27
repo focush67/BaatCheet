@@ -9,22 +9,40 @@ import { Statistics } from "@/components/profile/Statistics";
 import { useTheme } from "@/context/ThemeContext";
 import { useUser } from "@clerk/clerk-expo";
 import { useLocalSearchParams } from "expo-router";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { ScrollView, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { getPostsForUser, getPostsSaved } from "@/services/postService";
 
 const ProfileScreen = () => {
+  const { user } = useUser();
   const { colorScheme } = useTheme();
   const { username } = useLocalSearchParams<{ username?: string }>();
-  const { user } = useUser();
-
+  const [posts, setPosts] = useState<GridPost[]>([]);
+  const [savedPosts, setSavedPosts] = useState<GridPost[]>([]);
   const [activeTab, setActiveTab] = useState<ActiveTab>("posts");
   const [isFollowing, setIsFollowing] = useState(false);
-  const [previewPost, setPreviewPost] = useState<UserPost | null>(null);
+  const [previewPost, setPreviewPost] = useState<GridPost | null>(null);
   const [previewVisible, setPreviewVisible] = useState(false);
 
   const isPersonalProfile = !username;
   const ownerUsername = user?.unsafeMetadata?.username as string;
+  const ownerEmail = user?.emailAddresses[0].emailAddress as string;
+  useEffect(() => {
+    const fetchSaved = async () => {
+      const posts = await getPostsSaved(user?.emailAddresses[0].emailAddress!);
+      console.log("Saved posts:", posts);
+      setSavedPosts(posts);
+    };
+
+    const fetchPersonalPosts = async () => {
+      const createdPosts = await getPostsForUser(ownerEmail);
+      setPosts(createdPosts as GridPost[]);
+    };
+
+    fetchSaved();
+    fetchPersonalPosts();
+  }, []);
 
   const profileData = {
     username: isPersonalProfile ? ownerUsername : (username as string),
@@ -35,14 +53,7 @@ const ProfileScreen = () => {
       : "https://picsum.photos/400/400?random=4",
   };
 
-  const posts = Array.from({ length: 15 }, (_, i) => ({
-    id: i.toString(),
-    imageUrl: `https://picsum.photos/300/300?random=${i}`,
-    username: profileData.username,
-    caption: `Sample caption ${i}`,
-  })) as UserPost[];
-
-  const handleLongPress = (post: UserPost | null) => {
+  const handleLongPress = (post: GridPost | null) => {
     setPreviewPost(post);
     setPreviewVisible(true);
   };
@@ -64,9 +75,11 @@ const ProfileScreen = () => {
         );
       case "saved":
         return isPersonalProfile ? (
-          <Text className="text-center py-10 text-gray-500">
-            Saved posts coming soon
-          </Text>
+          <PostsGrid
+            posts={savedPosts}
+            onLongPressPost={handleLongPress}
+            onPostPressOut={handlePressOut}
+          />
         ) : null;
       case "tagged":
         return (

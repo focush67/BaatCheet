@@ -30,11 +30,6 @@ export default function Wall() {
     }
   }, [collections, stories, mappedPosts]);
 
-  useEffect(() => {
-    useSavedStore
-      .getState()
-      .setCollections(user?.emailAddresses[0].emailAddress!);
-  }, []);
   return (
     <FlatList
       data={mappedPosts}

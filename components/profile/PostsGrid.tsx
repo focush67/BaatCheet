@@ -2,11 +2,7 @@ import { useRouter } from "expo-router";
 import React from "react";
 import { Image, Pressable, useWindowDimensions, View } from "react-native";
 
-const PostsGrid = ({
-  posts,
-  onLongPressPost,
-  onPostPressOut,
-}: PostGridProps) => {
+const PostsGrid = ({ posts, onLongPressPost, onPostPressOut }: GridProps) => {
   const { width } = useWindowDimensions();
   const imageSize = width / 3;
   const router = useRouter();
@@ -29,7 +25,7 @@ const PostsGrid = ({
           onLongPress={() => onLongPressPost(post)}
           onPressOut={() => onPostPressOut()}
         >
-          <Image source={{ uri: post.imageUrl }} className="w-full h-full" />
+          <Image source={{ uri: post.coverPhoto }} className="w-full h-full" />
         </Pressable>
       ))}
     </View>

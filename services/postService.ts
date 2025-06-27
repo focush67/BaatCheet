@@ -17,6 +17,7 @@ import {
   GET_COMMENTS_ON_POST,
   GET_POST_BY_ID,
   GET_POSTS_FOR_USER,
+  GET_POSTS_IN_COLLECTIONS,
 } from "@/api/graphql/queries/post";
 import { graphqlRequest } from "@/utils/request";
 
@@ -108,6 +109,21 @@ export const getCollectionsForUser = async (
     responseKey: "getCollectionsForUser",
     friendlyErrorMessage: "Failed to fetch collections. Please try again",
     logLabel: `Fetching collections`,
+    serviceName: SERVICE_NAME,
+  });
+
+export const getPostsSaved = async (email: string): Promise<GridPost[]> =>
+  graphqlRequest({
+    operation: {
+      query: GET_POSTS_IN_COLLECTIONS,
+      variables: {
+        email,
+      },
+    },
+    responseKey: "getPostsSavedByUser",
+    friendlyErrorMessage:
+      "Failed to fetch posts saved by user. Please try again",
+    logLabel: `Fetching posts saved by user ${email}`,
     serviceName: SERVICE_NAME,
   });
 
@@ -205,16 +221,16 @@ export const getPostById = async (postId: string): Promise<GPost> =>
     serviceName: SERVICE_NAME,
   });
 
-export const getPostsForUser = async (userId: string): Promise<GPost[]> =>
+export const getPostsForUser = async (email: string): Promise<GPost[]> =>
   graphqlRequest({
     operation: {
       query: GET_POSTS_FOR_USER,
-      variables: { userId },
+      variables: { email },
     },
     responseKey: "getPostsForUser",
     friendlyErrorMessage:
       "Failed to fetch personalized posts. Please try again.",
-    logLabel: `Fetch posts for userID ${userId}`,
+    logLabel: `Fetch posts for user ${email}`,
     serviceName: SERVICE_NAME,
   });
 
