@@ -3,6 +3,7 @@ import {
   UNFOLLOW_USER,
   UPDATE_USER_BY_EMAIL,
 } from "@/api/graphql/mutations/user";
+import { GET_FOLLOW_STATUS } from "@/api/graphql/queries/user";
 import { graphqlRequest } from "@/utils/request";
 
 const SERVICE_NAME = "User";
@@ -19,6 +20,18 @@ export const updateUserByEmail = async (
     responseKey: "updateUserByEmail",
     friendlyErrorMessage: "Failed to like post. Please try again.",
     logLabel: `Updating for ${email}`,
+    serviceName: SERVICE_NAME,
+  });
+
+export const getFollowStatus = async (source: string, target: string) =>
+  graphqlRequest({
+    operation: {
+      query: GET_FOLLOW_STATUS,
+      variables: { source, target },
+    },
+    responseKey: "getFollowStatus",
+    friendlyErrorMessage: "Failed to get follow status. Please try again.",
+    logLabel: `Getting follow status for ${source} and ${target}`,
     serviceName: SERVICE_NAME,
   });
 

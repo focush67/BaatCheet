@@ -13,7 +13,11 @@ import React, { useEffect, useState } from "react";
 import { ScrollView, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { getPostsForUser, getPostsSaved } from "@/services/postService";
-import { followUser, unfollowUser } from "@/services/userService";
+import {
+  followUser,
+  getFollowStatus,
+  unfollowUser,
+} from "@/services/userService";
 
 type ProfileScreenProps = {
   username: string;
@@ -91,6 +95,24 @@ const ProfileScreen = () => {
     fetchPersonalPosts();
   }, [currentUserEmail, currentUsername, isPersonalProfile]);
 
+  useEffect(() => {
+    const fetchFollowStatus = async () => {
+      const sourceEmail = user?.emailAddresses[0].emailAddress as string;
+      if (isPersonalProfile || !sourceEmail || !userEmail) {
+        console.log(
+          "Skipping follow status check for personal profile or missing email"
+        );
+        return;
+      }
+
+      const followStatus = await getFollowStatus(sourceEmail, userEmail);
+      console.log("Follow status:", followStatus);
+      setIsFollowing(followStatus);
+    };
+
+    fetchFollowStatus();
+  }, [isPersonalProfile, currentUserEmail]);
+
   const handleLongPress = (post: GridPost | null) => {
     console.log("Setting preview post:", post);
     setPreviewPost(post);
@@ -102,9 +124,9 @@ const ProfileScreen = () => {
     let response = null;
     const sourceEmail = user?.emailAddresses[0].emailAddress as string;
     if (isFollowing) {
-      response = await unfollowUser(userEmail, sourceEmail!);
+      response = await unfollowUser(sourceEmail!, userEmail!);
     } else {
-      response = await followUser(userEmail, sourceEmail!);
+      response = await followUser(sourceEmail!, userEmail!);
     }
   };
 

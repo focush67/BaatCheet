@@ -64,17 +64,22 @@ export async function graphqlRequest<TVariables, TResponse>(
       throw new Error(errorMessage);
     }
 
-    if (!response.data.data?.[responseKey]) {
-      console.error(
-        `[${serviceName} API][${requestId}] Malformed response`,
-        response.data
+    if (!response.data.data) {
+      throw new Error(
+        `Server returned no data for operation: ${operation.query}`
       );
-      throw new Error(`Server returned unexpected response format`);
     }
 
-    return config.transformResponse
-      ? config.transformResponse(response.data.data[responseKey])
-      : response.data.data[responseKey];
+    const result = response.data.data[responseKey];
+    if (typeof result === "boolean") {
+      return result as TResponse;
+    }
+
+    if (result == null) {
+      throw new Error(`Missing expected response key: ${responseKey}`);
+    }
+
+    return config.transformResponse ? config.transformResponse(result) : result;
   } catch (error: any) {
     const duration = Date.now() - startTime;
     const errorMessage =
