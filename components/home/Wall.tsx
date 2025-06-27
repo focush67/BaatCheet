@@ -8,15 +8,17 @@ import { useUser } from "@clerk/clerk-expo";
 
 export default function Wall() {
   const { user } = useUser();
+  if (!user) {
+    return null;
+  }
+  const email = user.emailAddresses[0].emailAddress;
   const stories = useStoryStore((state) => state.userStories);
   const mappedPosts = usePostStore((state) => state.mappedPosts);
   const collections = useSavedStore((state) => state.collections);
 
   useEffect(() => {
     if (!mappedPosts || mappedPosts.length === 0) {
-      usePostStore
-        .getState()
-        .setMappedPosts(user?.emailAddresses[0].emailAddress!);
+      usePostStore.getState().setMappedPosts(email);
     }
 
     if (!stories || stories.length === 0) {
@@ -24,11 +26,9 @@ export default function Wall() {
     }
 
     if (!collections || collections.length === 0) {
-      useSavedStore
-        .getState()
-        .setCollections(user?.emailAddresses[0].emailAddress!);
+      useSavedStore.getState().setCollections(email);
     }
-  }, [collections, stories, mappedPosts]);
+  }, [collections, stories, mappedPosts, email]);
 
   return (
     <FlatList

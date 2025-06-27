@@ -14,10 +14,42 @@ import { ScrollView, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { getPostsForUser, getPostsSaved } from "@/services/postService";
 
+type ProfileScreenProps = {
+  username: string;
+  avatar: string;
+  ownerName: string;
+  caption: string;
+  isExternalProfile: string;
+};
+
 const ProfileScreen = () => {
   const { user } = useUser();
   const { colorScheme } = useTheme();
-  const { username } = useLocalSearchParams<{ username?: string }>();
+  const { username, avatar, isExternalProfile, ownerName, caption } =
+    useLocalSearchParams<ProfileScreenProps>();
+
+  const isPersonalProfile = !isExternalProfile;
+
+  const currentUsername = isPersonalProfile
+    ? (user?.unsafeMetadata?.username as string)
+    : (username as string);
+
+  const currentProfileName = isPersonalProfile
+    ? (user?.unsafeMetadata.ownerName as string)
+    : ownerName;
+
+  const currentUserEmail = isPersonalProfile
+    ? (user?.emailAddresses[0].emailAddress as string)
+    : undefined;
+
+  const currentUserAvatar = isPersonalProfile
+    ? (user?.unsafeMetadata?.profilePicture as string)
+    : (avatar as string);
+
+  const currentUserCaption = isPersonalProfile
+    ? (user?.unsafeMetadata.caption as string)
+    : caption;
+
   const [posts, setPosts] = useState<GridPost[]>([]);
   const [savedPosts, setSavedPosts] = useState<GridPost[]>([]);
   const [activeTab, setActiveTab] = useState<ActiveTab>("posts");
@@ -25,33 +57,41 @@ const ProfileScreen = () => {
   const [previewPost, setPreviewPost] = useState<GridPost | null>(null);
   const [previewVisible, setPreviewVisible] = useState(false);
 
-  const isPersonalProfile = !username;
-  const ownerUsername = user?.unsafeMetadata?.username as string;
-  const ownerEmail = user?.emailAddresses[0].emailAddress as string;
+  const profileData = {
+    username: currentUsername,
+    name: currentProfileName,
+    bio: currentUserCaption,
+    picture: currentUserAvatar,
+  };
+
   useEffect(() => {
     const fetchSaved = async () => {
-      const posts = await getPostsSaved(user?.emailAddresses[0].emailAddress!);
-      console.log("Saved posts:", posts);
+      let posts: GridPost[] = [];
+      if (isPersonalProfile) {
+        console.log(
+          `Fetching saved posts for personal profile: ${currentUsername}`
+        );
+        posts = await getPostsSaved(currentUserEmail, undefined);
+      } else {
+        posts = await getPostsSaved(undefined, currentUsername);
+      }
       setSavedPosts(posts);
     };
 
     const fetchPersonalPosts = async () => {
-      const createdPosts = await getPostsForUser(ownerEmail);
+      let createdPosts: GridPost[] = [];
+      if (isPersonalProfile) {
+        createdPosts = await getPostsForUser(currentUserEmail, undefined);
+      } else {
+        createdPosts = await getPostsForUser(undefined, currentUsername);
+      }
+
       setPosts(createdPosts as GridPost[]);
     };
 
     fetchSaved();
     fetchPersonalPosts();
-  }, []);
-
-  const profileData = {
-    username: isPersonalProfile ? ownerUsername : (username as string),
-    name: user?.unsafeMetadata?.ownerName as string,
-    bio: (user?.unsafeMetadata?.caption as string) || "Just a chill guy",
-    picture: isPersonalProfile
-      ? (user?.unsafeMetadata?.profilePicture as string)
-      : "https://picsum.photos/400/400?random=4",
-  };
+  }, [currentUserEmail, currentUsername, isPersonalProfile]);
 
   const handleLongPress = (post: GridPost | null) => {
     setPreviewPost(post);
@@ -106,8 +146,8 @@ const ProfileScreen = () => {
           <View className="flex-row items-center mt-3">
             <ProfileAvatar
               size={86}
-              username={profileData.username}
-              imageUrl={profileData.picture}
+              username={currentUsername}
+              imageUrl={avatar}
             />
             <Statistics posts={124} followers={"4.5k"} following={"300"} />
           </View>

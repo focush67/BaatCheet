@@ -124,7 +124,7 @@ const SaveToCollectionModal: React.FC<SaveToCollectionModalProps> = ({
                 isSelected={currentCollectionId === item.id}
                 isDarkMode={isDarkMode}
                 onSelect={handleSaveToCollection}
-                postCount={item.posts.length}
+                postCount={item.posts?.length || 0}
               />
             )}
           />

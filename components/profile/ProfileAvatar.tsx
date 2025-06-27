@@ -22,7 +22,7 @@ const ProfileAvatar = ({
 }: {
   username: string;
   size: number;
-  imageUrl: string;
+  imageUrl: string | undefined;
 }) => {
   const { colorScheme } = useTheme();
   const { user } = useUser();
@@ -32,6 +32,8 @@ const ProfileAvatar = ({
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   const [storyMode, setStoryMode] = useState(false);
   const owner = user?.unsafeMetadata?.username as string;
+  const ownerProfileImage =
+    imageUrl || (user?.unsafeMetadata?.profilePicture as string);
   const isOwner = username === owner;
 
   const handleImageUpload = async (imageUri: string) => {
@@ -85,7 +87,7 @@ const ProfileAvatar = ({
           style={{ width: size, height: size }}
         >
           <Image
-            source={{ uri: imageUrl }}
+            source={{ uri: ownerProfileImage }}
             className="w-full h-full rounded-full"
             resizeMode="cover"
           />

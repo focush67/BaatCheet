@@ -112,12 +112,16 @@ export const getCollectionsForUser = async (
     serviceName: SERVICE_NAME,
   });
 
-export const getPostsSaved = async (email: string): Promise<GridPost[]> =>
+export const getPostsSaved = async (
+  email: string | undefined,
+  username: string | undefined
+): Promise<GridPost[]> =>
   graphqlRequest({
     operation: {
       query: GET_POSTS_IN_COLLECTIONS,
       variables: {
         email,
+        username,
       },
     },
     responseKey: "getPostsSavedByUser",
@@ -221,11 +225,14 @@ export const getPostById = async (postId: string): Promise<GPost> =>
     serviceName: SERVICE_NAME,
   });
 
-export const getPostsForUser = async (email: string): Promise<GPost[]> =>
+export const getPostsForUser = async (
+  email: string | undefined,
+  username: string | undefined
+): Promise<GridPost[]> =>
   graphqlRequest({
     operation: {
       query: GET_POSTS_FOR_USER,
-      variables: { email },
+      variables: { email, username },
     },
     responseKey: "getPostsForUser",
     friendlyErrorMessage:

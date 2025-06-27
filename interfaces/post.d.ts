@@ -8,6 +8,7 @@ interface UserPost {
 interface PostCard {
   id: string;
   username: string;
+  owner: GUser;
   avatar: string;
   image: string;
   caption?: string;
