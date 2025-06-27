@@ -3,8 +3,6 @@ import { Ionicons } from "@expo/vector-icons";
 import React from "react";
 import { TouchableOpacity, View } from "react-native";
 
-type IoniconsName = React.ComponentProps<typeof Ionicons>["name"];
-
 type TabButtonProps = {
   iconName: IoniconsName;
   isActive: boolean;

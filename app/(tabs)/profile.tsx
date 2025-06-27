@@ -13,9 +13,11 @@ import React, { useEffect, useState } from "react";
 import { ScrollView, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { getPostsForUser, getPostsSaved } from "@/services/postService";
+import { followUser, unfollowUser } from "@/services/userService";
 
 type ProfileScreenProps = {
   username: string;
+  userEmail: string;
   avatar: string;
   ownerName: string;
   caption: string;
@@ -25,7 +27,7 @@ type ProfileScreenProps = {
 const ProfileScreen = () => {
   const { user } = useUser();
   const { colorScheme } = useTheme();
-  const { username, avatar, isExternalProfile, ownerName, caption } =
+  const { username, avatar, userEmail, isExternalProfile, ownerName, caption } =
     useLocalSearchParams<ProfileScreenProps>();
 
   const isPersonalProfile = !isExternalProfile;
@@ -95,6 +97,17 @@ const ProfileScreen = () => {
     setPreviewVisible(true);
   };
 
+  const toggleFollow = async () => {
+    setIsFollowing((prev) => !prev);
+    let response = null;
+    const sourceEmail = user?.emailAddresses[0].emailAddress as string;
+    if (isFollowing) {
+      response = await unfollowUser(userEmail, sourceEmail!);
+    } else {
+      response = await followUser(userEmail, sourceEmail!);
+    }
+  };
+
   const handlePressOut = () => {
     setPreviewVisible(false);
     setPreviewPost(null);
@@ -153,7 +166,7 @@ const ProfileScreen = () => {
           <ProfileActions
             self={isPersonalProfile}
             isFollowing={isFollowing}
-            toggleFollow={() => setIsFollowing(!isFollowing)}
+            toggleFollow={toggleFollow}
           />
         </View>
 

@@ -36,9 +36,11 @@ const PostCard = ({ post }: { post: PostCard }) => {
       avatar: post.owner.profilePicture,
       ownerName: post.owner.name,
       caption: post.owner.bio,
+      userEmail: post.owner.email,
       isExternalProfile: "true",
     };
 
+    console.log("Navigating to profile with params:", params);
     router.push({
       pathname: "/profile",
       params: params,

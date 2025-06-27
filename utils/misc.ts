@@ -68,6 +68,6 @@ export function mapPostToPostCard(post: GPost, userEmail: string): PostCard {
     isLiked,
     isBookmarked: post.isBookmarked || false,
   };
-
+  console.log("Mapped PostCard:", map.owner);
   return map;
 }
