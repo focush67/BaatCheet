@@ -13,9 +13,15 @@ import React, { useEffect, useState } from "react";
 import { ScrollView, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { getPostsForUser, getPostsSaved } from "@/services/postService";
+import {
+  followUser,
+  getFollowStatus,
+  unfollowUser,
+} from "@/services/userService";
 
 type ProfileScreenProps = {
   username: string;
+  userEmail: string;
   avatar: string;
   ownerName: string;
   caption: string;
@@ -25,7 +31,7 @@ type ProfileScreenProps = {
 const ProfileScreen = () => {
   const { user } = useUser();
   const { colorScheme } = useTheme();
-  const { username, avatar, isExternalProfile, ownerName, caption } =
+  const { username, avatar, userEmail, isExternalProfile, ownerName, caption } =
     useLocalSearchParams<ProfileScreenProps>();
 
   const isPersonalProfile = !isExternalProfile;
@@ -89,10 +95,39 @@ const ProfileScreen = () => {
     fetchPersonalPosts();
   }, [currentUserEmail, currentUsername, isPersonalProfile]);
 
+  useEffect(() => {
+    const fetchFollowStatus = async () => {
+      const sourceEmail = user?.emailAddresses[0].emailAddress as string;
+      if (isPersonalProfile || !sourceEmail || !userEmail) {
+        console.log(
+          "Skipping follow status check for personal profile or missing email"
+        );
+        return;
+      }
+
+      const followStatus = await getFollowStatus(sourceEmail, userEmail);
+      console.log("Follow status:", followStatus);
+      setIsFollowing(followStatus);
+    };
+
+    fetchFollowStatus();
+  }, [isPersonalProfile, currentUserEmail]);
+
   const handleLongPress = (post: GridPost | null) => {
     console.log("Setting preview post:", post);
     setPreviewPost(post);
     setPreviewVisible(true);
+  };
+
+  const toggleFollow = async () => {
+    setIsFollowing((prev) => !prev);
+    let response = null;
+    const sourceEmail = user?.emailAddresses[0].emailAddress as string;
+    if (isFollowing) {
+      response = await unfollowUser(sourceEmail!, userEmail!);
+    } else {
+      response = await followUser(sourceEmail!, userEmail!);
+    }
   };
 
   const handlePressOut = () => {
@@ -153,7 +188,7 @@ const ProfileScreen = () => {
           <ProfileActions
             self={isPersonalProfile}
             isFollowing={isFollowing}
-            toggleFollow={() => setIsFollowing(!isFollowing)}
+            toggleFollow={toggleFollow}
           />
         </View>
 

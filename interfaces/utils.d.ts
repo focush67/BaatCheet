@@ -30,3 +30,5 @@ interface UploadOptions {
     updateProfileImage?: boolean;
   };
 }
+
+type IoniconsName = React.ComponentProps<typeof Ionicons>["name"];
