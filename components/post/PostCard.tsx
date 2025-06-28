@@ -30,7 +30,6 @@ const PostCard = ({ post }: { post: PostCard }) => {
     if (isMyProfile) {
       return null;
     }
-
     const params = {
       username: post.owner.username,
       avatar: post.owner.profilePicture,
@@ -40,7 +39,6 @@ const PostCard = ({ post }: { post: PostCard }) => {
       isExternalProfile: "true",
     };
 
-    console.log("Navigating to profile with params:", params);
     router.push({
       pathname: "/profile",
       params: params,

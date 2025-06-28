@@ -14,21 +14,29 @@ import {
 } from "react-native";
 import Toast from "react-native-toast-message";
 import { ImageUploadModal } from "../story/UploadStory";
+import { BlurView } from "expo-blur";
 
 const ProfileAvatar = ({
   username,
   size = 86,
   imageUrl,
+  isFollowing,
+  toggleFollow,
+  modalVisible,
+  setModalVisible,
 }: {
   username: string;
   size: number;
   imageUrl: string | undefined;
+  isFollowing: boolean;
+  toggleFollow: () => void;
+  modalVisible: boolean;
+  setModalVisible: (_: boolean) => void;
 }) => {
   const { colorScheme } = useTheme();
   const { user } = useUser();
   const [loading, setLoading] = useState(false);
-  const [modalVisible, setModalVisible] = useState(false);
-  const [isFollowing, setIsFollowing] = useState(false);
+
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   const [storyMode, setStoryMode] = useState(false);
   const owner = user?.unsafeMetadata?.username as string;
@@ -116,60 +124,105 @@ const ProfileAvatar = ({
         animationType="fade"
         onRequestClose={() => setModalVisible(false)}
       >
-        <View className="flex-1 bg-black/60 justify-center items-center px-6">
-          <Pressable
-            className="absolute inset-0"
-            onPress={() => setModalVisible(false)}
-          />
+        <View className="flex-1">
+          <BlurView
+            intensity={60}
+            tint={colorScheme === "dark" ? "dark" : "light"}
+            style={{
+              flex: 1,
+              justifyContent: "center",
+              alignItems: "center",
+              paddingHorizontal: 24,
+            }}
+          >
+            <Pressable
+              onPress={() => setModalVisible(false)}
+              style={{ position: "absolute", inset: 0 }}
+            />
 
-          <View className="items-center bg-white/10 rounded-3xl p-6">
             <View
-              className="overflow-hidden border-4 border-white rounded-full mb-6"
-              style={{ width: 240, height: 240 }}
+              className={`w-full max-w-md items-center p-6 rounded-3xl shadow-2xl border ${
+                colorScheme === "dark"
+                  ? "bg-white/5 border-white/10"
+                  : "bg-white/80 border-gray-200"
+              }`}
             >
-              <Image
-                source={{ uri: imageUrl }}
-                className="w-full h-full"
-                resizeMode="cover"
-              />
-            </View>
-
-            {!isOwner && (
-              <View className="flex-row gap-x-4 mt-4">
-                <TouchableOpacity
-                  onPress={() => setIsFollowing(!isFollowing)}
-                  className="bg-white px-5 py-2 rounded-full flex-row items-center gap-x-2"
-                >
-                  <Feather
-                    name={isFollowing ? "user-check" : "user-plus"}
-                    size={18}
-                    color="black"
-                  />
-                  <Text className="text-black font-semibold text-sm">
-                    {isFollowing ? "Unfollow" : "Follow"}
-                  </Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity
-                  onPress={() => setNotificationsEnabled(!notificationsEnabled)}
-                  className="bg-white px-5 py-2 rounded-full flex-row items-center space-x-2"
-                >
-                  <Ionicons
-                    name={
-                      notificationsEnabled
-                        ? "notifications"
-                        : "notifications-off"
-                    }
-                    size={18}
-                    color="black"
-                  />
-                  <Text className="text-black font-semibold text-sm">
-                    {notificationsEnabled ? "Mute" : "Unmute"}
-                  </Text>
-                </TouchableOpacity>
+              {/* Avatar */}
+              <View
+                className={`overflow-hidden border-4 ${
+                  colorScheme === "dark" ? "border-white/20" : "border-white"
+                } rounded-full shadow-xl mb-4`}
+                style={{ width: 200, height: 200 }}
+              >
+                <Image
+                  source={{ uri: imageUrl }}
+                  className="w-full h-full"
+                  resizeMode="cover"
+                />
               </View>
-            )}
-          </View>
+
+              {/* Username */}
+              <Text
+                className={`text-lg font-semibold mb-2 ${
+                  colorScheme === "dark" ? "text-white" : "text-black"
+                }`}
+              >
+                @{username}
+              </Text>
+
+              {!isOwner && (
+                <View className="flex-row mt-4 space-x-4">
+                  {/* Follow Button */}
+                  <TouchableOpacity
+                    onPress={toggleFollow}
+                    className={`px-5 py-2 rounded-full flex-row items-center gap-x-2 ${
+                      colorScheme === "dark" ? "bg-white/90" : "bg-black"
+                    }`}
+                  >
+                    <Feather
+                      name={isFollowing ? "user-check" : "user-plus"}
+                      size={18}
+                      color={colorScheme === "dark" ? "black" : "white"}
+                    />
+                    <Text
+                      className={`font-semibold text-sm ${
+                        colorScheme === "dark" ? "text-black" : "text-white"
+                      }`}
+                    >
+                      {isFollowing ? "Unfollow" : "Follow"}
+                    </Text>
+                  </TouchableOpacity>
+
+                  {/* Notifications */}
+                  <TouchableOpacity
+                    onPress={() =>
+                      setNotificationsEnabled(!notificationsEnabled)
+                    }
+                    className={`px-5 py-2 rounded-full flex-row items-center gap-x-2 ${
+                      colorScheme === "dark" ? "bg-white/90" : "bg-black"
+                    }`}
+                  >
+                    <Ionicons
+                      name={
+                        notificationsEnabled
+                          ? "notifications"
+                          : "notifications-off"
+                      }
+                      size={18}
+                      color={colorScheme === "dark" ? "black" : "white"}
+                    />
+                    <Text
+                      className={`font-semibold text-sm ${
+                        colorScheme === "dark" ? "text-black" : "text-white"
+                      }`}
+                    >
+                      {notificationsEnabled ? "Mute" : "Unmute"}
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              )}
+            </View>
+          </BlurView>
         </View>
       </Modal>
 

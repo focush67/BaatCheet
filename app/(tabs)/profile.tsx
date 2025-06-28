@@ -18,6 +18,7 @@ import {
   getFollowStatus,
   unfollowUser,
 } from "@/services/userService";
+import { BlurView } from "expo-blur";
 
 type ProfileScreenProps = {
   username: string;
@@ -62,6 +63,7 @@ const ProfileScreen = () => {
   const [isFollowing, setIsFollowing] = useState(false);
   const [previewPost, setPreviewPost] = useState<GridPost | null>(null);
   const [previewVisible, setPreviewVisible] = useState(false);
+  const [profileModalVisible, setProfileModalVisible] = useState(false);
 
   const profileData = {
     username: currentUsername,
@@ -120,14 +122,15 @@ const ProfileScreen = () => {
   };
 
   const toggleFollow = async () => {
-    setIsFollowing((prev) => !prev);
-    let response = null;
-    const sourceEmail = user?.emailAddresses[0].emailAddress as string;
-    if (isFollowing) {
-      response = await unfollowUser(sourceEmail!, userEmail!);
-    } else {
-      response = await followUser(sourceEmail!, userEmail!);
-    }
+    setTimeout(async () => {
+      setIsFollowing((prev) => !prev);
+      const sourceEmail = user?.emailAddresses[0].emailAddress as string;
+      if (isFollowing) {
+        await unfollowUser(sourceEmail!, userEmail!);
+      } else {
+        await followUser(sourceEmail!, userEmail!);
+      }
+    }, 150);
   };
 
   const handlePressOut = () => {
@@ -168,6 +171,21 @@ const ProfileScreen = () => {
     <SafeAreaView
       className={`flex-1 ${colorScheme === "light" ? "bg-white" : "bg-black"}`}
     >
+      {profileModalVisible && (
+        <BlurView
+          intensity={140}
+          tint={colorScheme === "dark" ? "dark" : "light"}
+          style={{
+            position: "absolute",
+            top: 0,
+            bottom: 0,
+            left: 0,
+            right: 0,
+            zIndex: 10,
+          }}
+        />
+      )}
+
       <ScrollView>
         <View className="px-4">
           <ProfileHeader
@@ -180,6 +198,10 @@ const ProfileScreen = () => {
               size={86}
               username={currentUsername}
               imageUrl={avatar}
+              isFollowing={isFollowing}
+              toggleFollow={toggleFollow}
+              modalVisible={profileModalVisible}
+              setModalVisible={setProfileModalVisible}
             />
             <Statistics posts={124} followers={"4.5k"} following={"300"} />
           </View>
