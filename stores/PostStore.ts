@@ -43,6 +43,14 @@ export const usePostStore = create<ZPostStore>()(
         });
       },
 
+      updatePost(postId, caption) {
+        set((state) => ({
+          mappedPosts: state.mappedPosts.map((post) =>
+            post.id === postId ? { ...post, caption } : post
+          ),
+        }));
+      },
+
       reset: () => {
         usePostStore.persist.clearStorage();
         usePostStore.setState({ mappedPosts: [] });

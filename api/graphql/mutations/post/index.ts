@@ -112,6 +112,15 @@ export const COMMENT_ON_POST = `
   }
 `;
 
+export const EDIT_POST = `
+  mutation EditPost($postID:String!,$newCaption:String){
+    editPost(postID:$postID, newCaption:$newCaption){
+      id
+      caption
+    }
+  }
+`;
+
 export const DELETE_COMMENT = `
   mutation DeleteComment($commentID:ID!,$email:String!,$postID:ID!){
     removeCommentFromPost(commentID:$commentID,email:$email,postID:$postID){

@@ -4,6 +4,7 @@ import {
   UPDATE_USER_BY_EMAIL,
 } from "@/api/graphql/mutations/user";
 import { GET_FOLLOW_STATUS } from "@/api/graphql/queries/user";
+
 import { graphqlRequest } from "@/utils/request";
 
 const SERVICE_NAME = "User";
@@ -23,7 +24,10 @@ export const updateUserByEmail = async (
     serviceName: SERVICE_NAME,
   });
 
-export const getFollowStatus = async (source: string, target: string) =>
+export const getFollowStatus = async (
+  source: string,
+  target: string
+): Promise<boolean> =>
   graphqlRequest({
     operation: {
       query: GET_FOLLOW_STATUS,

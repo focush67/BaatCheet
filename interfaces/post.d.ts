@@ -38,6 +38,7 @@ interface ZPostStore {
   setMappedPosts: (email: string) => Promise<void>;
   toggleLike: (postId: string) => void;
   toggleBookmark: (postId: string) => void;
+  updatePost: (postId: string, caption: string) => void;
   reset: () => void;
 }
 

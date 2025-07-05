@@ -10,6 +10,7 @@ import {
   CREATE_NEW_COLLECTION,
   SAVE_TO_COLLECTION,
   REMOVE_FROM_COLLECTION,
+  EDIT_POST,
 } from "@/api/graphql/mutations/post";
 import {
   GET_ALL_POSTS,
@@ -284,5 +285,20 @@ export const fetchCommentsOnPost = async (
     responseKey: "getCommentsOnPost",
     friendlyErrorMessage: "Failed to fetch comments. Please try again",
     logLabel: `Fetch comments for ${postID}`,
+    serviceName: SERVICE_NAME,
+  });
+
+export const updatePost = async (
+  postId: string,
+  newCaption: string
+): Promise<GPost> =>
+  graphqlRequest({
+    operation: {
+      query: EDIT_POST,
+      variables: { postID: postId, newCaption },
+    },
+    responseKey: "editPost",
+    friendlyErrorMessage: "Failed to update post. Please try again.",
+    logLabel: `Update post with ID ${postId} to caption ${newCaption}`,
     serviceName: SERVICE_NAME,
   });
