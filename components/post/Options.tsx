@@ -1,44 +1,62 @@
+import { useUser } from "@clerk/clerk-expo";
+import React, { useEffect, useState } from "react";
 import { View, Text, TouchableOpacity, Dimensions } from "react-native";
-import React from "react";
 import Modal from "react-native-modal";
 
-const screenHeight = Dimensions.get("window").height;
+interface OptionProps {
+  bottomSheetVisible: boolean;
+  setBottomSheetVisible: (value: boolean) => void;
+  onEdit: () => void;
+  colorScheme: "light" | "dark";
+  postOwner: string;
+}
 
 const Options = ({
   bottomSheetVisible,
   setBottomSheetVisible,
+  onEdit,
   colorScheme,
-}: {
-  bottomSheetVisible: boolean;
-  setBottomSheetVisible: (_: boolean) => void;
-  colorScheme: string;
-}) => {
+  postOwner,
+}: OptionProps) => {
+  const baseColor = colorScheme === "dark" ? "white" : "black";
+  const { user } = useUser();
+  if (!user) {
+    return null;
+  }
+  const sessionUser = user.unsafeMetadata?.username;
+
   const options = [
     {
       label: "Edit",
-      onPress: () => console.log("Edit clicked"),
-      color: colorScheme === "dark" ? "white" : "black",
+      onPress: onEdit,
+      color: baseColor,
+      visible: sessionUser === postOwner,
     },
     {
       label: "Delete",
       onPress: () => console.log("Delete clicked"),
       color: "red",
+      visible: sessionUser === postOwner,
     },
     {
       label: "Hide Like Count",
       onPress: () => console.log("Hide Like Count clicked"),
+      visible: sessionUser === postOwner,
     },
     {
       label: "Hide Comment Count",
       onPress: () => console.log("Hide Comment Count clicked"),
+      visible: sessionUser === postOwner,
     },
     {
       label: "Archive",
       onPress: () => console.log("Archive clicked"),
+      visible: sessionUser === postOwner,
     },
     {
       label: "Turn Off Commenting",
       onPress: () => console.log("Turn Off Commenting clicked"),
+      visible: sessionUser === postOwner,
     },
   ];
 
@@ -51,6 +69,8 @@ const Options = ({
       animationIn="slideInUp"
       animationOut="slideOutDown"
       backdropTransitionOutTiming={0}
+      deviceWidth={Dimensions.get("window").width}
+      deviceHeight={Dimensions.get("window").height}
       style={{
         justifyContent: "flex-end",
         margin: 0,
@@ -67,12 +87,9 @@ const Options = ({
           elevation: 10,
         }}
       >
-        {options.map(
-          ({
-            label,
-            onPress,
-            color = colorScheme === "dark" ? "white" : "black",
-          }) => (
+        {options
+          .filter((option) => option.visible !== false)
+          .map(({ label, onPress, color }) => (
             <TouchableOpacity
               key={label}
               onPress={() => {
@@ -90,14 +107,13 @@ const Options = ({
                   textAlign: "center",
                   fontWeight: "600",
                   fontSize: 16,
-                  color,
+                  color: color ?? baseColor,
                 }}
               >
                 {label}
               </Text>
             </TouchableOpacity>
-          )
-        )}
+          ))}
 
         <TouchableOpacity
           onPress={() => setBottomSheetVisible(false)}
@@ -113,7 +129,7 @@ const Options = ({
               textAlign: "center",
               fontSize: 15,
               fontWeight: "500",
-              color: colorScheme === "dark" ? "white" : "black",
+              color: baseColor,
             }}
           >
             Cancel

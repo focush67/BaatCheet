@@ -5,6 +5,7 @@ import {
   UNLIKE_POST,
   COMMENT_ON_POST,
   LIKE_COMMENT,
+  EDIT_POST,
 } from "@/api/graphql/mutations/post";
 import {
   GET_ALL_POSTS,
@@ -139,8 +140,8 @@ export const deletePost = async (postId: string): Promise<GPost> =>
 
 export const fetchCommentsOnPost = async (
   postID: string
-): Promise<GComment[]> => {
-  const resp = graphqlRequest({
+): Promise<GComment[]> =>
+  graphqlRequest({
     operation: {
       query: GET_COMMENTS_ON_POST,
       variables: { postID },
@@ -151,6 +152,17 @@ export const fetchCommentsOnPost = async (
     serviceName: SERVICE_NAME,
   });
 
-  console.log("Response on frontend", resp);
-  return resp;
-};
+export const updatePost = async (
+  postId: string,
+  newCaption: string
+): Promise<GPost> =>
+  graphqlRequest({
+    operation: {
+      query: EDIT_POST,
+      variables: { postID: postId, newCaption },
+    },
+    responseKey: "editPost",
+    friendlyErrorMessage: "Failed to update post. Please try again.",
+    logLabel: `Update post with ID ${postId} to caption ${newCaption}`,
+    serviceName: SERVICE_NAME,
+  });

@@ -72,12 +72,6 @@ export async function graphqlRequest<TVariables, TResponse>(
       throw new Error(`Server returned unexpected response format`);
     }
 
-    // Inside the try block, after getting the response:
-    console.log(
-      "Raw GraphQL response:",
-      JSON.stringify(response.data, null, 2)
-    );
-
     return config.transformResponse
       ? config.transformResponse(response.data.data[responseKey])
       : response.data.data[responseKey];

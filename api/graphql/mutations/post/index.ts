@@ -111,3 +111,12 @@ export const COMMENT_ON_POST = `
   }
   }
 `;
+
+export const EDIT_POST = `
+  mutation EditPost($postID:String!,$newCaption:String){
+    editPost(postID:$postID, newCaption:$newCaption){
+      id
+      caption
+    }
+  }
+`;

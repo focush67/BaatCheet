@@ -10,10 +10,14 @@ import LikeButton from "./LikeButton";
 import SaveButton from "./SaveButton";
 import ShareButton from "./ShareButton";
 import Options from "./Options";
+import EditPostModal from "./EditModal";
+import { updatePost } from "@/services/postService";
+import Toast from "react-native-toast-message";
 
 const PostCard = ({ post }: { post: PostCard }) => {
   const { colorScheme } = useTheme();
   const [menuVisible, setMenuVisible] = useState(false);
+  const [editMode, setEditMode] = useState(false);
   const router = useRouter();
   const [showComments, setShowComments] = useState(false);
   const toggleBookmark = usePostStore((state) => state.toggleBookmark);
@@ -23,6 +27,33 @@ const PostCard = ({ post }: { post: PostCard }) => {
   );
   const isBookmarked = storePost?.isBookmarked ?? post.isBookmarked;
 
+  const handlePostUpdation = async (newCaption: string) => {
+    try {
+      const response = await updatePost(post.id, newCaption);
+      if (response.id) {
+        usePostStore.getState().updatePost(post.id, newCaption);
+        setEditMode(false);
+        Toast.show({
+          type: "success",
+          text1: "Post Updation",
+          text2: "Post has been updated successfully",
+        });
+      } else {
+        Toast.show({
+          type: "info",
+          text1: "Dicy Update",
+          text2: "Post may not have been updated. Please try again",
+        });
+      }
+    } catch (error) {
+      console.error("Error updating post:", error);
+      Toast.show({
+        type: "error",
+        text1: "Error",
+        text2: "Failed to update post. Please try again.",
+      });
+    }
+  };
   return (
     <View
       className={`border-b ${
@@ -91,7 +122,6 @@ const PostCard = ({ post }: { post: PostCard }) => {
         <SaveButton
           isBookmarked={isBookmarked}
           setIsBookmarked={() => toggleBookmark(post.id)}
-          postId={post.id}
         />
       </View>
 
@@ -139,6 +169,24 @@ const PostCard = ({ post }: { post: PostCard }) => {
         bottomSheetVisible={menuVisible}
         setBottomSheetVisible={setMenuVisible}
         colorScheme={colorScheme}
+        postOwner={post.username}
+        onEdit={() => {
+          setMenuVisible(false);
+          setEditMode(true);
+        }}
+      />
+      <EditPostModal
+        visible={editMode}
+        onClose={() => setEditMode(false)}
+        // onSave={(newCaption) => {
+        //   console.log(`Saving new caption: ${newCaption}`);
+        //   setEditMode(false);
+        // }}
+        onSave={handlePostUpdation}
+        initialCaption={post.caption!}
+        profileImage={post.avatar}
+        colorScheme={colorScheme}
+        postImage={post.image}
       />
     </View>
   );

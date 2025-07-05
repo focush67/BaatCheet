@@ -16,6 +16,7 @@ export const usePostStore = create<ZPostStore>()(
         const mapped = allPosts.map((post) => mapPostToPostCard(post, email));
         set({ mappedPosts: mapped });
       },
+
       toggleLike: (id) => {
         set((state) => ({
           mappedPosts: state.mappedPosts.map((p) => {
@@ -39,6 +40,14 @@ export const usePostStore = create<ZPostStore>()(
               : post
           ),
         })),
+
+      updatePost(postId, caption) {
+        set((state) => ({
+          mappedPosts: state.mappedPosts.map((post) =>
+            post.id === postId ? { ...post, caption } : post
+          ),
+        }));
+      },
 
       reset: () => {
         usePostStore.persist.clearStorage();
