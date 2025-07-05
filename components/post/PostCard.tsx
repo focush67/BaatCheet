@@ -9,9 +9,11 @@ import CommentButton from "./CommentButton";
 import LikeButton from "./LikeButton";
 import SaveButton from "./SaveButton";
 import ShareButton from "./ShareButton";
+import Options from "./Options";
 
 const PostCard = ({ post }: { post: PostCard }) => {
   const { colorScheme } = useTheme();
+  const [menuVisible, setMenuVisible] = useState(false);
   const router = useRouter();
   const [showComments, setShowComments] = useState(false);
   const toggleBookmark = usePostStore((state) => state.toggleBookmark);
@@ -53,11 +55,11 @@ const PostCard = ({ post }: { post: PostCard }) => {
             {post.username}
           </Text>
         </View>
-        <TouchableOpacity>
+        <TouchableOpacity onPress={() => setMenuVisible(true)}>
           <Ionicons
             name="ellipsis-horizontal"
             size={20}
-            color={`${colorScheme === "light" ? "#000" : "#fff"}`}
+            color={colorScheme === "light" ? "#000" : "#fff"}
           />
         </TouchableOpacity>
       </View>
@@ -89,6 +91,7 @@ const PostCard = ({ post }: { post: PostCard }) => {
         <SaveButton
           isBookmarked={isBookmarked}
           setIsBookmarked={() => toggleBookmark(post.id)}
+          postId={post.id}
         />
       </View>
 
@@ -131,6 +134,11 @@ const PostCard = ({ post }: { post: PostCard }) => {
         postId={post.id}
         visible={showComments}
         onClose={() => setShowComments(false)}
+      />
+      <Options
+        bottomSheetVisible={menuVisible}
+        setBottomSheetVisible={setMenuVisible}
+        colorScheme={colorScheme}
       />
     </View>
   );
