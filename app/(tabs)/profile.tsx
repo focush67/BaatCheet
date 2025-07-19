@@ -9,17 +9,12 @@ import { Statistics } from "@/components/profile/Statistics";
 import { useTheme } from "@/context/ThemeContext";
 import { useUser } from "@clerk/clerk-expo";
 import { useLocalSearchParams } from "expo-router";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { ScrollView, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { getPostsForUser, getPostsSaved } from "@/services/postService";
-import {
-  followUser,
-  getFollowStatus,
-  unfollowUser,
-} from "@/services/userService";
+import { useFollowStatus, useFollowActions } from "@/stores/FollowStore";
 import { BlurView } from "expo-blur";
-
 type ProfileScreenProps = {
   username: string;
   userEmail: string;
@@ -35,6 +30,8 @@ const ProfileScreen = () => {
   const { username, avatar, userEmail, isExternalProfile, ownerName, caption } =
     useLocalSearchParams<ProfileScreenProps>();
 
+  const isFollowing = useFollowStatus(userEmail || "");
+  const { toggleFollow } = useFollowActions();
   const isPersonalProfile = !isExternalProfile;
 
   const currentUsername = isPersonalProfile
@@ -60,7 +57,7 @@ const ProfileScreen = () => {
   const [posts, setPosts] = useState<GridPost[]>([]);
   const [savedPosts, setSavedPosts] = useState<GridPost[]>([]);
   const [activeTab, setActiveTab] = useState<ActiveTab>("posts");
-  const [isFollowing, setIsFollowing] = useState(false);
+
   const [previewPost, setPreviewPost] = useState<GridPost | null>(null);
   const [previewVisible, setPreviewVisible] = useState(false);
   const [profileModalVisible, setProfileModalVisible] = useState(false);
@@ -95,42 +92,17 @@ const ProfileScreen = () => {
 
     fetchSaved();
     fetchPersonalPosts();
-  }, [currentUserEmail, currentUsername, isPersonalProfile]);
+  }, [userEmail, currentUserEmail, currentUsername, isPersonalProfile]);
 
-  useEffect(() => {
-    const fetchFollowStatus = async () => {
-      const sourceEmail = user?.emailAddresses[0].emailAddress as string;
-      if (isPersonalProfile || !sourceEmail || !userEmail) {
-        console.log(
-          "Skipping follow status check for personal profile or missing email"
-        );
-        return;
-      }
-
-      const followStatus = await getFollowStatus(sourceEmail, userEmail);
-      console.log("Follow status:", followStatus);
-      setIsFollowing(followStatus);
-    };
-
-    fetchFollowStatus();
-  }, [isPersonalProfile, currentUserEmail]);
+  const handleFollowToggle = useCallback(async () => {
+    if (!user?.emailAddresses[0].emailAddress || !userEmail) return;
+    await toggleFollow(user.emailAddresses[0].emailAddress, userEmail);
+  }, [user?.emailAddresses, userEmail, toggleFollow]);
 
   const handleLongPress = (post: GridPost | null) => {
     console.log("Setting preview post:", post);
     setPreviewPost(post);
     setPreviewVisible(true);
-  };
-
-  const toggleFollow = async () => {
-    setTimeout(async () => {
-      setIsFollowing((prev) => !prev);
-      const sourceEmail = user?.emailAddresses[0].emailAddress as string;
-      if (isFollowing) {
-        await unfollowUser(sourceEmail!, userEmail!);
-      } else {
-        await followUser(sourceEmail!, userEmail!);
-      }
-    }, 150);
   };
 
   const handlePressOut = () => {
@@ -199,7 +171,7 @@ const ProfileScreen = () => {
               username={currentUsername}
               imageUrl={avatar}
               isFollowing={isFollowing}
-              toggleFollow={toggleFollow}
+              toggleFollow={handleFollowToggle}
               modalVisible={profileModalVisible}
               setModalVisible={setProfileModalVisible}
             />
@@ -210,7 +182,7 @@ const ProfileScreen = () => {
           <ProfileActions
             self={isPersonalProfile}
             isFollowing={isFollowing}
-            toggleFollow={toggleFollow}
+            toggleFollow={handleFollowToggle}
           />
         </View>
 

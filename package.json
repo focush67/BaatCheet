@@ -43,6 +43,7 @@
     "expo-system-ui": "~5.0.7",
     "expo-video": "~2.1.9",
     "expo-web-browser": "~14.1.6",
+    "immer": "^10.1.1",
     "mime": "^4.0.7",
     "nativewind": "^4.1.23",
     "react": "19.0.0",

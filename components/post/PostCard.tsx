@@ -15,6 +15,7 @@ import EditPostModal from "./EditModal";
 import { updatePost } from "@/services/postService";
 import Toast from "react-native-toast-message";
 import { useUser } from "@clerk/clerk-expo";
+import { useFollowStatus, useFollowActions } from "@/stores/FollowStore";
 
 const PostCard = ({ post }: { post: PostCard }) => {
   const { colorScheme } = useTheme();
@@ -22,13 +23,18 @@ const PostCard = ({ post }: { post: PostCard }) => {
   const [editMode, setEditMode] = useState(false);
   const router = useRouter();
   const { user } = useUser();
+  if (!user) {
+    return null;
+  }
   const [showComments, setShowComments] = useState(false);
+  const isFollowing = useFollowStatus(post.owner.email);
   const toggleBookmark = usePostStore((state) => state.toggleBookmark);
-
+  const { toggleFollow } = useFollowActions();
   const storePost = usePostStore((state) =>
     state.mappedPosts.find((p) => p.id === post.id)
   );
   const isBookmarked = storePost?.isBookmarked ?? post.isBookmarked;
+  const currentlySignedEmail = user?.emailAddresses[0].emailAddress;
 
   const handlePostUpdation = async (newCaption: string) => {
     try {
@@ -194,6 +200,12 @@ const PostCard = ({ post }: { post: PostCard }) => {
         onEdit={() => {
           setMenuVisible(false);
           setEditMode(true);
+        }}
+        followStatus={isFollowing}
+        onFollowToggle={() => {
+          if (currentlySignedEmail) {
+            toggleFollow(currentlySignedEmail, post.owner.email);
+          }
         }}
       />
       <EditPostModal
