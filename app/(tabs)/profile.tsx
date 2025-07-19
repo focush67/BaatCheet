@@ -13,8 +13,9 @@ import React, { useCallback, useEffect, useState } from "react";
 import { ScrollView, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { getPostsForUser, getPostsSaved } from "@/services/postService";
-import { useFollowStatus, useFollowActions } from "@/stores/FollowStore";
 import { BlurView } from "expo-blur";
+import { getFollowStatus } from "@/services/userService";
+
 type ProfileScreenProps = {
   username: string;
   userEmail: string;
@@ -30,8 +31,7 @@ const ProfileScreen = () => {
   const { username, avatar, userEmail, isExternalProfile, ownerName, caption } =
     useLocalSearchParams<ProfileScreenProps>();
 
-  const isFollowing = useFollowStatus(userEmail || "");
-  const { toggleFollow } = useFollowActions();
+  const [isFollowing, setIsFollowing] = useState(false);
   const isPersonalProfile = !isExternalProfile;
 
   const currentUsername = isPersonalProfile
@@ -69,6 +69,9 @@ const ProfileScreen = () => {
     picture: currentUserAvatar,
   };
 
+  console.log(
+    `Landed on ${currentUsername} profile page, following ? ${isFollowing}`
+  );
   useEffect(() => {
     const fetchSaved = async () => {
       let posts = [];
@@ -90,14 +93,23 @@ const ProfileScreen = () => {
       setPosts(createdPosts as GridPost[]);
     };
 
+    const getRelationship = async () => {
+      const sessionEmail = user?.emailAddresses[0].emailAddress;
+      if (sessionEmail === userEmail) return;
+      console.log(`Source ID ${sessionEmail}: Target ID ${userEmail}`);
+      const status = await getFollowStatus(sessionEmail!, userEmail);
+      console.log(`Status of follow`, status);
+      setIsFollowing(status);
+    };
+
     fetchSaved();
     fetchPersonalPosts();
+    getRelationship();
   }, [userEmail, currentUserEmail, currentUsername, isPersonalProfile]);
 
   const handleFollowToggle = useCallback(async () => {
     if (!user?.emailAddresses[0].emailAddress || !userEmail) return;
-    await toggleFollow(user.emailAddresses[0].emailAddress, userEmail);
-  }, [user?.emailAddresses, userEmail, toggleFollow]);
+  }, [user?.emailAddresses, userEmail]);
 
   const handleLongPress = (post: GridPost | null) => {
     console.log("Setting preview post:", post);
