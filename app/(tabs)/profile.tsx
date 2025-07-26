@@ -79,12 +79,18 @@ const ProfileScreen = () => {
   useEffect(() => {
     const getRelationship = async () => {
       const sessionEmail = user?.emailAddresses[0].emailAddress;
-      if (sessionEmail === userEmail) return;
+      if (!sessionEmail || !userEmail) {
+        console.error("Session email or user email is not available");
+        return;
+      }
       console.log(`Source ID ${sessionEmail}: Target ID ${userEmail}`);
       const status = await getFollowStatus(sessionEmail!, userEmail);
       console.log(`Status of follow`, status);
       setIsFollowing(status);
     };
+    if (!userEmail) {
+      return;
+    }
     getRelationship();
   }, [user, userEmail]);
 
