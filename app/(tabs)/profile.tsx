@@ -14,7 +14,11 @@ import { ScrollView, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { getPostsForUser, getPostsSaved } from "@/services/postService";
 import { BlurView } from "expo-blur";
-import { getFollowStatus } from "@/services/userService";
+import {
+  followUser,
+  getFollowStatus,
+  unfollowUser,
+} from "@/services/userService";
 
 type ProfileScreenProps = {
   username: string;
@@ -30,6 +34,9 @@ const ProfileScreen = () => {
   const { colorScheme } = useTheme();
   const { username, avatar, userEmail, isExternalProfile, ownerName, caption } =
     useLocalSearchParams<ProfileScreenProps>();
+  if (username) {
+    console.log(`Username from params: ${username}`);
+  }
 
   const [isFollowing, setIsFollowing] = useState(false);
   const isPersonalProfile = !isExternalProfile;
@@ -69,9 +76,18 @@ const ProfileScreen = () => {
     picture: currentUserAvatar,
   };
 
-  console.log(
-    `Landed on ${currentUsername} profile page, following ? ${isFollowing}`
-  );
+  useEffect(() => {
+    const getRelationship = async () => {
+      const sessionEmail = user?.emailAddresses[0].emailAddress;
+      if (sessionEmail === userEmail) return;
+      console.log(`Source ID ${sessionEmail}: Target ID ${userEmail}`);
+      const status = await getFollowStatus(sessionEmail!, userEmail);
+      console.log(`Status of follow`, status);
+      setIsFollowing(status);
+    };
+    getRelationship();
+  }, [user, userEmail]);
+
   useEffect(() => {
     const fetchSaved = async () => {
       let posts = [];
@@ -93,22 +109,24 @@ const ProfileScreen = () => {
       setPosts(createdPosts as GridPost[]);
     };
 
-    const getRelationship = async () => {
-      const sessionEmail = user?.emailAddresses[0].emailAddress;
-      if (sessionEmail === userEmail) return;
-      console.log(`Source ID ${sessionEmail}: Target ID ${userEmail}`);
-      const status = await getFollowStatus(sessionEmail!, userEmail);
-      console.log(`Status of follow`, status);
-      setIsFollowing(status);
-    };
-
     fetchSaved();
     fetchPersonalPosts();
-    getRelationship();
   }, [userEmail, currentUserEmail, currentUsername, isPersonalProfile]);
 
   const handleFollowToggle = useCallback(async () => {
     if (!user?.emailAddresses[0].emailAddress || !userEmail) return;
+    const sessionEmail = user?.emailAddresses[0].emailAddress;
+    let updatedStatus = null;
+    console.log(`Follow Status`, isFollowing);
+    if (isFollowing) {
+      updatedStatus = await unfollowUser(sessionEmail, userEmail);
+      console.log(`Initiated unfollow`);
+      setIsFollowing(false);
+    } else {
+      updatedStatus = await followUser(sessionEmail, userEmail);
+      console.log(`Initiated follow`);
+      setIsFollowing(true);
+    }
   }, [user?.emailAddresses, userEmail]);
 
   const handleLongPress = (post: GridPost | null) => {

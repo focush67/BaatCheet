@@ -25,7 +25,6 @@ export const useFollowStore = create<FollowState>()(
         toggleFollow: async (sourceEmail, targetEmail) => {
           const currentStatus = get().status[targetEmail] ?? false;
 
-          // Optimistic update
           set((state) => {
             state.status[targetEmail] = !currentStatus;
           });
