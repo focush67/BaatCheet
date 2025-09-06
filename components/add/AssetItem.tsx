@@ -1,17 +1,19 @@
 import * as MediaLibrary from "expo-media-library";
 import { Image, TouchableOpacity } from "react-native";
 
+interface AssetItemProps {
+  item: MediaLibrary.Asset;
+  isSelected: boolean;
+  onPress: () => void;
+  size: number;
+}
+
 export const AssetItem = ({
   item,
   isSelected,
   onPress,
   size,
-}: {
-  item: MediaLibrary.Asset;
-  isSelected: boolean;
-  onPress: () => void;
-  size: number;
-}) => (
+}: AssetItemProps) => (
   <TouchableOpacity onPress={onPress}>
     <Image
       source={{ uri: item.uri }}

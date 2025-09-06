@@ -3,7 +3,7 @@ import * as FileSystem from "expo-file-system";
 import * as Network from "expo-network";
 import mime from "mime";
 import { Platform } from "react-native";
-
+import Toast from "react-native-toast-message";
 const MAX_FILE_SIZE_BYTES = 3 * 1024 * 1024;
 
 export const uploadFile = async (
@@ -16,29 +16,43 @@ export const uploadFile = async (
     fileName,
     options,
   });
-
   try {
     // 1. Check network connection
-    console.log("[uploadFile] Checking network connection");
+    // console.log("[uploadFile] Checking network connection");
     const networkState = await Network.getNetworkStateAsync();
     if (!networkState.isConnected) {
-      throw new Error("NETWORK_ERROR: No internet connection detected");
+      Toast.show({
+        type: "error",
+        text1: "You maybe offline",
+        text2: "Please check your internet connection and try again.",
+      });
+      return Promise.reject(new Error("NETWORK_ERROR: No internet connection"));
     }
 
     // 2. Verify file exists
-    console.log("[uploadFile] Checking file existence", { fileUri });
+    // console.log("[uploadFile] Checking file existence", { fileUri });
     const fileInfo = await FileSystem.getInfoAsync(fileUri);
     if (!fileInfo.exists) {
-      throw new Error("FILE_ERROR: Selected image could not be accessed");
+      Toast.show({
+        type: "error",
+        text1: "File not found",
+        text2: "The selected image could not be accessed. Please try again.",
+      });
+      return Promise.reject(new Error("FILE_NOT_FOUND: File does not exist"));
     }
 
     // 3. Check file size
     console.log("[uploadFile] Checking file size", { size: fileInfo.size });
     if (fileInfo.size && fileInfo.size > MAX_FILE_SIZE_BYTES) {
-      throw new Error(
-        `FILE_SIZE_ERROR: File exceeds maximum size of ${
-          MAX_FILE_SIZE_BYTES / (1024 * 1024)
-        }MB`
+      Toast.show({
+        type: "error",
+        text1: "File too large",
+        text2: `The selected image exceeds the maximum size of ${
+          MAX_FILE_SIZE_BYTES / 1024 / 1024
+        } MB. Please choose a smaller file.`,
+      });
+      return Promise.reject(
+        new Error("FILE_TOO_LARGE: File exceeds maximum size")
       );
     }
 
@@ -112,18 +126,23 @@ export const uploadFile = async (
       });
 
     if (uploadError) {
-      console.error("[uploadFile] Supabase upload failed", {
-        error: uploadError,
-        fileInfo: {
-          size: fileInfo.size,
-          type: fileType,
-          uri: fileUri,
-        },
+      // console.error("[uploadFile] Supabase upload failed", {
+      //   error: uploadError,
+      //   fileInfo: {
+      //     size: fileInfo.size,
+      //     type: fileType,
+      //     uri: fileUri,
+      //   },
+      // });
+      Toast.show({
+        type: "error",
+        text1: "Upload failed",
+        text2: "An error occurred while uploading the file. Please try again.",
       });
-      throw new Error(`UPLOAD_ERROR: ${uploadError.message}`);
+      return Promise.reject(new Error(`UPLOAD_ERROR: ${uploadError.message}`));
     }
 
-    console.log("[uploadFile] File uploaded successfully");
+    // console.log("[uploadFile] File uploaded successfully");
 
     // 7. Get public URL
     const {
@@ -131,6 +150,11 @@ export const uploadFile = async (
     } = supabase.storage.from(options.bucket).getPublicUrl(fullPath);
 
     if (!publicUrl) {
+      Toast.show({
+        type: "error",
+        text1: "URL generation failed",
+        text2: "Could not generate public URL for the uploaded file.",
+      });
       throw new Error("URL_ERROR: Failed to generate public URL");
     }
 
@@ -138,6 +162,12 @@ export const uploadFile = async (
       publicUrl,
       filePath: fullPath,
       blobSize: blobForClerk?.size,
+    });
+
+    Toast.show({
+      type: "success",
+      text1: "Upload successful",
+      text2: "Your file has been uploaded successfully.",
     });
 
     return {

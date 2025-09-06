@@ -9,19 +9,11 @@ export const uploadFileWrapper = async ({
   folder,
   identifier,
   purpose,
-}: {
-  selectedImage: string;
-  user: string;
-  setLoading: (_: boolean) => void;
-  folder: string;
-  identifier: string;
-  purpose: string;
-}) => {
+}: UploadFileWrapperProps) => {
   if (!selectedImage) {
     Alert.alert("No Image was selected. Please verify");
     return;
   }
-
   setLoading(true);
   try {
     const uniqueName = generateUniqueFileName(identifier, user);

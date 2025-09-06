@@ -4,7 +4,6 @@ import {
   UPDATE_USER_BY_EMAIL,
 } from "@/api/graphql/mutations/user";
 import { GET_FOLLOW_STATUS } from "@/api/graphql/queries/user";
-
 import { graphqlRequest } from "@/utils/request";
 
 const SERVICE_NAME = "User";

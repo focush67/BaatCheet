@@ -1,13 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import { Image, Text, View } from "react-native";
 
-export const ImagePreview = ({
-  uri,
-  emptyText,
-}: {
-  uri: string | null;
-  emptyText: string;
-}) => {
+export const ImagePreview = ({ uri, emptyText }: ImagePreviewProps) => {
   if (uri) {
     return (
       <Image source={{ uri }} resizeMode="contain" className="w-full h-full" />

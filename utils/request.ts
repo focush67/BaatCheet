@@ -1,20 +1,4 @@
 import api from "@/utils/axios";
-
-type GraphQLOperation = {
-  query: string;
-  variables?: Record<string, any>;
-};
-
-type ApiConfig<TVariables, TResponse> = {
-  operation: GraphQLOperation;
-  responseKey: string;
-  friendlyErrorMessage: string;
-  logLabel: string;
-  serviceName: string;
-  variables?: TVariables;
-  transformResponse?: (data: any) => TResponse;
-};
-
 /**
  * Generic GraphQL API handler for all services
  * @template TVariables - Type of variables expected by the GraphQL operation
@@ -44,8 +28,7 @@ export async function graphqlRequest<TVariables, TResponse>(
 
   try {
     const response = await api.post("", operation);
-
-    const duration = Date.now() - startTime;
+    // const duration = Date.now() - startTime;
     // console.log(
     //   `[${serviceName} API][${requestId}] Request completed in ${duration}ms`,
     //   {
@@ -63,22 +46,18 @@ export async function graphqlRequest<TVariables, TResponse>(
       });
       throw new Error(errorMessage);
     }
-
     if (!response.data.data) {
       throw new Error(
         `Server returned no data for operation: ${operation.query}`
       );
     }
-
     const result = response.data.data[responseKey];
     if (typeof result === "boolean") {
       return result as TResponse;
     }
-
     if (result == null) {
       throw new Error(`Missing expected response key: ${responseKey}`);
     }
-
     return config.transformResponse ? config.transformResponse(result) : result;
   } catch (error: any) {
     const duration = Date.now() - startTime;
@@ -93,7 +72,6 @@ export async function graphqlRequest<TVariables, TResponse>(
         stack: error.stack,
       }
     );
-
     const userFriendlyError = new Error(
       __DEV__ ? errorMessage : friendlyErrorMessage
     );

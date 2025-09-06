@@ -2,7 +2,7 @@ import axios from "axios";
 import Constants from "expo-constants";
 const api = axios.create({
   baseURL: __DEV__
-    ? "http://192.168.108.54:4000/graphql"
+    ? "http://192.168.1.11:4000/graphql"
     : process.env.EXPO_PUBLIC_PRODUCTION_SERVER ||
       Constants?.expoConfig?.extra?.PRODUCTION_SERVER,
   timeout: 10000,
@@ -14,12 +14,6 @@ const api = axios.create({
 api.interceptors.request.use(
   async (config) => {
     const token = "DEVAUTHTOKEN";
-    // console.log(`[API] Request to ${config.url}`, {
-    //   method: config.method,
-    //   data: config.data,
-    //   headers: config.headers,
-    // });
-
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }

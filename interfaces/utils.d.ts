@@ -4,6 +4,10 @@ interface ThemeProps {
   primary: string;
 }
 
+interface HeaderBarProps {
+  unreadMessages?: number;
+}
+
 interface ThemeContextType {
   theme: ThemeProps;
   colorScheme: "light" | "dark";
@@ -14,10 +18,6 @@ interface ModalHeaderProps {
   onClose: () => void;
   showBackButton?: boolean;
   onBack?: () => void;
-}
-
-interface HeaderBarProps {
-  unreadMessages?: number;
 }
 
 interface UploadOptions {
@@ -31,4 +31,37 @@ interface UploadOptions {
   };
 }
 
+interface UploadFileWrapperProps {
+  selectedImage: string;
+  user: string;
+  setLoading: (_: boolean) => void;
+  folder: string;
+  identifier: string;
+  purpose: string;
+}
+
 type IoniconsName = React.ComponentProps<typeof Ionicons>["name"];
+type GraphQLOperation = {
+  query: string;
+  variables?: Record<string, any>;
+};
+
+type ApiConfig<TVariables, TResponse> = {
+  operation: GraphQLOperation;
+  responseKey: string;
+  friendlyErrorMessage: string;
+  logLabel: string;
+  serviceName: string;
+  variables?: TVariables;
+  transformResponse?: (data: any) => TResponse;
+};
+
+interface ImagePreviewProps {
+  uri: string | null;
+  emptyText: string;
+}
+
+interface NextButtonProps {
+  disabled: boolean;
+  onPress: () => void;
+}
