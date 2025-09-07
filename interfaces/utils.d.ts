@@ -65,3 +65,19 @@ interface NextButtonProps {
   disabled: boolean;
   onPress: () => void;
 }
+
+interface ClerkErrorShape {
+  status?: number;
+  errors?: Array<{ code?: string; message?: string; longMessage?: string }>;
+}
+
+interface UseSignInFormReturn {
+  email: string;
+  setEmail: (v: string) => void;
+  password: string;
+  setPassword: (v: string) => void;
+  isLoading: boolean;
+  isFormValid: boolean;
+  handleSubmit: () => Promise<void>;
+  reset: () => void;
+}

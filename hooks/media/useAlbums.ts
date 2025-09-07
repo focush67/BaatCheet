@@ -1,5 +1,5 @@
 import * as MediaLibrary from "expo-media-library";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 
 export const useAlbums = (
   permissionStatus: MediaLibrary.PermissionStatus | undefined
@@ -9,49 +9,78 @@ export const useAlbums = (
     null
   );
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
 
-  const fetchAlbums = async () => {
+  const fetchAlbums = useCallback(async () => {
     setIsLoading(true);
+    setError(null);
     try {
-      const userAlbums = await MediaLibrary.getAlbumsAsync({
-        includeSmartAlbums: false,
-      });
+      let allAlbums: MediaLibrary.Album[] = [];
+      try {
+        const both = await MediaLibrary.getAlbumsAsync({
+          includeSmartAlbums: true,
+        });
+        allAlbums = both;
+      } catch (err) {
+        const userAlbums = await MediaLibrary.getAlbumsAsync({
+          includeSmartAlbums: false,
+        });
+        const smartAlbums = await MediaLibrary.getAlbumsAsync({
+          includeSmartAlbums: true,
+        });
+        allAlbums = [...userAlbums, ...smartAlbums];
+      }
 
-      const smartAlbums = await MediaLibrary.getAlbumsAsync({
-        includeSmartAlbums: true,
-      });
-
-      const allAlbums = [...userAlbums, ...smartAlbums].filter(
+      const deduped = allAlbums.filter(
         (album, index, self) =>
           index === self.findIndex((a) => a.id === album.id)
       );
 
-      const sortedAlbums = allAlbums.sort((a, b) =>
+      const sortedAlbums = deduped.sort((a, b) =>
         a.title.localeCompare(b.title)
       );
-
       setAlbums(sortedAlbums);
-      const defaultAlbum =
-        sortedAlbums.find((a) => a.title === "Camera Roll") ||
-        sortedAlbums.find((a) => a.title === "All Photos") ||
-        sortedAlbums[0];
 
-      if (defaultAlbum) {
+      if (!selectedAlbum) {
+        const defaultAlbum =
+          sortedAlbums.find((a) => a.title === "Camera Roll") ||
+          sortedAlbums.find((a) => a.title === "All Photos") ||
+          sortedAlbums[0] ||
+          null;
         setSelectedAlbum(defaultAlbum);
       }
-    } catch (error) {
-      console.error("Album fetch error:", error);
-      throw new Error("Could not load media albums");
+    } catch (err) {
+      console.error("Album fetch error:", err);
+      setError(
+        err instanceof Error ? err : new Error("Could not load media albums")
+      );
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [selectedAlbum]);
 
   useEffect(() => {
+    let mounted = true;
     if (permissionStatus === "granted") {
-      fetchAlbums();
+      (async () => {
+        if (!mounted) return;
+        await fetchAlbums();
+      })();
     }
-  }, [permissionStatus]);
+    return () => {
+      mounted = false;
+    };
+  }, [permissionStatus, fetchAlbums]);
 
-  return { albums, selectedAlbum, setSelectedAlbum, isLoading, fetchAlbums };
+  return useMemo(
+    () => ({
+      albums,
+      selectedAlbum,
+      setSelectedAlbum,
+      isLoading,
+      error,
+      fetchAlbums,
+    }),
+    [albums, selectedAlbum, isLoading, error, fetchAlbums]
+  );
 };

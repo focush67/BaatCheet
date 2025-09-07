@@ -6,7 +6,6 @@ import { useEffect, useState } from "react";
 import { ActivityIndicator, View } from "react-native";
 
 export default function AuthRoutesLayout() {
-  const { isSignedIn } = useAuth();
   const { user, isLoaded } = useUser();
   const { colorScheme } = useTheme();
   const [isReady, setIsReady] = useState(false);

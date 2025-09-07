@@ -1,5 +1,5 @@
 import { useTheme } from "@/context/ThemeContext";
-import React, { memo, useState } from "react";
+import React, { memo, useState, useCallback, useMemo } from "react";
 import { Image, Text, TouchableOpacity, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useUser } from "@clerk/clerk-expo";
@@ -14,49 +14,71 @@ export const Story = memo(({ story, onPress }: StoryProps) => {
   const [uploadMode, setUploadMode] = useState(false);
   const profilePicture = story.owner.profilePicture || "";
   const hasUnseen = true;
+
   const { user } = useUser();
   const ownerUsername = user?.unsafeMetadata.username;
+  const primaryEmail = (user?.primaryEmailAddress ??
+    user?.emailAddresses?.[0]?.emailAddress ??
+    null) as string;
 
-  const handleImageUpload = async (imageUri: string) => {
-    if (!user) {
-      Toast.show({
-        type: "error",
-        text1: "Upload Failed",
-        text2: "You must be logged in to create a story.",
-      });
-      return;
-    }
-    try {
-      setLoading(true);
-      const uploadResults = await handleStoryCreation({
-        selectedImage: imageUri,
-        setLoading,
-        user: user.emailAddresses[0].emailAddress,
-      });
-
-      if (!uploadResults) {
-        throw new Error("Upload failed to Supabase");
+  const handleImageUpload = useCallback(
+    async (imageUri: string) => {
+      if (!primaryEmail) {
+        Toast.show({
+          type: "error",
+          text1: "Upload Failed",
+          text2: "You must be logged in to create a story",
+        });
+        return;
       }
-      const response = await createNewStory({
-        coverPhoto: uploadResults.publicUrl,
-        email: user.emailAddresses[0].emailAddress,
-      });
 
-      console.log(`Response for Story Upload`, response);
-      Toast.show({
-        type: "success",
-        text1: "Story Uploaded",
-        text2: "Your story has been uploaded successfully.",
-      });
-    } catch (error: any) {
-      console.log(`Story Upload Failed`);
-      Toast.show({
-        type: "error",
-        text1: "Upload Failed",
-        text2: error.message || "Something went wrong",
-      });
-    }
-  };
+      try {
+        setLoading(true);
+        const uploadResults = await handleStoryCreation({
+          selectedImage: imageUri,
+          setLoading,
+          user: primaryEmail,
+        });
+
+        if (!uploadResults) {
+          throw new Error("Upload failed to Supabase");
+        }
+
+        await createNewStory({
+          coverPhoto: uploadResults.publicUrl,
+          email: primaryEmail,
+        });
+
+        Toast.show({
+          type: "success",
+          text1: "Story Uploaded",
+          text2: "Your story has been uploaded successfully.",
+        });
+      } catch (error: any) {
+        console.warn("Story Upload Failed", error);
+        Toast.show({
+          type: "error",
+          text1: "Upload Failed",
+          text2: error?.message ?? "Something went wrong",
+        });
+      } finally {
+        setLoading(false);
+      }
+    },
+    [primaryEmail]
+  );
+
+  const displayLabel = useMemo(() => {
+    if (!ownerUsername) return story.owner.username ?? "Story";
+    return story.owner.username === ownerUsername
+      ? "Your Story"
+      : story.owner.username;
+  }, [ownerUsername, story.owner.username]);
+
+  const showUploadButton = useMemo(
+    () => ownerUsername === story.owner.username,
+    [ownerUsername, story.owner.username]
+  );
 
   return (
     <>
@@ -76,7 +98,7 @@ export const Story = memo(({ story, onPress }: StoryProps) => {
             resizeMode="cover"
           />
 
-          {ownerUsername === story.owner.username && (
+          {showUploadButton && (
             <TouchableOpacity
               onPress={() => setUploadMode(true)}
               style={{
@@ -101,13 +123,10 @@ export const Story = memo(({ story, onPress }: StoryProps) => {
             colorScheme === "light" ? "text-gray-900" : "text-gray-100"
           }`}
         >
-          {story.owner.username === ownerUsername
-            ? "Your Story"
-            : story.owner.username}
+          {displayLabel}
         </Text>
       </TouchableOpacity>
-
-      {ownerUsername === story.owner.username && (
+      {showUploadButton && (
         <ImageUploadModal
           loading={loading}
           visible={uploadMode}
@@ -117,6 +136,7 @@ export const Story = memo(({ story, onPress }: StoryProps) => {
           emptyPreviewText="Select a photo for your story"
         />
       )}
+      0
     </>
   );
 });

@@ -1,8 +1,17 @@
+import { parseClerkError } from "@/utils/clerk";
 import { useSignUp } from "@clerk/clerk-expo";
-import { useState } from "react";
+import { useCallback, useEffect, useRef, useState, useMemo } from "react";
 import Toast from "react-native-toast-message";
 
 export const useSignUpForm = () => {
+  const showToast = (type: string, title: string, message: string) => {
+    Toast.show({
+      type: type,
+      text1: title,
+      text2: message,
+    });
+  };
+
   const { isLoaded, signUp, setActive } = useSignUp();
 
   const [email, setEmail] = useState("");
@@ -12,114 +21,168 @@ export const useSignUpForm = () => {
   const [pendingVerification, setPendingVerification] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [success, setSuccess] = useState("");
+  const [error, setError] = useState<Error | null>(null);
 
-  const showToast = (title: string, message: string) => {
-    Toast.show({
-      type: "error",
-      text1: title,
-      text2: message,
-    });
-  };
+  const mountedRef = useRef<boolean>(true);
+  const submittingRef = useRef<boolean>(false);
 
-  const validatePassword = (): boolean => {
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => {
+      mountedRef.current = false;
+    };
+  });
+
+  const validatePassword = useCallback((): boolean => {
     if (password !== confirmPassword) {
-      showToast("Password Mismatch", "Passwords do not match.");
+      showToast("error", "Password Mismatch", "Passwords do not match.");
       return false;
     }
     if (password.length < 8) {
-      showToast("Weak Password", "Password must be at least 8 characters.");
+      showToast(
+        "error",
+        "Weak Password",
+        "Password must be at least 8 characters."
+      );
       return false;
     }
     return true;
-  };
+  }, [password, confirmPassword]);
 
-  const handleSignUp = async () => {
-    if (!isLoaded || !validatePassword()) return;
+  const handleSignUp = useCallback(async () => {
+    if (!isLoaded) return;
+    if (!isLoading || submittingRef.current) return;
+    if (!validatePassword()) return;
 
+    submittingRef.current = true;
     setIsLoading(true);
     setSuccess("");
+    setError(null);
 
     try {
       await signUp.create({ emailAddress: email, password });
       await signUp.prepareEmailAddressVerification({ strategy: "email_code" });
 
+      if (!mountedRef.current) return;
+
       setPendingVerification(true);
       setSuccess("Account created. Verification code sent to your email.");
-      Toast.show({
-        type: "success",
-        text1: "Account Created",
-        text2: "Check your email for the verification code.",
-      });
+      showToast(
+        "success",
+        "Account Created",
+        "Check your email for the verification code."
+      );
     } catch (err: any) {
-      console.log("❌ Sign Up Error:", JSON.parse(JSON.stringify(err, null)));
+      const parsed = parseClerkError(err);
+      console.error("❌ Sign Up Error:", parsed);
+      setError(err instanceof Error ? err : new Error("Sign up failed"));
 
-      const firstError = err?.errors?.[0] || {};
+      const firstError = parsed.errors?.[0];
       const title =
         firstError?.code === "form_email_address_exists"
           ? "Email Already Registered"
           : "Sign Up Failed";
       const message =
-        firstError?.longMessage ||
+        firstError?.longMessage ??
+        firstError?.message ??
         "Failed to create account. Please try again.";
 
-      showToast(title, message);
+      showToast("error", title, message);
     } finally {
-      setIsLoading(false);
+      submittingRef.current = false;
+      if (mountedRef.current) setIsLoading(false);
     }
-  };
+  }, [isLoaded, isLoading, signUp, email, password, validatePassword]);
 
-  const handleVerify = async () => {
-    if (!isLoaded) return;
+  const handleVerify = useCallback(async (): Promise<boolean> => {
+    if (!isLoaded) return false;
+    if (isLoading || submittingRef.current) return false;
+
+    submittingRef.current = true;
     setIsLoading(true);
     setSuccess("");
+    setError(null);
 
     try {
       const result = await signUp.attemptEmailAddressVerification({ code });
 
       if (result.status === "complete") {
         await setActive({ session: result.createdSessionId });
+        if (!mountedRef.current) return false;
         setSuccess("Email verified successfully!");
-        Toast.show({
-          type: "success",
-          text1: "Email Verified",
-          text2: "Welcome aboard!",
-        });
+        showToast("success", "Email Verified", "Welcome aboard!");
         return true;
       }
 
       return false;
     } catch (err: any) {
-      console.log(
-        "❌ Verification Error:",
-        JSON.parse(JSON.stringify(err, null))
-      );
-      const firstError = err?.errors?.[0] || {};
+      const parsed = parseClerkError(err);
+      console.error("❌ Verification Error:", parsed);
+      setError(err instanceof Error ? err : new Error("Verification failed"));
+
+      const firstError = parsed.errors?.[0];
       showToast(
+        "error",
         "Verification Failed",
-        firstError?.longMessage || "Invalid code."
+        firstError?.longMessage ?? firstError?.message ?? "Invalid code."
       );
       return false;
     } finally {
-      setIsLoading(false);
+      submittingRef.current = false;
+      if (mountedRef.current) setIsLoading(false);
     }
-  };
+  }, [isLoaded, isLoading, signUp, code, setActive]);
 
-  return {
-    email,
-    setEmail,
-    password,
-    setPassword,
-    confirmPassword,
-    setConfirmPassword,
-    code,
-    setCode,
-    pendingVerification,
-    setPendingVerification,
-    isLoading,
-    success,
-    setSuccess,
-    handleSignUp,
-    handleVerify,
-    isFormValid: !!email && !!password && !!confirmPassword,
-  };
+  const isFormValid = useMemo(
+    () => !!email && !!password && !!confirmPassword,
+    [email, password, confirmPassword]
+  );
+
+  const reset = useCallback(() => {
+    setEmail("");
+    setPassword("");
+    setConfirmPassword("");
+    setCode("");
+    setPendingVerification(false);
+    setIsLoading(false);
+    setSuccess("");
+    setError(null);
+  }, []);
+
+  return useMemo(
+    () => ({
+      email,
+      setEmail,
+      password,
+      setPassword,
+      confirmPassword,
+      setConfirmPassword,
+      code,
+      setCode,
+      pendingVerification,
+      setPendingVerification,
+      isLoading,
+      success,
+      setSuccess,
+      error,
+      handleSignUp,
+      handleVerify,
+      reset,
+      isFormValid,
+    }),
+    [
+      email,
+      password,
+      confirmPassword,
+      code,
+      pendingVerification,
+      isLoading,
+      success,
+      error,
+      handleSignUp,
+      handleVerify,
+      reset,
+      isFormValid,
+    ]
+  );
 };

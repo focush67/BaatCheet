@@ -26,7 +26,6 @@ export default function SignInScreen() {
         isLight ? "bg-white" : "bg-gray-900"
       } p-6 justify-center`}
     >
-      {/* Header */}
       <View className="flex-row items-start mb-1">
         <TouchableOpacity
           onPress={() => router.back()}
@@ -55,7 +54,6 @@ export default function SignInScreen() {
         </View>
       </View>
 
-      {/* Form */}
       <View className="mb-6">
         <FormInput
           label="Email"
@@ -90,7 +88,6 @@ export default function SignInScreen() {
         </TouchableOpacity>
       </View>
 
-      {/* Divider */}
       <View className="flex-row items-center my-6">
         <View
           className={`flex-1 h-px ${isLight ? "bg-gray-200" : "bg-gray-700"}`}
@@ -103,7 +100,6 @@ export default function SignInScreen() {
         />
       </View>
 
-      {/* Sign Up Link */}
       <View className="flex-row justify-center">
         <Text className={isLight ? "text-gray-500" : "text-gray-400"}>
           Don't have an account?

@@ -1,8 +1,18 @@
 import { useSignIn } from "@clerk/clerk-expo";
 import { useRouter } from "expo-router";
-import { useState } from "react";
+import { useState, useCallback, useMemo, useRef } from "react";
 import Toast from "react-native-toast-message";
-export const useSignInForm = () => {
+import { parseClerkError } from "@/utils/clerk";
+
+const showErrorToast = (title: string, message?: string) => {
+  Toast.show({
+    type: "error",
+    text1: title,
+    text2: message ?? "Something went wrong",
+  });
+};
+
+export const useSignInForm = (): UseSignInFormReturn => {
   const { signIn, setActive, isLoaded } = useSignIn();
   const router = useRouter();
 
@@ -10,9 +20,20 @@ export const useSignInForm = () => {
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = async () => {
+  const mountedRef = useRef(true);
+  const submittingRef = useRef(false);
+
+  const reset = useCallback(() => {
+    setEmail("");
+    setPassword("");
+  }, []);
+
+  const handleSubmit = useCallback(async () => {
     if (!isLoaded) return;
+    if (isLoading || submittingRef.current) return;
+    submittingRef.current = true;
     setIsLoading(true);
+
     try {
       const result = await signIn.create({
         identifier: email,
@@ -21,36 +42,54 @@ export const useSignInForm = () => {
 
       if (result.status === "complete") {
         await setActive({ session: result.createdSessionId });
-        router.push("/(tabs)/home");
-      }
-    } catch (err: any) {
-      const errorData = JSON.parse(JSON.stringify(err, null));
-      console.error("❌ Sign In Error:", errorData.errors[0]?.longMessage);
-      if (errorData.status === 422) {
-        Toast.show({
-          type: "error",
-          text1: "Login Failed",
-          text2: errorData.errors?.[0]?.longMessage,
-        });
+        if (mountedRef.current) {
+          router.push("/(tabs)/home");
+        }
       } else {
-        Toast.show({
-          type: "error",
-          text1: "Login Failed",
-          text2: errorData.errors?.[0]?.message || "Invalid email or password",
-        });
+        showErrorToast("Sign In Failed", "Could not complete sign in");
+      }
+    } catch (err: unknown) {
+      const parsed = parseClerkError(err);
+      console.error("SignIn Error", err);
+      if (parsed.status === 402) {
+        showErrorToast(
+          "Sign In Failed",
+          "Please check your credentials and try again."
+        );
+      } else {
+        showErrorToast(
+          "Login Failed",
+          parsed.errors?.[0]?.message ?? "Invalid Email or Password"
+        );
       }
     } finally {
+      submittingRef.current = false;
       setIsLoading(false);
     }
-  };
+  }, [email, password, isLoading, isLoaded, router, signIn, setActive]);
 
-  return {
-    email,
-    setEmail,
-    password,
-    setPassword,
-    isLoading,
-    handleSubmit,
-    isFormValid: !!email && !!password,
-  };
+  const isFormValid = useMemo(() => !!email && !!password, [email, password]);
+
+  return useMemo(
+    () => ({
+      email,
+      setEmail,
+      password,
+      setPassword,
+      isLoading,
+      isFormValid,
+      handleSubmit,
+      reset,
+    }),
+    [
+      email,
+      setEmail,
+      password,
+      setPassword,
+      isLoading,
+      isFormValid,
+      handleSubmit,
+      reset,
+    ]
+  );
 };

@@ -1,5 +1,5 @@
 import { useUser } from "@clerk/clerk-expo";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useCallback } from "react";
 import {
   Animated,
   Image,
@@ -14,6 +14,7 @@ import { useStoryById } from "@/stores/StoryStore";
 import StoryLikeButton from "./StoryLikeButton";
 import StoryReplyBar from "./StoryReplyBar";
 import StoryHeader from "./StoryHeader";
+import ProgressBars from "./ProgressBars";
 
 export const StoryModal = ({
   visible,
@@ -21,9 +22,9 @@ export const StoryModal = ({
   onClose,
   duration = 5000,
 }: StoryModalProps) => {
-  const [currentIndex, setCurrentIndex] = useState(0);
   const { user } = useUser();
-  const [animValues, setAnimValues] = useState<Animated.Value[]>([]);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const animValuesRef = useRef<Animated.Value[]>([]);
   const [isLiked, setIsLiked] = useState(false);
 
   const replyInputRef = useRef<TextInput>(null);
@@ -36,93 +37,96 @@ export const StoryModal = ({
   if (!user) {
     return null;
   }
-  const userEmail = user.emailAddresses[0]?.emailAddress;
+
+  const userEmail = (user?.primaryEmailAddress ??
+    user?.emailAddresses?.[0]?.emailAddress ??
+    null) as string | null;
+
   useEffect(() => {
-    if (stories.length > 0) {
-      setAnimValues(stories.map(() => new Animated.Value(0)));
+    if (!stories || stories.length === 0) {
+      animValuesRef.current = [];
+      return;
+    }
+    if (animValuesRef.current.length !== stories.length) {
+      animValuesRef.current = stories.map(() => new Animated.Value(0));
     }
   }, [stories]);
 
   useEffect(() => {
     const liked = currentStory?.likes?.some(
-      (like) => like?.owner?.email === userEmail
+      (l) => l?.owner?.email === userEmail
     );
-
-    setIsLiked(liked ?? false);
+    setIsLiked(Boolean(liked));
   }, [currentStory, userEmail]);
 
   useEffect(() => {
     if (visible) {
-      animValues.forEach((val) => val?.setValue(0));
+      animValuesRef.current.forEach((v) => v?.setValue(0));
       setCurrentIndex(0);
     }
-  }, [visible]);
+  }, [visible, stories.length]);
+
+  useEffect(() => {
+    return () => {
+      if (timerRef.current) {
+        clearTimeout(timerRef.current);
+      }
+    };
+  }, []);
+
+  const stopAnimation = useCallback(() => {
+    if (timerRef.current) {
+      clearTimeout(timerRef.current);
+      timerRef.current = null;
+    }
+    const anim = animValuesRef.current[currentIndex];
+    if (anim) anim.stopAnimation();
+  }, [currentIndex]);
+
+  const startAnimation = useCallback(
+    (index: number, customDuration?: number) => {
+      stopAnimation();
+      if (!stories || index >= stories.length) return;
+
+      const animationDuration = customDuration ?? duration;
+      startTimeRef.current = Date.now();
+      remainingDurationRef.current = animationDuration;
+
+      timerRef.current = setTimeout(() => {
+        if (index < stories.length - 1) {
+          setCurrentIndex(index + 1);
+        } else {
+          onClose();
+        }
+      }, animationDuration);
+
+      const anim = animValuesRef.current[index] || new Animated.Value(0);
+      Animated.timing(anim, {
+        toValue: 1,
+        duration: animationDuration,
+        useNativeDriver: false,
+      }).start();
+    },
+    [duration, onClose, stopAnimation, stories]
+  );
 
   useEffect(() => {
     if (visible && currentStory) {
       startAnimation(currentIndex);
     }
     return () => stopAnimation();
-  }, [currentIndex, visible]);
+  }, [visible, currentIndex, currentStory, startAnimation, stopAnimation]);
 
-  const startAnimation = (index: number, customDuration?: number) => {
-    stopAnimation();
-    if (index >= stories.length) return;
-
-    const animationDuration = customDuration ?? duration;
-    startTimeRef.current = Date.now();
-    remainingDurationRef.current = animationDuration;
-
-    timerRef.current = setTimeout(() => {
-      if (index < stories.length - 1) {
-        setCurrentIndex(index + 1);
-      } else {
-        onClose();
-      }
-    }, animationDuration);
-
-    Animated.timing(animValues[index] || new Animated.Value(0), {
-      toValue: 1,
-      duration: animationDuration,
-      useNativeDriver: false,
-    }).start();
-  };
-
-  const stopAnimation = () => {
-    timerRef.current && clearTimeout(timerRef.current);
-    timerRef.current = null;
-  };
-
-  if (!currentStory || !visible) return null;
+  if (!currentStory || !visible || !userEmail) return null;
 
   return (
     <Modal visible={visible} transparent={false} animationType="fade">
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
-        style={{ flex: 1 }}
+        className="flex-1"
       >
         <View className="flex-1 bg-black justify-end">
-          {/* Progress bars */}
-          <View className="absolute top-2 left-2 right-2 flex-row gap-1 z-50">
-            {stories.map((_, i) => (
-              <View
-                key={i}
-                className="flex-1 h-0.5 bg-white/30 rounded overflow-hidden"
-              >
-                <Animated.View
-                  style={{
-                    height: "100%",
-                    backgroundColor: "white",
-                    width:
-                      animValues[i]?.interpolate({
-                        inputRange: [0, 1],
-                        outputRange: ["0%", "100%"],
-                      }) || "0%",
-                  }}
-                />
-              </View>
-            ))}
-          </View>
+          <ProgressBars animValuesRef={animValuesRef} length={stories.length} />
 
           <StoryHeader currentStory={currentStory} onClose={onClose} />
 
@@ -141,7 +145,6 @@ export const StoryModal = ({
             />
           </View>
 
-          {/* Story image */}
           {currentStory.coverPhoto && (
             <Image
               source={{ uri: currentStory.coverPhoto }}
@@ -150,7 +153,6 @@ export const StoryModal = ({
             />
           )}
 
-          {/* Bottom bar */}
           <View className="absolute bottom-5 px-4 w-full flex-row items-center z-50">
             <StoryReplyBar
               remainingDurationRef={remainingDurationRef}
