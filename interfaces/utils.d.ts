@@ -81,3 +81,19 @@ interface UseSignInFormReturn {
   handleSubmit: () => Promise<void>;
   reset: () => void;
 }
+
+interface ProfileAvatarProps {
+  username: string;
+  size?: number;
+  imageUrl?: string | null;
+  isFollowing: boolean;
+  toggleFollow: () => void;
+  modalVisible: boolean;
+  setModalVisible: (v: boolean) => void;
+}
+
+interface UploadResult {
+  success: boolean;
+  publicUrl?: string;
+  error?: string;
+}

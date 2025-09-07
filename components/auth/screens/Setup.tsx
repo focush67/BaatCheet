@@ -10,7 +10,6 @@ import {
 import React from "react";
 import ImagePicker from "@/components/story/ImagePicker";
 import { useTheme } from "@/context/ThemeContext";
-import { uploadFile } from "@/services/uploadService";
 
 const Setup = ({
   selectedImage,

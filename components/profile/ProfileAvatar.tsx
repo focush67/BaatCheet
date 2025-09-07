@@ -1,9 +1,14 @@
 import { useTheme } from "@/context/ThemeContext";
-import { handleStoryCreation } from "@/hooks/story/useCreateStory";
-import { createNewStory } from "@/services/storyService";
+import { useStoryUpload } from "@/hooks/story/useCreateStory";
 import { useUser } from "@clerk/clerk-expo";
 import { AntDesign, Feather, Ionicons } from "@expo/vector-icons";
-import React, { useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import {
   Image,
   Modal,
@@ -11,6 +16,7 @@ import {
   Text,
   TouchableOpacity,
   View,
+  SafeAreaView,
 } from "react-native";
 import Toast from "react-native-toast-message";
 import { ImageUploadModal } from "../story/UploadStory";
@@ -18,7 +24,7 @@ import { BlurView } from "expo-blur";
 
 const ProfileAvatar = ({
   username,
-  size = 86,
+  size = 84,
   imageUrl,
   isFollowing,
   toggleFollow,
@@ -35,84 +41,105 @@ const ProfileAvatar = ({
 }) => {
   const { colorScheme } = useTheme();
   const { user } = useUser();
-  const [loading, setLoading] = useState(false);
+  const mountedRef = useRef(true);
+
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []);
+
+  const userEmail = useMemo(
+    () => user?.emailAddresses[0]?.emailAddress,
+    [user?.emailAddresses]
+  );
+
+  const ownerUsername = user?.unsafeMetadata?.username as string | undefined;
+
+  const ownerProfileImage = useMemo(
+    () =>
+      imageUrl ?? (user?.unsafeMetadata?.profilePicture as string | undefined),
+    [imageUrl, user?.unsafeMetadata?.profilePicture]
+  );
+
+  const isOwner = username === ownerUsername;
+
+  const { upload, isUploading } = useStoryUpload();
+  const [storyMode, setStoryMode] = useState(false);
 
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
-  const [storyMode, setStoryMode] = useState(false);
-  const owner = user?.unsafeMetadata?.username as string;
-  const ownerProfileImage =
-    imageUrl || (user?.unsafeMetadata?.profilePicture as string);
-  const isOwner = username === owner;
-
-  const handleImageUpload = async (imageUri: string) => {
-    if (!user) {
-      Toast.show({
-        type: "error",
-        text1: "Upload Failed",
-        text2: "You must be logged in to create a story.",
-      });
-      return;
-    }
-    try {
-      setLoading(true);
-      const uploadResults = await handleStoryCreation({
-        selectedImage: imageUri,
-        setLoading,
-        user: user.emailAddresses[0].emailAddress,
-      });
-
-      if (!uploadResults) {
-        throw new Error("Upload failed to Supabase");
+  const handleImageUpload = useCallback(
+    async (imageUri: string) => {
+      if (!userEmail) {
+        Toast.show({
+          type: "error",
+          text1: "Upload Failed",
+          text2: "You must be logged in to create a story.",
+        });
+        return;
       }
-      const response = await createNewStory({
-        coverPhoto: uploadResults.publicUrl,
-        email: user.emailAddresses[0].emailAddress,
-      });
 
-      console.log(`Response for Story Upload`, response);
-      Toast.show({
-        type: "success",
-        text1: "Story Uploaded",
-        text2: "Your story has been uploaded successfully.",
-      });
-    } catch (error: any) {
-      console.log(`Story Upload Failed`);
-      Toast.show({
-        type: "error",
-        text1: "Upload Failed",
-        text2: error.message || "Something went wrong",
-      });
-    }
-  };
+      const result = await upload(imageUri, userEmail);
+      if (result.success) {
+        Toast.show({
+          type: "success",
+          text1: "Story Uploaded",
+          text2: "Your story has been uploaded successfully.",
+        });
+        if (mountedRef.current) setStoryMode(false);
+      } else {
+        Toast.show({
+          type: "error",
+          text1: "Upload Failed",
+          text2: result.error ?? "Something went wrong",
+        });
+      }
+    },
+    [upload, userEmail]
+  );
 
+  const handleToggleNotifications = useCallback(() => {
+    setNotificationsEnabled((v) => !v);
+  }, []);
+
+  const avatarContainerStyle = { width: size, height: size };
   return (
     <>
-      <TouchableOpacity onLongPress={() => setModalVisible(true)}>
+      <TouchableOpacity
+        onLongPress={() => setModalVisible(true)}
+        accessibilityLabel={`${username}'s avatar`}
+        accessibilityRole="imagebutton"
+      >
         <View
           className={`rounded-full ml-2 border ${
             colorScheme === "light" ? "border-gray-800" : "border-gray-200"
-          } p-[3px]`}
-          style={{ width: size, height: size }}
+          } p-[3px] relative`}
+          style={avatarContainerStyle}
         >
-          <Image
-            source={{ uri: ownerProfileImage }}
-            className="w-full h-full rounded-full"
-            resizeMode="cover"
-          />
+          {ownerProfileImage ? (
+            <Image
+              source={{ uri: ownerProfileImage }}
+              className="w-full h-full rounded-full"
+              resizeMode="cover"
+            />
+          ) : (
+            <View
+              className={`w-full h-full rounded-full ${
+                colorScheme === "dark" ? "bg-gray-700" : "bg-gray-200"
+              }`}
+            />
+          )}
+
           {isOwner && (
-            <TouchableOpacity onPress={() => setStoryMode(true)}>
-              <View
-                style={{
-                  position: "absolute",
-                  bottom: 0,
-                  right: 0,
-                  backgroundColor: "#1DA1F2",
-                  borderRadius: 999,
-                  padding: 4,
-                }}
-              >
-                <AntDesign name="plus" size={14} color="white" />
-              </View>
+            <TouchableOpacity
+              onPress={() => setStoryMode(true)}
+              disabled={isUploading}
+              accessibilityLabel="Create story"
+              accessibilityRole="button"
+              className="absolute bottom-0 right-0 rounded-full p-1 bg-blue-500"
+            >
+              <AntDesign name="plus" size={14} color="white" />
             </TouchableOpacity>
           )}
         </View>
@@ -124,7 +151,7 @@ const ProfileAvatar = ({
         animationType="fade"
         onRequestClose={() => setModalVisible(false)}
       >
-        <View className="flex-1">
+        <SafeAreaView className="flex-1">
           <BlurView
             intensity={60}
             tint={colorScheme === "dark" ? "dark" : "light"}
@@ -147,21 +174,31 @@ const ProfileAvatar = ({
                   : "bg-white/80 border-gray-200"
               }`}
             >
-              {/* Avatar */}
               <View
-                className={`overflow-hidden border-4 ${
-                  colorScheme === "dark" ? "border-white/20" : "border-white"
-                } rounded-full shadow-xl mb-4`}
+                className={`overflow-hidden border-4 rounded-full shadow-xl mb-4`}
                 style={{ width: 200, height: 200 }}
               >
-                <Image
-                  source={{ uri: imageUrl }}
-                  className="w-full h-full"
-                  resizeMode="cover"
-                />
+                {imageUrl ? (
+                  <Image
+                    source={{ uri: imageUrl }}
+                    className="w-full h-full"
+                    resizeMode="cover"
+                  />
+                ) : ownerProfileImage ? (
+                  <Image
+                    source={{ uri: ownerProfileImage }}
+                    className="w-full h-full"
+                    resizeMode="cover"
+                  />
+                ) : (
+                  <View
+                    className={`${
+                      colorScheme === "dark" ? "bg-gray-700" : "bg-gray-200"
+                    } w-full h-full`}
+                  />
+                )}
               </View>
 
-              {/* Username */}
               <Text
                 className={`text-lg font-semibold mb-2 ${
                   colorScheme === "dark" ? "text-white" : "text-black"
@@ -171,10 +208,13 @@ const ProfileAvatar = ({
               </Text>
 
               {!isOwner && (
-                <View className="flex-row mt-4 space-x-4">
-                  {/* Follow Button */}
+                <View className="flex-row mt-4 space-x-4 gap-x-2">
                   <TouchableOpacity
                     onPress={toggleFollow}
+                    accessibilityLabel={
+                      isFollowing ? "Unfollow user" : "Follow user"
+                    }
+                    accessibilityRole="button"
                     className={`px-5 py-2 rounded-full flex-row items-center gap-x-2 ${
                       colorScheme === "dark" ? "bg-white/90" : "bg-black"
                     }`}
@@ -193,11 +233,14 @@ const ProfileAvatar = ({
                     </Text>
                   </TouchableOpacity>
 
-                  {/* Notifications */}
                   <TouchableOpacity
-                    onPress={() =>
-                      setNotificationsEnabled(!notificationsEnabled)
+                    onPress={handleToggleNotifications}
+                    accessibilityLabel={
+                      notificationsEnabled
+                        ? "Mute notifications"
+                        : "Unmute notifications"
                     }
+                    accessibilityRole="button"
                     className={`px-5 py-2 rounded-full flex-row items-center gap-x-2 ${
                       colorScheme === "dark" ? "bg-white/90" : "bg-black"
                     }`}
@@ -221,13 +264,28 @@ const ProfileAvatar = ({
                   </TouchableOpacity>
                 </View>
               )}
+
+              <TouchableOpacity
+                onPress={() => setModalVisible(false)}
+                className={`mt-6 px-6 py-2 rounded-full border border-gray-300  ${
+                  colorScheme === "dark" ? "bg-dark" : "bg-white"
+                }`}
+              >
+                <Text
+                  className={`text-center text-sm ${
+                    colorScheme === "dark" ? "text-white" : "text-black"
+                  }`}
+                >
+                  Close
+                </Text>
+              </TouchableOpacity>
             </View>
           </BlurView>
-        </View>
+        </SafeAreaView>
       </Modal>
 
       <ImageUploadModal
-        loading={loading}
+        loading={isUploading}
         visible={storyMode}
         onClose={() => setStoryMode(false)}
         onImageSelected={handleImageUpload}
@@ -238,4 +296,4 @@ const ProfileAvatar = ({
   );
 };
 
-export default ProfileAvatar;
+export default React.memo(ProfileAvatar);

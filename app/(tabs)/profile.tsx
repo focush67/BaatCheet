@@ -9,16 +9,12 @@ import { Statistics } from "@/components/profile/Statistics";
 import { useTheme } from "@/context/ThemeContext";
 import { useUser } from "@clerk/clerk-expo";
 import { useLocalSearchParams } from "expo-router";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState, useMemo } from "react";
 import { ScrollView, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { getPostsForUser, getPostsSaved } from "@/services/postService";
 import { BlurView } from "expo-blur";
-import {
-  followUser,
-  getFollowStatus,
-  unfollowUser,
-} from "@/services/userService";
+import useFollow from "@/hooks/user/useFollow";
 
 type ProfileScreenProps = {
   username: string;
@@ -34,32 +30,62 @@ const ProfileScreen = () => {
   const { colorScheme } = useTheme();
   const { username, avatar, userEmail, isExternalProfile, ownerName, caption } =
     useLocalSearchParams<ProfileScreenProps>();
-  if (username) {
-    console.log(`Username from params: ${username}`);
-  }
 
-  const [isFollowing, setIsFollowing] = useState(false);
-  const isPersonalProfile = !isExternalProfile;
+  const isExternal = useMemo(
+    () => String(isExternalProfile) === "true",
+    [isExternalProfile]
+  );
 
-  const currentUsername = isPersonalProfile
-    ? (user?.unsafeMetadata?.username as string)
-    : (username as string);
+  const isPersonalProfile = !isExternal;
+  const sessionEmail = useMemo(
+    () => user?.emailAddresses[0]?.emailAddress,
+    [user?.emailAddresses]
+  );
 
-  const currentProfileName = isPersonalProfile
-    ? (user?.unsafeMetadata.ownerName as string)
-    : ownerName;
+  const currentUsername = useMemo(
+    () =>
+      isPersonalProfile
+        ? (user?.unsafeMetadata?.username as string | undefined)
+        : (username as string | undefined),
+    [isPersonalProfile, user?.unsafeMetadata?.username, username]
+  );
 
-  const currentUserEmail = isPersonalProfile
-    ? (user?.emailAddresses[0].emailAddress as string)
-    : undefined;
+  const currentProfileName = useMemo(
+    () =>
+      isPersonalProfile
+        ? (user?.unsafeMetadata?.ownerName as string | undefined)
+        : (ownerName as string | undefined),
+    [isPersonalProfile, user?.unsafeMetadata?.ownerName, ownerName]
+  );
 
-  const currentUserAvatar = isPersonalProfile
-    ? (user?.unsafeMetadata?.profilePicture as string)
-    : (avatar as string);
+  const currentUserEmail = useMemo(
+    () =>
+      isPersonalProfile
+        ? (user?.emailAddresses?.[0]?.emailAddress as string | undefined)
+        : (userEmail as string | undefined),
+    [isPersonalProfile, user?.emailAddresses, userEmail]
+  );
 
-  const currentUserCaption = isPersonalProfile
-    ? (user?.unsafeMetadata.caption as string)
-    : caption;
+  const currentUserAvatar = useMemo(
+    () =>
+      isPersonalProfile
+        ? (user?.unsafeMetadata?.profilePicture as string | undefined)
+        : (avatar as string | undefined),
+    [isPersonalProfile, user?.unsafeMetadata?.profilePicture, avatar]
+  );
+
+  const currentUserCaption = useMemo(
+    () =>
+      isPersonalProfile
+        ? (user?.unsafeMetadata?.caption as string | undefined)
+        : (caption as string | undefined),
+    [isPersonalProfile, user?.unsafeMetadata?.caption, caption]
+  );
+
+  const { isFollowing, toggleFollow } = useFollow(
+    sessionEmail,
+    currentUserEmail
+  );
 
   const [posts, setPosts] = useState<GridPost[]>([]);
   const [savedPosts, setSavedPosts] = useState<GridPost[]>([]);
@@ -69,82 +95,76 @@ const ProfileScreen = () => {
   const [previewVisible, setPreviewVisible] = useState(false);
   const [profileModalVisible, setProfileModalVisible] = useState(false);
 
-  const profileData = {
-    username: currentUsername,
-    name: currentProfileName,
-    bio: currentUserCaption,
-    picture: currentUserAvatar,
-  };
+  const profileData = useMemo(
+    () => ({
+      username: currentUsername,
+      name: currentProfileName,
+      bio: currentUserCaption,
+      picture: currentUserAvatar,
+    }),
+    [currentUsername, currentProfileName, currentUserCaption, currentUserAvatar]
+  );
 
   useEffect(() => {
-    const getRelationship = async () => {
-      const sessionEmail = user?.emailAddresses[0].emailAddress;
-      if (!sessionEmail || !userEmail) {
-        console.error("Session email or user email is not available");
-        return;
-      }
-      console.log(`Source ID ${sessionEmail}: Target ID ${userEmail}`);
-      const status = await getFollowStatus(sessionEmail!, userEmail);
-      console.log(`Status of follow`, status);
-      setIsFollowing(status);
-    };
-    if (!userEmail) {
-      return;
-    }
-    getRelationship();
-  }, [user, userEmail]);
+    let mounted = true;
 
-  useEffect(() => {
     const fetchSaved = async () => {
-      let posts = [];
-      if (isPersonalProfile) {
-        posts = await getPostsSaved(currentUserEmail, undefined);
-      } else {
-        posts = await getPostsSaved(undefined, currentUsername);
+      try {
+        let result: GridPost[] = [];
+        if (isPersonalProfile) {
+          result = (await getPostsSaved(
+            currentUserEmail,
+            undefined
+          )) as GridPost[];
+        } else {
+          result = (await getPostsSaved(
+            undefined,
+            currentUsername
+          )) as GridPost[];
+        }
+        if (mounted) setSavedPosts(result);
+      } catch (err) {
+        console.error("Failed to fetch saved posts", err);
       }
-      setSavedPosts(posts);
     };
 
     const fetchPersonalPosts = async () => {
-      let createdPosts = [];
-      if (isPersonalProfile) {
-        createdPosts = await getPostsForUser(currentUserEmail, undefined);
-      } else {
-        createdPosts = await getPostsForUser(undefined, currentUsername);
+      try {
+        let result: GridPost[] = [];
+        if (isPersonalProfile) {
+          result = (await getPostsForUser(
+            currentUserEmail,
+            undefined
+          )) as GridPost[];
+        } else {
+          result = (await getPostsForUser(
+            undefined,
+            currentUsername
+          )) as GridPost[];
+        }
+        if (mounted) setPosts(result);
+      } catch (err) {
+        console.error("Failed to fetch posts for profile", err);
       }
-      setPosts(createdPosts as GridPost[]);
     };
 
     fetchSaved();
     fetchPersonalPosts();
-  }, [userEmail, currentUserEmail, currentUsername, isPersonalProfile]);
 
-  const handleFollowToggle = useCallback(async () => {
-    if (!user?.emailAddresses[0].emailAddress || !userEmail) return;
-    const sessionEmail = user?.emailAddresses[0].emailAddress;
-    let updatedStatus = null;
-    console.log(`Follow Status`, isFollowing);
-    if (isFollowing) {
-      updatedStatus = await unfollowUser(sessionEmail, userEmail);
-      console.log(`Initiated unfollow`);
-      setIsFollowing(false);
-    } else {
-      updatedStatus = await followUser(sessionEmail, userEmail);
-      console.log(`Initiated follow`);
-      setIsFollowing(true);
-    }
-  }, [user?.emailAddresses, userEmail]);
+    return () => {
+      mounted = false;
+    };
+  }, [isPersonalProfile, currentUserEmail, currentUsername]);
 
-  const handleLongPress = (post: GridPost | null) => {
-    console.log("Setting preview post:", post);
+  const handleLongPress = useCallback((post: GridPost | null) => {
     setPreviewPost(post);
     setPreviewVisible(true);
-  };
+  }, []);
 
-  const handlePressOut = () => {
+  const handlePressOut = useCallback(() => {
     setPreviewVisible(false);
     setPreviewPost(null);
-  };
+  }, []);
 
   const renderTabContent = () => {
     switch (activeTab) {
@@ -197,28 +217,28 @@ const ProfileScreen = () => {
       <ScrollView>
         <View className="px-4">
           <ProfileHeader
-            username={profileData.username}
+            username={profileData.username!}
             self={isPersonalProfile}
           />
 
           <View className="flex-row items-center mt-3">
             <ProfileAvatar
               size={86}
-              username={currentUsername}
+              username={currentUsername!}
               imageUrl={avatar}
-              isFollowing={isFollowing}
-              toggleFollow={handleFollowToggle}
+              isFollowing={isFollowing || false}
+              toggleFollow={toggleFollow}
               modalVisible={profileModalVisible}
               setModalVisible={setProfileModalVisible}
             />
             <Statistics posts={124} followers={"4.5k"} following={"300"} />
           </View>
 
-          <Bio name={profileData.name} bio={profileData.bio} />
+          <Bio name={profileData.name!} bio={profileData.bio!} />
           <ProfileActions
             self={isPersonalProfile}
-            isFollowing={isFollowing}
-            toggleFollow={handleFollowToggle}
+            isFollowing={isFollowing || false}
+            toggleFollow={toggleFollow}
           />
         </View>
 
